@@ -7,7 +7,6 @@ import {
   useTransform,
   useSpring,
   useMotionValue,
-  useMotionTemplate,
 } from "framer-motion";
 import {
   Stethoscope, Layers, Globe, ArrowRight, Lock, Building2,
@@ -320,14 +319,9 @@ export default function PortfolioSection() {
   const rightRY  = useTransform(s, [0.26, 0.44], [28, 0]);
   const rightSc  = useTransform(s, [0.26, 0.44], [0.82, 1]);
 
-  // ── 4th card (drops from above with blur)
-  const c4O      = useTransform(s, [0.42, 0.58], [0, 1]);
-  const c4Y      = useTransform(s, [0.42, 0.58], [-70, 0]);
-  const c4Blur   = useTransform(s, [0.42, 0.58], [12, 0]);
-
   // ── CTA
-  const ctaO     = useTransform(s, [0.54, 0.68], [0, 1]);
-  const ctaY     = useTransform(s, [0.54, 0.68], [30, 0]);
+  const ctaO     = useTransform(s, [0.46, 0.60], [0, 1]);
+  const ctaY     = useTransform(s, [0.46, 0.60], [30, 0]);
 
   // ── Background orbs parallax
   const orb1Y    = useTransform(s, [0, 1], ["-20%", "20%"]);
@@ -421,20 +415,14 @@ export default function PortfolioSection() {
           </div>
         </div>
 
-        {/* ── 4th card + CTA ── */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-center">
-          <motion.div style={{ y: c4Y, opacity: c4O, filter: useMotionTemplate`blur(${c4Blur}px)`, transformStyle: "preserve-3d" }}>
-            <ProjectCard project={projects[3]} />
-          </motion.div>
-
-          <motion.div
-            style={{ opacity: ctaO, y: ctaY }}
-            className="md:col-span-2 flex flex-col items-center justify-center gap-5 rounded-3xl border border-white/[0.04] bg-white/[0.015] backdrop-blur-sm py-12 px-8"
-          >
-            <p className="text-white/25 text-[10px] uppercase tracking-[0.3em] font-mono">Ready for similar results?</p>
-            <SpectacularButton />
-          </motion.div>
-        </div>
+        {/* ── CTA ── */}
+        <motion.div
+          style={{ opacity: ctaO, y: ctaY }}
+          className="flex flex-col items-center gap-5 py-8"
+        >
+          <p className="text-white/25 text-[10px] uppercase tracking-[0.3em] font-mono">Ready for similar results?</p>
+          <SpectacularButton />
+        </motion.div>
 
       </div>
     </section>
