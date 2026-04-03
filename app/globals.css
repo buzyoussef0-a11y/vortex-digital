@@ -1,26 +1,226 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #00050A;
+  --foreground: #ffffff;
+  --cyan: #00E5FF;
+  --cyan-glow: rgba(0, 229, 255, 0.15);
+  --purple: #7B61FF;
+  --purple-glow: rgba(123, 97, 255, 0.1);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-space-grotesk);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* ── BASE ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #00050A;
+  color: #ffffff;
+  font-family: var(--font-space-grotesk), 'Space Grotesk', sans-serif;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ── GLOBAL BACKGROUND CANVAS ─────────────────────────────── */
+/* Luxury dual-color background with aurora effect */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 20%, rgba(0, 229, 255, 0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 70%, rgba(123, 97, 255, 0.06) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 60% at 50% 100%, rgba(0, 229, 255, 0.04) 0%, transparent 50%),
+    #00050A;
+  pointer-events: none;
+}
+
+/* Subtle grid texture */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(rgba(0, 229, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 255, 0.03) 1px, transparent 1px);
+  background-size: 80px 80px;
+  pointer-events: none;
+  mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
+}
+
+/* ── SECTION BACKGROUNDS ─────────────────────────────────── */
+/* Alternating depth creates visual rhythm */
+#portfolio {
+  background: linear-gradient(180deg, #00050A 0%, #010912 50%, #00050A 100%);
+  position: relative;
+}
+#testimonials {
+  background: linear-gradient(180deg, #00050A 0%, #010810 50%, #00050A 100%);
+}
+#pricing {
+  background: linear-gradient(180deg, #00050A 0%, #010D1A 60%, #00050A 100%);
+  position: relative;
+}
+#pricing::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 50% at 50% 50%, rgba(0, 229, 255, 0.04) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ── SECTION DIVIDERS ─────────────────────────────────────── */
+#portfolio::before,
+#about::before,
+#pricing::before {
+  content: '';
+  display: block;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(0,229,255,0.2) 30%, rgba(123,97,255,0.15) 70%, transparent);
+  margin-bottom: 0;
+}
+
+/* ── TEXT CONTRAST SYSTEM ──────────────────────────────────── */
+.text-zinc-500, [class*="text-zinc-500"] {
+  color: rgba(255,255,255,0.58) !important;
+}
+.text-zinc-400, [class*="text-zinc-400"] {
+  color: rgba(255,255,255,0.68) !important;
+}
+.text-zinc-600, [class*="text-zinc-600"] {
+  color: rgba(255,255,255,0.45) !important;
+}
+
+/* ── PREMIUM BUTTON SYSTEM ─────────────────────────────────── */
+
+/* Primary cyan button — glowing */
+.btn-vortex-primary,
+a[class*="bg-[#00E5FF]"],
+button[class*="bg-[#00E5FF]"] {
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 0 20px rgba(0, 229, 255, 0.4),
+    0 0 60px rgba(0, 229, 255, 0.15),
+    inset 0 1px 0 rgba(255,255,255,0.2) !important;
+  transition: all 0.3s ease !important;
+}
+
+/* Shine sweep effect on hover */
+a[class*="bg-[#00E5FF]"]::after,
+button[class*="bg-[#00E5FF]"]::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.5s ease;
+  pointer-events: none;
+}
+
+a[class*="bg-[#00E5FF]"]:hover::after,
+button[class*="bg-[#00E5FF]"]:hover::after {
+  left: 150%;
+}
+
+a[class*="bg-[#00E5FF]"]:hover,
+button[class*="bg-[#00E5FF]"]:hover {
+  box-shadow:
+    0 0 35px rgba(0, 229, 255, 0.6),
+    0 0 100px rgba(0, 229, 255, 0.25),
+    inset 0 1px 0 rgba(255,255,255,0.25) !important;
+  transform: translateY(-1px);
+}
+
+/* Ghost/outline buttons */
+a[class*="border-[#00E5FF]"][class*="text-[#00E5FF]"],
+button[class*="border-[#00E5FF]"][class*="text-[#00E5FF]"] {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease !important;
+  box-shadow:
+    0 0 10px rgba(0, 229, 255, 0.1),
+    inset 0 0 10px rgba(0, 229, 255, 0.03) !important;
+}
+
+a[class*="border-[#00E5FF]"][class*="text-[#00E5FF]"]:hover,
+button[class*="border-[#00E5FF]"][class*="text-[#00E5FF]"]:hover {
+  box-shadow:
+    0 0 20px rgba(0, 229, 255, 0.25),
+    inset 0 0 20px rgba(0, 229, 255, 0.05) !important;
+  background: rgba(0, 229, 255, 0.06) !important;
+}
+
+/* ── PREMIUM CARD SYSTEM ───────────────────────────────────── */
+
+/* Boost all glassmorphism cards */
+[class*="bg-white/[0.02]"],
+[class*="bg-white/[0.03]"],
+[class*="bg-[#00E5FF]/[0.025]"],
+[class*="bg-[#00E5FF]/[0.03]"] {
+  background: rgba(0, 229, 255, 0.04) !important;
+  border-color: rgba(0, 229, 255, 0.2) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+}
+
+/* Card hover glow */
+[class*="hover:border-[#00E5FF]"]:hover {
+  border-color: rgba(0, 229, 255, 0.45) !important;
+  box-shadow:
+    0 0 30px rgba(0, 229, 255, 0.12),
+    0 0 60px rgba(0, 229, 255, 0.05),
+    inset 0 0 30px rgba(0, 229, 255, 0.02) !important;
+}
+
+/* ── PRICING FEATURED CARD ─────────────────────────────────── */
+[class*="scale-105"][class*="shadow-[0_0_60px"] {
+  background: rgba(0, 229, 255, 0.07) !important;
+  border-color: rgba(0, 229, 255, 0.5) !important;
+  box-shadow:
+    0 0 80px rgba(0, 229, 255, 0.2),
+    0 0 160px rgba(0, 229, 255, 0.08),
+    0 0 1px rgba(0, 229, 255, 0.6),
+    inset 0 0 40px rgba(0, 229, 255, 0.03) !important;
+}
+
+/* ── SCROLLBAR ─────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #00050A; }
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 229, 255, 0.3);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(0, 229, 255, 0.6); }
+
+/* ── SELECTION ─────────────────────────────────────────────── */
+::selection {
+  background: rgba(0, 229, 255, 0.25);
+  color: white;
+}
+
+/* ── FOCUS RING ────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid rgba(0, 229, 255, 0.5);
+  outline-offset: 2px;
+}
+
+/* ── PATTERN UTILITY (kept for PortfolioSection) ──────────── */
+.pattern-grid-cyan {
+  background-image: linear-gradient(rgba(0, 229, 255, 0.2) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(0, 229, 255, 0.2) 1px, transparent 1px);
+  background-size: 32px 32px;
 }

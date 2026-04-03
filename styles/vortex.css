@@ -38,9 +38,7 @@ body {
     -webkit-text-fill-color: transparent;
 }
 
-.hero-gradient {
-    background: radial-gradient(circle at center, rgba(0, 229, 255, 0.1) 0%, transparent 70%);
-}
+
 
 canvas {
     display: block;

@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 
-const Card = ({ title, description, accent }: { title: string; description: string; accent: string }) => {
+const Card = ({ title, description, accent, videoSrc, imageSrc, imageGlow }: { title: string; description: string; accent: string; videoSrc: string; imageSrc?: string; imageGlow?: React.ReactNode }) => {
     const x = useMotionValue(0);
     const y = useMotionValue(0);
 
@@ -33,34 +33,94 @@ const Card = ({ title, description, accent }: { title: string; description: stri
         y.set(0);
     };
 
+    // Split title: first word(s) white, last word cyan
+    const titleWords = title.split(" ");
+    const titleLastWord = titleWords[titleWords.length - 1];
+    const titleFirstWords = titleWords.slice(0, -1).join(" ");
+
     return (
         <motion.div
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
             style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-            className="relative h-96 w-72 rounded-xl glass p-8 flex flex-col justify-end gap-4 cursor-pointer group"
+            className="relative h-96 w-72 rounded-xl glass p-8 flex flex-col justify-end gap-4 cursor-pointer group overflow-hidden border border-[rgba(0,229,255,0.25)] hover:border-[rgba(0,229,255,0.5)] hover:shadow-[0_0_30px_rgba(0,229,255,0.18)] transition-all duration-300"
         >
+            {/* Cyan ambient glow — top of card behind video */}
+            <div
+                className="absolute top-0 left-0 right-0 h-1/2 pointer-events-none z-[1]"
+                style={{ background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,229,255,0.10) 0%, transparent 70%)" }}
+            />
+
+            {/* Corner accents — top-left */}
+            <div className="absolute top-3.5 left-3.5 pointer-events-none z-20">
+                <div className="absolute top-0 left-0 w-5 h-[2px] rounded-full" style={{ background: "linear-gradient(to right, #00E5FF, transparent)", boxShadow: "0 0 5px rgba(0,229,255,0.7)" }} />
+                <div className="absolute top-0 left-0 w-[2px] h-5 rounded-full" style={{ background: "linear-gradient(to bottom, #00E5FF, transparent)", boxShadow: "0 0 5px rgba(0,229,255,0.7)" }} />
+            </div>
+            {/* Corner accents — bottom-right */}
+            <div className="absolute bottom-3.5 right-3.5 pointer-events-none z-20">
+                <div className="absolute bottom-0 right-0 w-5 h-[2px] rounded-full" style={{ background: "linear-gradient(to left, #00E5FF, transparent)", boxShadow: "0 0 5px rgba(0,229,255,0.7)" }} />
+                <div className="absolute bottom-0 right-0 w-[2px] h-5 rounded-full" style={{ background: "linear-gradient(to top, #00E5FF, transparent)", boxShadow: "0 0 5px rgba(0,229,255,0.7)" }} />
+            </div>
+
+            {/* Rich background image layer */}
+            {imageSrc && (
+                <div className="absolute inset-0 overflow-hidden rounded-xl z-0">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                        src={imageSrc}
+                        alt=""
+                        className="w-full h-full object-cover"
+                        style={{ opacity: 0.18 }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#00050A] via-[#00050A]/65 to-[#00050A]/25" />
+                    {imageGlow}
+                </div>
+            )}
+
+            <video
+                src={videoSrc}
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="none"
+                className="absolute inset-0 w-full h-full object-cover z-0 opacity-50"
+            />
+
+            <div className="absolute inset-0 bg-gradient-to-t from-[#00050A] via-[#00050A]/80 to-transparent z-0" />
+
+            {/* Extra dark gradient specifically behind the text area */}
+            <div
+                className="absolute inset-x-0 bottom-0 h-44 pointer-events-none z-[5]"
+                style={{ background: "linear-gradient(to top, rgba(0,5,10,0.97) 0%, rgba(0,5,10,0.75) 50%, transparent 100%)" }}
+            />
+
             <div
                 style={{ transform: "translateZ(75px)" }}
-                className="absolute top-10 left-10 text-4xl opacity-20 transition-all group-hover:opacity-100 group-hover:scale-110"
+                className="absolute top-10 left-10 text-4xl opacity-20 transition-all group-hover:opacity-100 group-hover:scale-110 z-10"
             >
                 <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center">
                     <div className="w-2 h-2 rounded-full bg-[#00E5FF]" />
                 </div>
             </div>
 
-            <div style={{ transform: "translateZ(50px)" }}>
-                <h3 className="text-2xl font-bold uppercase tracking-tighter leading-none mb-2">
-                    {title}
+            <div style={{ transform: "translateZ(50px)" }} className="relative z-10">
+                <h3 className="text-3xl font-black uppercase tracking-tighter leading-none mb-2.5">
+                    {titleFirstWords && (
+                        <span className="text-white">{titleFirstWords} </span>
+                    )}
+                    <span style={{ color: "#00E5FF", textShadow: "0 0 18px rgba(0,229,255,0.65)" }}>
+                        {titleLastWord}
+                    </span>
                 </h3>
-                <p className="text-zinc-500 text-sm leading-relaxed">
+                <p className="text-white/70 text-sm leading-relaxed">
                     {description}
                 </p>
             </div>
 
             <div
                 style={{ backgroundColor: accent, transform: "translateZ(20px)" }}
-                className="absolute bottom-0 left-0 w-full h-1 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"
+                className="absolute bottom-0 left-0 w-full h-1 scale-x-0 group-hover:scale-x-100 transition-transform origin-left z-10"
             />
         </motion.div>
     );
@@ -73,16 +133,25 @@ export default function Services() {
                 title="Premium Design"
                 description="Crafting high-end immersive experiences that define luxury in the digital age."
                 accent="#00E5FF"
+                videoSrc="/video/Glass_panels_floating_in_void_bc8ff65000.mp4"
+                imageSrc="https://images.unsplash.com/photo-1629909615184-74f495363b67?w=700&q=80"
+                imageGlow={<div className="absolute -top-10 -right-10 w-40 h-40 bg-[#00E5FF]/10 rounded-full blur-[40px]" />}
             />
             <Card
                 title="AI Automation"
                 description="Intelligent systems designed to handle the heavy lifting while you scale your empire."
                 accent="#FFFFFF"
+                videoSrc="/video/Microchip_core_glowing_data_bursts_c78ba8da6f.mp4"
+                imageSrc="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=700&q=80"
+                imageGlow={<div className="absolute -bottom-10 -left-10 w-48 h-48 bg-[#00E5FF]/8 rounded-full blur-[50px]" />}
             />
             <Card
                 title="Digital Identity"
                 description="Exclusive brand architectures for the forward-thinking visionaries."
                 accent="#00E5FF"
+                videoSrc="/video/Abstract_emblem_forming_in_space_e001b56b92.mp4"
+                imageSrc="https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=700&q=80"
+                imageGlow={<div className="absolute top-1/2 right-0 w-32 h-32 bg-[#7B61FF]/10 rounded-full blur-[40px]" />}
             />
         </section>
     );
