@@ -291,9 +291,12 @@ export default function PortfolioSection() {
   const s = useSpring(scrollYProgress, { stiffness: 50, damping: 16, restDelta: 0.001 });
 
   // ── Header
-  const hdrO = useTransform(s, [0.05, 0.18], [0, 1]);
-  const hdrY = useTransform(s, [0.05, 0.18], [50, 0]);
-  const lineW = useTransform(s, [0.05, 0.2], [0, 40]);
+  const hdrO    = useTransform(s, [0.05, 0.18], [0, 1]);
+  const hdrY    = useTransform(s, [0.05, 0.18], [50, 0]);
+  const lineW   = useTransform(s, [0.05, 0.2], [0, 40]);
+  // Title words — scroll-driven (no whileInView inside overflow-hidden)
+  const word0Y  = useTransform(s, [0.05, 0.20], ["110%", "0%"]);
+  const word1Y  = useTransform(s, [0.08, 0.23], ["110%", "0%"]);
 
   // ── Center card (entry from below, spotlight burst)
   const midO     = useTransform(s, [0.12, 0.28], [0, 1]);
@@ -363,21 +366,24 @@ export default function PortfolioSection() {
           </div>
 
           <div className="overflow-hidden flex gap-5">
-            {["Our", "Impact"].map((word, wi) => (
-              <motion.span
-                key={word}
-                className={`block text-5xl md:text-8xl font-black tracking-tighter uppercase`}
-                style={wi === 0
-                  ? { color: "#ffffff" }
-                  : { backgroundImage: "linear-gradient(135deg,#00E5FF 0%,#ffffff 100%)", WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent" }}
-                initial={{ y: "110%" }}
-                whileInView={{ y: "0%" }}
-                viewport={{ once: true, margin: "-120px" }}
-                transition={{ duration: 0.8, delay: wi * 0.12, ease: [0.22, 1, 0.36, 1] }}
-              >
-                {word}
-              </motion.span>
-            ))}
+            <motion.span
+              className="block text-5xl md:text-8xl font-black tracking-tighter uppercase text-white"
+              style={{ y: word0Y }}
+            >
+              Our
+            </motion.span>
+            <motion.span
+              className="block text-5xl md:text-8xl font-black tracking-tighter uppercase"
+              style={{
+                y: word1Y,
+                backgroundImage: "linear-gradient(135deg,#00E5FF 0%,#ffffff 100%)",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              Impact
+            </motion.span>
           </div>
 
           <p dir="rtl" className="text-white/40 text-lg md:text-xl font-light tracking-wide text-center max-w-xl">
