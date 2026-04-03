@@ -1,7 +1,14 @@
 "use client";
 
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useRef, useState, useCallback } from "react";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useSpring,
+  useMotionValue,
+  useInView,
+} from "framer-motion";
 import {
   Stethoscope,
   Layers,
@@ -12,12 +19,9 @@ import {
 } from "lucide-react";
 import { useCountUp } from "@/hooks/useCountUp";
 
-// --- Types ---
+// ─── Types ────────────────────────────────────────────────────────────────────
 
-interface Stat {
-  value: string;
-  label: string;
-}
+interface Stat { value: string; label: string }
 
 interface CaseStudy {
   id: string;
@@ -33,7 +37,7 @@ interface CaseStudy {
   imagePath?: string;
 }
 
-// --- Data ---
+// ─── Data ─────────────────────────────────────────────────────────────────────
 
 const projects: CaseStudy[] = [
   {
@@ -102,295 +106,559 @@ const projects: CaseStudy[] = [
   },
 ];
 
-// --- AnimatedStat ---
+// ─── Animated Stat ─────────────────────────────────────────────────────────────
 
 const AnimatedStat = ({ value, label }: { value: string; label: string }) => {
   const match = value.match(/\d+/);
   const numericEnd = match ? parseInt(match[0]) : null;
-
-  const { ref, count } = useCountUp({
-    end: numericEnd ?? 0,
-    duration: 1500,
-    start: 0,
-  });
-
-  const displayValue =
-    numericEnd !== null ? value.replace(match![0], count.toString()) : value;
+  const { ref, count } = useCountUp({ end: numericEnd ?? 0, duration: 1500, start: 0 });
+  const displayValue = numericEnd !== null ? value.replace(match![0], count.toString()) : value;
 
   return (
-    <div ref={ref as React.RefObject<HTMLDivElement>} className="flex flex-col">
-      <span className="text-2xl font-bold bg-gradient-to-r from-[#00E5FF] to-white bg-clip-text text-transparent font-space-grotesk">
+    <div ref={ref as React.RefObject<HTMLDivElement>} className="flex flex-col gap-0.5">
+      <span className="text-xl font-black bg-gradient-to-r from-[#00E5FF] to-white bg-clip-text text-transparent font-mono tracking-tight">
         {displayValue}
       </span>
-      <span className="text-[10px] text-white/40 uppercase tracking-widest font-mono">
+      <span className="text-[9px] text-white/35 uppercase tracking-[0.15em] font-mono">
         {label}
       </span>
     </div>
   );
 };
 
-// --- ProjectCard ---
+// ─── Rotating Border ───────────────────────────────────────────────────────────
+
+const RotatingBorder = ({ active }: { active: boolean }) => (
+  <div className="absolute inset-0 rounded-[28px] overflow-hidden pointer-events-none">
+    <motion.div
+      className="absolute w-[200%] h-[200%] -top-1/2 -left-1/2"
+      style={{
+        background:
+          "conic-gradient(from 0deg, transparent 0deg, transparent 120deg, rgba(0,229,255,0.6) 180deg, transparent 240deg, transparent 360deg)",
+      }}
+      animate={{ rotate: 360 }}
+      transition={{ duration: active ? 3 : 6, repeat: Infinity, ease: "linear" }}
+    />
+    <div className="absolute inset-[1px] rounded-[27px] bg-[#010912]" />
+  </div>
+);
+
+// ─── Project Card ──────────────────────────────────────────────────────────────
 
 const ProjectCard = ({
   project,
   index,
+  scrollY,
 }: {
   project: CaseStudy;
   index: number;
+  scrollY: ReturnType<typeof useTransform<number, number>>;
 }) => {
+  const [hovered, setHovered] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(cardRef, { once: true, margin: "-80px" });
+
+  const rawX = useMotionValue(0);
+  const rawY = useMotionValue(0);
+  const springX = useSpring(rawX, { stiffness: 200, damping: 22 });
+  const springY = useSpring(rawY, { stiffness: 200, damping: 22 });
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    rawX.set(((e.clientY - cy) / (rect.height / 2)) * -7);
+    rawY.set(((e.clientX - cx) / (rect.width / 2)) * 7);
+  }, [rawX, rawY]);
+
+  const handleMouseLeave = useCallback(() => {
+    setHovered(false);
+    rawX.set(0);
+    rawY.set(0);
+  }, [rawX, rawY]);
+
+  const cardVariants = {
+    hidden: {
+      opacity: 0,
+      y: 60,
+      rotateX: 12,
+      scale: 0.95,
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      rotateX: 0,
+      scale: 1,
+      transition: {
+        duration: 0.9,
+        delay: index * 0.15,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.8, delay: index * 0.12, ease: [0.21, 1.02, 0.47, 0.98] }}
-      whileHover="hover"
-      className="relative group overflow-hidden rounded-3xl border border-[#00E5FF]/25 bg-[#00E5FF]/[0.05] backdrop-blur-2xl transition-all duration-700 hover:border-cyan-500/50 hover:shadow-[0_0_40px_rgba(0,229,255,0.22)] flex flex-col"
+      ref={cardRef}
+      style={{ y: scrollY, rotateX: springX, rotateY: springY, transformStyle: "preserve-3d", perspective: 1000 }}
+      variants={cardVariants}
+      initial="hidden"
+      animate={isInView ? "visible" : "hidden"}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={handleMouseLeave}
+      className="relative flex flex-col group"
     >
-      {/* Top glowing line */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#00E5FF]/50 to-transparent z-10 pointer-events-none" />
+      {/* Rotating gradient border */}
+      <RotatingBorder active={hovered} />
 
-      {/* Animated shimmer on hover */}
-      <div className="absolute inset-0 z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-        <div className="absolute inset-[-1px] bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent blur-sm transform -translate-x-full group-hover:translate-x-full transition-transform duration-[1500ms] ease-in-out" />
-      </div>
+      {/* Outer glow on hover */}
+      <motion.div
+        className="absolute -inset-[1px] rounded-[28px] pointer-events-none"
+        animate={{
+          boxShadow: hovered
+            ? "0 0 60px rgba(0,229,255,0.18), 0 0 120px rgba(0,229,255,0.08), inset 0 0 60px rgba(0,229,255,0.04)"
+            : "0 0 0px rgba(0,229,255,0)",
+        }}
+        transition={{ duration: 0.5 }}
+      />
 
-      {/* Background Project Number */}
-      <div className="absolute top-4 right-8 text-[120px] font-black font-mono text-white/[0.03] select-none pointer-events-none leading-none z-0">
-        {project.id}
-      </div>
+      {/* Card body */}
+      <div className="relative z-10 rounded-[27px] overflow-hidden flex flex-col h-full bg-[#010912] border border-[#00E5FF]/[0.12]">
 
-      {/* Card Glows */}
-      <div className="absolute -top-16 -right-16 w-48 h-48 bg-cyan-500/10 blur-[80px] rounded-full group-hover:bg-cyan-500/18 transition-colors duration-700 pointer-events-none" />
-      <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-cyan-500/6 blur-[100px] rounded-full group-hover:bg-cyan-500/12 transition-colors duration-700 pointer-events-none" />
+        {/* Top edge glow line */}
+        <motion.div
+          className="absolute top-0 left-0 right-0 h-px pointer-events-none z-20"
+          animate={{
+            background: hovered
+              ? "linear-gradient(90deg, transparent 0%, rgba(0,229,255,0.8) 50%, transparent 100%)"
+              : "linear-gradient(90deg, transparent 0%, rgba(0,229,255,0.2) 50%, transparent 100%)",
+          }}
+          transition={{ duration: 0.5 }}
+        />
 
-      {/* Visual Workspace */}
-      <div className="relative overflow-hidden h-[220px] w-full">
-        {project.imagePath ? (
-          <img
-            src={project.imagePath}
-            alt={project.tagline}
-            className="absolute inset-0 w-full h-full object-cover object-center"
-            style={{ transition: "transform 0.6s ease" }}
+        {/* Shimmer sweep */}
+        <div className="absolute inset-0 z-10 overflow-hidden pointer-events-none">
+          <motion.div
+            className="absolute top-0 bottom-0 w-[60px] -skew-x-12"
+            style={{ background: "linear-gradient(90deg, transparent, rgba(0,229,255,0.06), transparent)" }}
+            initial={{ left: "-20%" }}
+            animate={hovered ? { left: "120%" } : { left: "-20%" }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
           />
-        ) : (
-          <div className="w-full h-full bg-[#00050A] flex items-center justify-center p-12">
-            <div className="absolute inset-0 opacity-[0.03] pattern-grid-cyan" />
-            <motion.div
-              variants={{ hover: { scale: 1.1, rotate: 5 } }}
-              className="relative z-10"
-            >
-              <project.icon className="w-20 h-20 text-cyan-500/20" strokeWidth={0.5} />
-            </motion.div>
-          </div>
-        )}
+        </div>
 
-        {/* Visual Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#000810] via-transparent to-transparent opacity-90" />
-        <div className="absolute inset-0 bg-[#000810]/10 mix-blend-overlay" />
+        {/* ── Image area ── */}
+        <div className="relative overflow-hidden h-[210px] flex-shrink-0">
+          {project.imagePath ? (
+            <>
+              <motion.img
+                src={project.imagePath}
+                alt={project.tagline}
+                className="absolute inset-0 w-full h-full object-cover object-center"
+                animate={{ scale: hovered ? 1.07 : 1 }}
+                transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              />
+              {/* Color overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#010912] via-[#010912]/40 to-transparent" />
+              <div className="absolute inset-0 bg-[#00E5FF]/[0.04] mix-blend-screen" />
+            </>
+          ) : (
+            <div className="w-full h-full bg-[#00050A] flex items-center justify-center">
+              <div
+                className="absolute inset-0 opacity-[0.04]"
+                style={{
+                  backgroundImage: `radial-gradient(circle at 1px 1px, rgba(0,229,255,1) 1px, transparent 0)`,
+                  backgroundSize: "32px 32px",
+                }}
+              />
+              <motion.div animate={{ scale: hovered ? 1.12 : 1, rotate: hovered ? 5 : 0 }} transition={{ duration: 0.6 }}>
+                <project.icon className="w-16 h-16 text-cyan-500/20" strokeWidth={0.75} />
+              </motion.div>
+            </div>
+          )}
 
-        {/* Labels overlay */}
-        <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between">
-          <div className="flex flex-col gap-1">
-            <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-cyan-400/80">
+          {/* Category + location bar */}
+          <div className="absolute bottom-0 left-0 right-0 p-4 flex items-end justify-between">
+            <span className="text-[9px] font-mono uppercase tracking-[0.25em] text-cyan-400/90 bg-[#010912]/70 backdrop-blur-sm px-2 py-1 rounded">
               {project.category}
             </span>
+            <span className="text-[9px] font-mono text-white/35 flex items-center gap-1">
+              <Globe className="w-2.5 h-2.5" /> {project.location}
+            </span>
           </div>
-          <div className="flex items-center gap-2 px-2 py-1 rounded bg-white/5 border border-white/5 backdrop-blur-md">
-            <Globe className="w-3 h-3 text-white/30" />
-            <span className="text-[9px] font-mono text-white/40 uppercase tracking-tighter">{project.location}</span>
+
+          {/* Big ID watermark */}
+          <div className="absolute top-3 right-4 text-[80px] font-black font-mono text-white/[0.04] select-none leading-none pointer-events-none">
+            {project.id}
           </div>
         </div>
-      </div>
 
-      {/* Content Section */}
-      <div className="relative z-10 flex flex-col flex-grow p-8">
-        <div className="flex flex-col gap-4">
-          <h3
+        {/* ── Content ── */}
+        <div className="flex flex-col flex-grow p-6 gap-4">
+
+          {/* Tagline */}
+          <motion.h3
             dir="rtl"
-            className="text-2xl md:text-3xl font-black text-white text-right leading-tight group-hover:text-cyan-400 transition-colors duration-500"
+            className="text-2xl md:text-[1.6rem] font-black text-white leading-snug text-right"
+            animate={{ color: hovered ? "#00E5FF" : "#ffffff" }}
+            transition={{ duration: 0.4 }}
           >
             {project.tagline}
-          </h3>
+          </motion.h3>
 
-          <p className="text-white/60 text-sm leading-relaxed max-w-[90%]">
+          {/* Description */}
+          <p className="text-white/50 text-[13px] leading-relaxed">
             {project.description}
           </p>
-        </div>
 
-        {/* Tech Badges */}
-        <div className="flex flex-wrap gap-2 mt-6">
-          {project.tags.map((tag) => (
-            <span
-              key={tag}
-              className="text-[9px] font-mono px-2.5 py-1 rounded-md bg-[#00E5FF]/[0.06] border border-[#00E5FF]/25 text-white/50 uppercase tracking-wider group-hover:border-cyan-500/40 group-hover:text-white/70 transition-all duration-500"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        {/* Stats & CTA */}
-        <div className="mt-auto pt-8 border-t border-white/5 flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            {project.stats.map((stat, i) => (
-              <React.Fragment key={stat.label}>
-                <AnimatedStat value={stat.value} label={stat.label} />
-                {i < project.stats.length - 1 && (
-                  <div className="h-6 w-px bg-white/5" />
-                )}
-              </React.Fragment>
+          {/* Tags */}
+          <div className="flex flex-wrap gap-1.5 mt-auto">
+            {project.tags.map((tag, i) => (
+              <motion.span
+                key={tag}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={isInView ? { opacity: 1, scale: 1 } : {}}
+                transition={{ delay: index * 0.15 + i * 0.05 + 0.4, duration: 0.3 }}
+                className="text-[9px] font-mono px-2 py-0.5 rounded bg-[#00E5FF]/[0.06] border border-[#00E5FF]/20 text-white/45 uppercase tracking-wider"
+              >
+                {tag}
+              </motion.span>
             ))}
           </div>
 
-          {!project.isComingSoon && (
-            <motion.button
-              variants={{
-                initial: { x: 0 },
-                hover: { x: 4 },
-              }}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-bold uppercase tracking-widest hover:bg-cyan-500/20 transition-all duration-300"
-            >
-              Case Study <ArrowRight className="w-3 h-3" />
-            </motion.button>
-          )}
+          {/* Stats + CTA */}
+          <div className="mt-4 pt-4 border-t border-white/[0.06] flex items-center justify-between">
+            <div className="flex items-center gap-5">
+              {project.stats.map((stat, i) => (
+                <React.Fragment key={stat.label}>
+                  <AnimatedStat value={stat.value} label={stat.label} />
+                  {i < project.stats.length - 1 && <div className="h-5 w-px bg-white/[0.07]" />}
+                </React.Fragment>
+              ))}
+            </div>
+
+            {!project.isComingSoon && (
+              <motion.button
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#00E5FF]/25 text-[#00E5FF]/70 text-[9px] font-mono uppercase tracking-widest"
+                animate={{
+                  borderColor: hovered ? "rgba(0,229,255,0.6)" : "rgba(0,229,255,0.25)",
+                  color: hovered ? "rgba(0,229,255,1)" : "rgba(0,229,255,0.7)",
+                  backgroundColor: hovered ? "rgba(0,229,255,0.08)" : "rgba(0,229,255,0)",
+                }}
+                transition={{ duration: 0.3 }}
+              >
+                Case Study
+                <motion.span animate={{ x: hovered ? 3 : 0 }} transition={{ duration: 0.3 }}>
+                  <ArrowRight className="w-3 h-3" />
+                </motion.span>
+              </motion.button>
+            )}
+          </div>
         </div>
+
+        {/* ── Classified Overlay ── */}
+        {project.isComingSoon && (
+          <div className="absolute inset-0 z-40 flex items-center justify-center">
+            <div className="absolute inset-0 bg-[#010912]/70 backdrop-blur-[8px]" />
+            <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-10">
+              <motion.div
+                className="w-full h-1/3 bg-gradient-to-b from-transparent via-cyan-400/40 to-transparent"
+                animate={{ y: ["-100%", "300%"] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: "linear", repeatDelay: 1 }}
+              />
+            </div>
+            <div className="relative flex flex-col items-center gap-4 text-center px-6">
+              <motion.div
+                className="p-4 rounded-full bg-[#010912] border border-cyan-500/40"
+                animate={{ boxShadow: ["0 0 20px rgba(0,229,255,0.1)", "0 0 40px rgba(0,229,255,0.3)", "0 0 20px rgba(0,229,255,0.1)"] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <Lock className="w-7 h-7 text-cyan-400" />
+              </motion.div>
+              <div>
+                <p className="text-base font-black font-mono text-cyan-400 tracking-[0.4em] uppercase mb-2">CLASSIFIED</p>
+                <div className="h-px w-20 mx-auto bg-cyan-500/30 mb-3" />
+                <p className="text-cyan-500/50 font-mono text-[9px] leading-relaxed uppercase tracking-widest">
+                  Deep-tech automation in development.<br />Client anonymity guaranteed.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-
-      {/* Classified Overlay for Project 03 */}
-      {project.isComingSoon && (
-        <div className="absolute inset-0 z-40 flex items-center justify-center">
-          <div className="absolute inset-0 bg-[#00050A]/60 backdrop-blur-[6px]" />
-          
-          {/* Animated Scanline */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
-            <div className="w-full h-1/2 bg-gradient-to-b from-transparent via-cyan-500/30 to-transparent animate-scan" />
-          </div>
-
-          <div className="relative flex flex-col items-center gap-6">
-            <div className="p-5 rounded-full bg-[#000810] border border-cyan-500/30 shadow-[0_0_30px_rgba(6,182,212,0.2)]">
-              <Lock className="w-8 h-8 text-cyan-500 animate-pulse" />
-            </div>
-            <div className="flex flex-col items-center text-center px-4">
-              <span className="text-xl font-mono font-bold text-cyan-500 tracking-[0.5em] uppercase mb-1">
-                CLASSIFIED
-              </span>
-              <div className="h-px w-24 bg-cyan-500/30 mb-4" />
-              <p className="text-cyan-500/60 font-mono text-[10px] max-w-[200px] leading-relaxed uppercase tracking-widest">
-                Deep-tech automation in development. Client anonymity guaranteed.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
     </motion.div>
   );
 };
 
-// --- Section ---
+// ─── Spectacular CTA Button ────────────────────────────────────────────────────
+
+const SpectacularButton = () => {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.8, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className="flex flex-col items-center gap-4"
+    >
+      <p className="text-white/25 text-[10px] uppercase tracking-[0.3em] font-mono">
+        Ready for similar results?
+      </p>
+
+      {/* Button wrapper with rotating border */}
+      <div
+        className="relative"
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
+        {/* Spinning conic border */}
+        <div className="absolute -inset-[1px] rounded-full overflow-hidden">
+          <motion.div
+            className="absolute w-[200%] h-[200%] -top-1/2 -left-1/2"
+            style={{
+              background:
+                "conic-gradient(from 0deg, transparent 0deg, rgba(0,229,255,0.0) 60deg, rgba(0,229,255,0.9) 180deg, rgba(0,229,255,0.0) 300deg, transparent 360deg)",
+            }}
+            animate={{ rotate: 360 }}
+            transition={{ duration: hovered ? 1.5 : 3, repeat: Infinity, ease: "linear" }}
+          />
+        </div>
+
+        {/* Outer glow */}
+        <motion.div
+          className="absolute -inset-3 rounded-full pointer-events-none"
+          animate={{
+            opacity: hovered ? 1 : 0.4,
+            background: hovered
+              ? "radial-gradient(ellipse, rgba(0,229,255,0.15) 0%, transparent 70%)"
+              : "radial-gradient(ellipse, rgba(0,229,255,0.06) 0%, transparent 70%)",
+          }}
+          transition={{ duration: 0.4 }}
+        />
+
+        {/* Button core */}
+        <motion.button
+          className="relative z-10 flex items-center gap-3 px-10 py-4 rounded-full font-black text-xs uppercase tracking-[0.25em] overflow-hidden"
+          animate={{
+            backgroundColor: hovered ? "rgba(0,229,255,1)" : "rgba(0,229,255,0)",
+            color: hovered ? "#00050A" : "#00E5FF",
+          }}
+          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          style={{ border: "1px solid rgba(0,229,255,0.3)" }}
+        >
+          {/* Liquid fill from bottom */}
+          <motion.div
+            className="absolute inset-0 bg-[#00E5FF]"
+            initial={{ y: "100%" }}
+            animate={{ y: hovered ? "0%" : "100%" }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          />
+
+          <span className="relative z-10">Start Your Project</span>
+
+          <motion.span
+            className="relative z-10"
+            animate={{ x: hovered ? 4 : 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <ArrowRight className="w-4 h-4" />
+          </motion.span>
+        </motion.button>
+      </div>
+    </motion.div>
+  );
+};
+
+// ─── Section Header ────────────────────────────────────────────────────────────
+
+const SectionHeader = () => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  const words = ["Our", "Impact"];
+
+  return (
+    <div ref={ref} className="flex flex-col items-center mb-20 md:mb-28">
+      {/* Label */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={isInView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.6 }}
+        className="flex items-center gap-3 mb-6"
+      >
+        <motion.div
+          className="h-px bg-gradient-to-r from-transparent to-cyan-500/60"
+          initial={{ width: 0 }}
+          animate={isInView ? { width: 40 } : {}}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        />
+        <span className="text-cyan-400 font-mono text-[10px] tracking-[0.4em] uppercase">
+          Provenance &amp; Success
+        </span>
+        <motion.div
+          className="h-px bg-gradient-to-l from-transparent to-cyan-500/60"
+          initial={{ width: 0 }}
+          animate={isInView ? { width: 40 } : {}}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        />
+      </motion.div>
+
+      {/* Title — word by word reveal */}
+      <h2 className="text-5xl md:text-8xl font-black text-center tracking-tighter uppercase overflow-hidden flex gap-4">
+        {words.map((word, wi) => (
+          <motion.span
+            key={word}
+            initial={{ y: "100%", opacity: 0 }}
+            animate={isInView ? { y: "0%", opacity: 1 } : {}}
+            transition={{ duration: 0.75, delay: wi * 0.12 + 0.1, ease: [0.22, 1, 0.36, 1] }}
+            className="block"
+            style={{
+              color: wi === 1 ? "transparent" : "white",
+              backgroundImage: wi === 1 ? "linear-gradient(135deg, #00E5FF 0%, #ffffff 100%)" : "none",
+              WebkitBackgroundClip: wi === 1 ? "text" : "unset",
+              backgroundClip: wi === 1 ? "text" : "unset",
+            }}
+          >
+            {word}
+          </motion.span>
+        ))}
+      </h2>
+
+      {/* Subtitle */}
+      <motion.p
+        initial={{ opacity: 0, y: 20 }}
+        animate={isInView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8, delay: 0.35 }}
+        dir="rtl"
+        className="text-white/35 text-lg md:text-xl font-light tracking-wide text-center max-w-xl mt-6"
+      >
+        مشاريعنا كتثبت قوتنا. ماشي غير هدرة — هادي نتيحة.
+      </motion.p>
+
+      {/* Decorative line */}
+      <motion.div
+        className="mt-8 h-px w-24 bg-gradient-to-r from-transparent via-cyan-500/40 to-transparent"
+        initial={{ scaleX: 0 }}
+        animate={isInView ? { scaleX: 1 } : {}}
+        transition={{ duration: 1, delay: 0.5 }}
+      />
+    </div>
+  );
+};
+
+// ─── Main Section ──────────────────────────────────────────────────────────────
 
 export default function PortfolioSection() {
+  const sectionRef = useRef(null);
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
+
+  // Parallax speeds per column (subtle — just enough to feel alive)
+  const y0 = useTransform(scrollYProgress, [0, 1], [80, -80]);
+  const y1 = useTransform(scrollYProgress, [0, 1], [120, -60]);
+  const y2 = useTransform(scrollYProgress, [0, 1], [60, -100]);
+  const y3 = useTransform(scrollYProgress, [0, 1], [100, -50]);
+
+  const cardScrollY = [y0, y1, y2, y3];
+
+  // Background parallax
+  const bgOrb1Y = useTransform(scrollYProgress, [0, 1], ["-20%", "20%"]);
+  const bgOrb2Y = useTransform(scrollYProgress, [0, 1], ["10%", "-20%"]);
+
   return (
     <section
+      ref={sectionRef}
       id="portfolio"
-      className="relative py-24 md:py-40 px-4 sm:px-6 lg:px-8 bg-[#010912] overflow-hidden"
+      className="relative py-24 md:py-40 px-4 sm:px-6 lg:px-8 overflow-hidden bg-[#010912]"
     >
-      {/* Cinematic Background Elements */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        {/* Main Ambient Glows */}
-        <div className="absolute top-[-20%] right-[-10%] w-[800px] h-[800px] bg-cyan-500/10 blur-[150px] rounded-full" />
-        <div className="absolute bottom-[-20%] left-[-10%] w-[800px] h-[800px] bg-blue-600/5 blur-[150px] rounded-full" />
-        
-        {/* High-frequency dots grid */}
-        <div 
-          className="absolute inset-0 opacity-[0.03]" 
-          style={{ 
-            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(0, 229, 255, 1) 1px, transparent 0)`,
-            backgroundSize: '40px 40px'
-          }} 
-        />
-        
-        {/* Subtle Horizontal Scanlines */}
-        <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-10 pointer-events-none" style={{ backgroundSize: '100% 2px, 3px 100%' }} />
+      {/* ── Background atmosphere ── */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* Parallax orb 1 */}
+        <motion.div
+          style={{ y: bgOrb1Y }}
+          className="absolute top-[-10%] right-[-5%] w-[700px] h-[700px] rounded-full"
+          aria-hidden="true"
+        >
+          <div className="w-full h-full rounded-full bg-cyan-500/[0.07] blur-[120px]" />
+        </motion.div>
 
-        {/* Cyan orb — top right */}
-        <div className="absolute top-20 right-0 w-[500px] h-[500px] rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(0,229,255,0.06) 0%, transparent 70%)', filter: 'blur(40px)' }} />
+        {/* Parallax orb 2 */}
+        <motion.div
+          style={{ y: bgOrb2Y }}
+          className="absolute bottom-[-10%] left-[-5%] w-[600px] h-[600px] rounded-full"
+          aria-hidden="true"
+        >
+          <div className="w-full h-full rounded-full bg-blue-600/[0.05] blur-[140px]" />
+        </motion.div>
 
-        {/* Purple orb — bottom left */}
-        <div className="absolute bottom-20 left-0 w-[400px] h-[400px] rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(123,97,255,0.05) 0%, transparent 70%)', filter: 'blur(50px)' }} />
-
-        {/* Grid texture */}
-        <div className="absolute inset-0 opacity-[0.025] pointer-events-none"
+        {/* Dot grid */}
+        <div
+          className="absolute inset-0 opacity-[0.025]"
           style={{
-            backgroundImage: 'linear-gradient(rgba(0,229,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,0.5) 1px, transparent 1px)',
-            backgroundSize: '60px 60px'
-          }} />
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(0,229,255,1) 1px, transparent 0)`,
+            backgroundSize: "40px 40px",
+          }}
+        />
+
+        {/* Scanline texture */}
+        <div
+          className="absolute inset-0 opacity-[0.015]"
+          style={{
+            backgroundImage: "linear-gradient(rgba(0,229,255,0.3) 1px, transparent 1px)",
+            backgroundSize: "100% 3px",
+          }}
+        />
+      </div>
+
+      {/* ── Left edge progress line ── */}
+      <div className="absolute left-0 top-0 bottom-0 w-[1px] overflow-hidden hidden lg:block pointer-events-none">
+        <motion.div
+          className="w-full bg-gradient-to-b from-transparent via-cyan-500/40 to-transparent"
+          style={{ height: "60%", y: useTransform(scrollYProgress, [0, 1], ["-30%", "70%"]) }}
+        />
       </div>
 
       <div className="max-w-7xl mx-auto relative z-20">
-        {/* Header Section */}
-        <div className="flex flex-col items-center mb-20 md:mb-32">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="flex items-center gap-3 mb-6"
-          >
-            <div className="h-px w-8 bg-cyan-500/50" />
-            <span className="text-cyan-400 font-mono text-[10px] tracking-[0.4em] uppercase">
-              Provenance & Success
-            </span>
-            <div className="h-px w-8 bg-cyan-500/50" />
-          </motion.div>
+        {/* Header */}
+        <SectionHeader />
 
-          <motion.h2
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-5xl md:text-8xl font-black text-white text-center tracking-tighter mb-8 uppercase"
-          >
-            Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-white">Impact</span>
-          </motion.h2>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            dir="rtl"
-            className="text-white/40 text-lg md:text-2xl font-light tracking-wide text-center max-w-2xl"
-          >
-            مشاريعنا كتثبت قوتنا. ماشي غير هدرة — هادي نتيحة.
-          </motion.p>
-        </div>
-
-        {/* Projects Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-          {projects.map((project, index) => (
-            <ProjectCard key={project.id} project={project} index={index} />
+        {/* Cards grid */}
+        <div
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-7"
+          style={{ perspective: "1200px" }}
+        >
+          {projects.slice(0, 3).map((project, index) => (
+            <ProjectCard
+              key={project.id}
+              project={project}
+              index={index}
+              scrollY={cardScrollY[index]}
+            />
           ))}
         </div>
 
-        {/* Global Footer CTA for Portfolio */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1, delay: 0.5 }}
-          className="mt-20 flex flex-col items-center gap-6"
-        >
-          <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 backdrop-blur-md flex flex-col items-center">
-            <p className="text-white/30 text-[10px] uppercase tracking-[0.2em] mb-4">Ready for similar results?</p>
-            <button className="group relative px-8 py-3 bg-white text-black font-black text-xs uppercase tracking-widest overflow-hidden">
-               <span className="relative z-10">Start Your project</span>
-               <div className="absolute inset-0 bg-cyan-400 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-            </button>
+        {/* 4th card — half width centered */}
+        <div className="mt-6 lg:mt-7 flex justify-center" style={{ perspective: "1200px" }}>
+          <div className="w-full md:w-[calc(33.333%-12px)]">
+            <ProjectCard
+              project={projects[3]}
+              index={3}
+              scrollY={cardScrollY[3]}
+            />
           </div>
-        </motion.div>
+        </div>
+
+        {/* CTA */}
+        <div className="mt-20 flex flex-col items-center">
+          <SpectacularButton />
+        </div>
       </div>
     </section>
   );
