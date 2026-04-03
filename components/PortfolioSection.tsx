@@ -88,14 +88,14 @@ const ProjectCard = ({ project }: { project: CaseStudy }) => {
 
   const rawX = useMotionValue(0);
   const rawY = useMotionValue(0);
-  const rotateX = useSpring(rawX, { stiffness: 200, damping: 22 });
-  const rotateY = useSpring(rawY, { stiffness: 200, damping: 22 });
+  const rotateX = useSpring(rawX, { stiffness: 180, damping: 22 });
+  const rotateY = useSpring(rawY, { stiffness: 180, damping: 22 });
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
     const r = cardRef.current.getBoundingClientRect();
-    rawX.set(((e.clientY - r.top - r.height / 2) / (r.height / 2)) * -8);
-    rawY.set(((e.clientX - r.left - r.width / 2) / (r.width / 2)) * 8);
+    rawX.set(((e.clientY - r.top - r.height / 2) / (r.height / 2)) * -7);
+    rawY.set(((e.clientX - r.left - r.width / 2) / (r.width / 2)) * 7);
   }, [rawX, rawY]);
 
   return (
@@ -105,138 +105,207 @@ const ProjectCard = ({ project }: { project: CaseStudy }) => {
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => { setHovered(false); rawX.set(0); rawY.set(0); }}
-      whileHover="hover"
-      className="relative group overflow-hidden rounded-3xl border border-[#00E5FF]/25 bg-[#00E5FF]/[0.05] backdrop-blur-2xl flex flex-col transition-all duration-700 hover:border-cyan-500/50 hover:shadow-[0_0_40px_rgba(0,229,255,0.22)]"
+      whileHover={{ y: -8, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } }}
+      className="relative group flex flex-col"
     >
-      {/* Spinning conic border */}
-      <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
+      {/* ── Spinning conic border ── */}
+      <div className="absolute inset-0 rounded-[28px] overflow-hidden pointer-events-none">
         <motion.div
           className="absolute w-[200%] h-[200%] -top-1/2 -left-1/2"
-          style={{ background: "conic-gradient(from 0deg,transparent 0deg,transparent 120deg,rgba(0,229,255,0.55) 180deg,transparent 240deg,transparent 360deg)" }}
+          style={{ background: "conic-gradient(from 0deg,transparent 0deg,transparent 130deg,rgba(0,229,255,0.7) 180deg,transparent 230deg,transparent 360deg)" }}
           animate={{ rotate: 360 }}
-          transition={{ duration: hovered ? 2.5 : 6, repeat: Infinity, ease: "linear" }}
+          transition={{ duration: hovered ? 2 : 5, repeat: Infinity, ease: "linear" }}
         />
-        <div className="absolute inset-[1px] rounded-[23px] bg-[#010912]" />
+        <div className="absolute inset-[1px] rounded-[27px] bg-[#010912]" />
       </div>
 
-      {/* Top glow line */}
-      <div className="absolute top-0 left-0 right-0 h-px z-10 pointer-events-none"
-        style={{ background: hovered ? "linear-gradient(90deg,transparent,rgba(0,229,255,0.8),transparent)" : "linear-gradient(90deg,transparent,rgba(0,229,255,0.2),transparent)", transition: "background 0.5s" }} />
+      {/* ── Outer glow on hover ── */}
+      <motion.div
+        className="absolute -inset-px rounded-[28px] pointer-events-none"
+        animate={{
+          boxShadow: hovered
+            ? "0 8px 80px rgba(0,229,255,0.18), 0 0 0 1px rgba(0,229,255,0.25)"
+            : "0 0 0px rgba(0,229,255,0)",
+        }}
+        transition={{ duration: 0.5 }}
+      />
 
-      {/* Shimmer */}
-      <div className="absolute inset-0 z-10 overflow-hidden pointer-events-none rounded-3xl">
-        <motion.div className="absolute top-0 bottom-0 w-[80px] -skew-x-12"
-          style={{ background: "linear-gradient(90deg,transparent,rgba(0,229,255,0.07),transparent)" }}
-          initial={{ left: "-20%" }}
-          animate={hovered ? { left: "120%" } : { left: "-20%" }}
-          transition={{ duration: 0.9, ease: "easeInOut" }} />
-      </div>
+      {/* ── Card body ── */}
+      <div className="relative z-10 rounded-[27px] overflow-hidden flex flex-col bg-[#010912]">
 
-      {/* ID watermark */}
-      <div className="absolute top-4 right-8 text-[120px] font-black font-mono text-white/[0.03] select-none pointer-events-none leading-none z-0">
-        {project.id}
-      </div>
+        {/* Top glow line — intensifies on hover */}
+        <motion.div
+          className="absolute top-0 left-0 right-0 h-[1px] z-20 pointer-events-none"
+          animate={{
+            background: hovered
+              ? "linear-gradient(90deg,transparent 0%,rgba(0,229,255,1) 50%,transparent 100%)"
+              : "linear-gradient(90deg,transparent 0%,rgba(0,229,255,0.25) 50%,transparent 100%)",
+            opacity: hovered ? 1 : 0.7,
+          }}
+          transition={{ duration: 0.4 }}
+        />
 
-      {/* Corner glows */}
-      <div className="absolute -top-16 -right-16 w-48 h-48 bg-cyan-500/10 blur-[80px] rounded-full pointer-events-none group-hover:bg-cyan-500/18 transition-colors duration-700" />
-      <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-cyan-500/6 blur-[100px] rounded-full pointer-events-none group-hover:bg-cyan-500/12 transition-colors duration-700" />
+        {/* Shimmer sweep */}
+        <div className="absolute inset-0 z-20 overflow-hidden pointer-events-none">
+          <motion.div
+            className="absolute top-0 bottom-0 w-[100px] -skew-x-[18deg]"
+            style={{ background: "linear-gradient(90deg,transparent,rgba(0,229,255,0.06),transparent)" }}
+            initial={{ left: "-30%" }}
+            animate={hovered ? { left: "130%" } : { left: "-30%" }}
+            transition={{ duration: 0.95, ease: "easeInOut" }}
+          />
+        </div>
 
-      {/* Image */}
-      <div className="relative overflow-hidden h-[220px] w-full flex-shrink-0">
-        {project.imagePath ? (
-          <>
-            <motion.img src={project.imagePath} alt={project.tagline}
+        {/* Left accent strip */}
+        <motion.div
+          className="absolute left-0 top-[30%] bottom-[30%] w-[2px] z-20 pointer-events-none rounded-full"
+          animate={{
+            background: hovered
+              ? "linear-gradient(to bottom, transparent, rgba(0,229,255,0.9), transparent)"
+              : "linear-gradient(to bottom, transparent, rgba(0,229,255,0.15), transparent)",
+          }}
+          transition={{ duration: 0.5 }}
+        />
+
+        {/* ── IMAGE AREA ── */}
+        <div className="relative overflow-hidden h-[230px] flex-shrink-0">
+
+          {project.imagePath ? (
+            <motion.img
+              src={project.imagePath}
+              alt={project.tagline}
               className="absolute inset-0 w-full h-full object-cover object-center"
-              animate={{ scale: hovered ? 1.07 : 1 }}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }} />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#000810] via-transparent to-transparent opacity-90" />
-            <div className="absolute inset-0 bg-[#000810]/10 mix-blend-overlay" />
-          </>
-        ) : (
-          <div className="w-full h-full bg-[#00050A] flex items-center justify-center p-12">
-            <div className="absolute inset-0 opacity-[0.03]"
-              style={{ backgroundImage: `radial-gradient(circle at 1px 1px,rgba(0,229,255,1) 1px,transparent 0)`, backgroundSize: "28px 28px" }} />
-            <motion.div variants={{ hover: { scale: 1.1, rotate: 5 } }} className="relative z-10">
-              <project.icon className="w-20 h-20 text-cyan-500/20" strokeWidth={0.5} />
-            </motion.div>
-          </div>
-        )}
-        <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between">
-          <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-cyan-400/80">{project.category}</span>
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-white/5 border border-white/5 backdrop-blur-md">
-            <Globe className="w-3 h-3 text-white/30" />
-            <span className="text-[9px] font-mono text-white/40 uppercase tracking-tighter">{project.location}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="relative z-10 flex flex-col flex-grow p-8 gap-4">
-        <motion.h3 dir="rtl"
-          className="text-2xl md:text-3xl font-black text-white text-right leading-tight"
-          animate={{ color: hovered ? "#00E5FF" : "#ffffff" }}
-          transition={{ duration: 0.5 }}>
-          {project.tagline}
-        </motion.h3>
-
-        <p className="text-white/60 text-sm leading-relaxed">{project.description}</p>
-
-        <div className="flex flex-wrap gap-2 mt-auto">
-          {project.tags.map(tag => (
-            <span key={tag}
-              className="text-[9px] font-mono px-2.5 py-1 rounded-md bg-[#00E5FF]/[0.06] border border-[#00E5FF]/25 text-white/50 uppercase tracking-wider group-hover:border-cyan-500/40 group-hover:text-white/70 transition-all duration-500">
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        <div className="mt-auto pt-6 border-t border-white/5 flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            {project.stats.map((stat, i) => (
-              <React.Fragment key={stat.label}>
-                <AnimatedStat value={stat.value} label={stat.label} />
-                {i < project.stats.length - 1 && <div className="h-6 w-px bg-white/5" />}
-              </React.Fragment>
-            ))}
-          </div>
-          {!project.isComingSoon && (
-            <motion.button
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-bold uppercase tracking-widest hover:bg-cyan-500/20 transition-all duration-300"
-              animate={{ x: hovered ? 0 : 0 }}>
-              Case Study
-              <motion.span animate={{ x: hovered ? 3 : 0 }} transition={{ duration: 0.3 }}>
-                <ArrowRight className="w-3 h-3" />
-              </motion.span>
-            </motion.button>
+              animate={{ scale: hovered ? 1.08 : 1 }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-[#00111A] to-[#010912] flex items-center justify-center">
+              <div className="absolute inset-0 opacity-[0.04]"
+                style={{ backgroundImage: `radial-gradient(circle at 1px 1px,rgba(0,229,255,1) 1px,transparent 0)`, backgroundSize: "24px 24px" }} />
+              <motion.div animate={{ scale: hovered ? 1.1 : 1, rotate: hovered ? 8 : 0 }} transition={{ duration: 0.6 }}>
+                <project.icon className="w-16 h-16 text-cyan-400/20" strokeWidth={0.75} />
+              </motion.div>
+            </div>
           )}
-        </div>
-      </div>
 
-      {/* Classified overlay */}
-      {project.isComingSoon && (
-        <div className="absolute inset-0 z-40 flex items-center justify-center">
-          <div className="absolute inset-0 bg-[#00050A]/60 backdrop-blur-[6px]" />
-          <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
-            <motion.div className="w-full h-1/2 bg-gradient-to-b from-transparent via-cyan-500/30 to-transparent"
-              animate={{ y: ["-100%", "300%"] }}
-              transition={{ duration: 2.5, repeat: Infinity, ease: "linear", repeatDelay: 1 }} />
+          {/* Cinematic gradient overlay — deep fade into card body */}
+          <div className="absolute inset-0"
+            style={{ background: "linear-gradient(to bottom, rgba(0,8,16,0.15) 0%, transparent 25%, transparent 40%, rgba(1,9,18,0.85) 75%, #010912 100%)" }} />
+
+          {/* Subtle cyan tint overlay */}
+          <div className="absolute inset-0 opacity-[0.08]"
+            style={{ background: "linear-gradient(135deg, rgba(0,229,255,0.3) 0%, transparent 60%)" }} />
+
+          {/* ID number watermark — inside image */}
+          <div className="absolute top-3 right-5 font-black font-mono text-white/[0.06] select-none pointer-events-none leading-none"
+            style={{ fontSize: "100px", lineHeight: 1 }}>
+            {project.id}
           </div>
-          <div className="relative flex flex-col items-center gap-6 text-center px-4">
-            <motion.div className="p-5 rounded-full bg-[#000810] border border-cyan-500/30 shadow-[0_0_30px_rgba(6,182,212,0.2)]"
-              animate={{ boxShadow: ["0 0 20px rgba(0,229,255,0.1)", "0 0 40px rgba(0,229,255,0.3)", "0 0 20px rgba(0,229,255,0.1)"] }}
-              transition={{ duration: 2, repeat: Infinity }}>
-              <Lock className="w-8 h-8 text-cyan-500" />
-            </motion.div>
-            <div>
-              <span className="text-xl font-mono font-bold text-cyan-500 tracking-[0.5em] uppercase">CLASSIFIED</span>
-              <div className="h-px w-24 mx-auto bg-cyan-500/30 my-3" />
-              <p className="text-cyan-500/60 font-mono text-[10px] max-w-[200px] leading-relaxed uppercase tracking-widest">
-                Deep-tech automation in development. Client anonymity guaranteed.
-              </p>
+
+          {/* Category badge — top left pill */}
+          <div className="absolute top-4 left-4 z-10">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full backdrop-blur-md border border-[#00E5FF]/25 bg-[#010912]/70">
+              <motion.div
+                className="w-1.5 h-1.5 rounded-full bg-cyan-400"
+                animate={{ opacity: [1, 0.3, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              />
+              <span className="text-[8px] font-mono uppercase tracking-[0.18em] text-cyan-300/90">{project.category}</span>
+            </div>
+          </div>
+
+          {/* Location badge — top right */}
+          <div className="absolute top-4 right-4 z-10">
+            <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-full backdrop-blur-md bg-black/40 border border-white/[0.07]">
+              <Globe className="w-2.5 h-2.5 text-white/30" />
+              <span className="text-[8px] font-mono text-white/35 uppercase tracking-tighter">{project.location}</span>
             </div>
           </div>
         </div>
-      )}
+
+        {/* ── CONTENT AREA ── */}
+        <div className="flex flex-col flex-grow px-7 pt-6 pb-7 gap-4">
+
+          {/* Tagline */}
+          <motion.h3
+            dir="rtl"
+            className="text-[1.55rem] md:text-[1.7rem] font-black leading-snug text-right"
+            animate={{
+              color: hovered ? "#00E5FF" : "#FFFFFF",
+              textShadow: hovered ? "0 0 30px rgba(0,229,255,0.4)" : "none",
+            }}
+            transition={{ duration: 0.4 }}
+          >
+            {project.tagline}
+          </motion.h3>
+
+          {/* Description */}
+          <p className="text-white/50 text-[13px] leading-[1.75] font-light">
+            {project.description}
+          </p>
+
+          {/* Tags — rounded-full pills */}
+          <div className="flex flex-wrap gap-1.5">
+            {project.tags.map((tag) => (
+              <motion.span
+                key={tag}
+                className="text-[8px] font-mono px-3 py-1 rounded-full border uppercase tracking-widest transition-all duration-400"
+                animate={{
+                  borderColor: hovered ? "rgba(0,229,255,0.4)" : "rgba(0,229,255,0.18)",
+                  color: hovered ? "rgba(0,229,255,0.85)" : "rgba(255,255,255,0.4)",
+                  backgroundColor: hovered ? "rgba(0,229,255,0.06)" : "rgba(0,229,255,0.02)",
+                }}
+                transition={{ duration: 0.4 }}
+              >
+                {tag}
+              </motion.span>
+            ))}
+          </div>
+
+          {/* ── Stats + CTA ── */}
+          <div className="mt-auto pt-5 flex items-end justify-between"
+            style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+
+            {/* Stats */}
+            <div className="flex items-center gap-6">
+              {project.stats.map((stat, i) => (
+                <React.Fragment key={stat.label}>
+                  <AnimatedStat value={stat.value} label={stat.label} />
+                  {i < project.stats.length - 1 && (
+                    <div className="h-8 w-px"
+                      style={{ background: "linear-gradient(to bottom, transparent, rgba(0,229,255,0.2), transparent)" }} />
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
+
+            {/* CTA — icon circle button */}
+            {!project.isComingSoon && (
+              <motion.button
+                className="flex items-center gap-2.5 group/btn"
+                whileHover={{ x: 2 }}
+                transition={{ duration: 0.2 }}
+              >
+                <span className="text-[9px] font-mono uppercase tracking-widest text-white/35 group-hover/btn:text-cyan-400 transition-colors duration-300">
+                  Case Study
+                </span>
+                <motion.div
+                  className="w-8 h-8 rounded-full flex items-center justify-center border"
+                  animate={{
+                    borderColor: hovered ? "rgba(0,229,255,0.6)" : "rgba(255,255,255,0.12)",
+                    backgroundColor: hovered ? "rgba(0,229,255,0.1)" : "transparent",
+                  }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <motion.span animate={{ x: hovered ? 1 : 0 }} transition={{ duration: 0.3 }}>
+                    <ArrowRight className="w-3 h-3 text-white/40 group-hover/btn:text-cyan-400 transition-colors duration-300" />
+                  </motion.span>
+                </motion.div>
+              </motion.button>
+            )}
+          </div>
+        </div>
+      </div>
     </motion.div>
   );
 };
