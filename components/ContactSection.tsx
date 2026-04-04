@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform, useSpring } from "framer-motion";
 import {
   Mail, MessageCircle, MapPin, Instagram, Linkedin, Twitter,
   Check, Globe, Bot, Layers, Package, Layout, Sparkles,
@@ -823,6 +823,13 @@ const statItem = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } }
 };
 
+const TITLE_LETTERS = "Together".split("");
+const contactItems = [
+  { Icon: Mail, label: "Email us", value: "contact@vortexdigital.ma", href: "mailto:contact@vortexdigital.ma" },
+  { Icon: MessageCircle, label: "WhatsApp", value: "+212 6XX-XXXXXX", href: "#" },
+  { Icon: MapPin, label: "Location", value: "Morocco — Available Worldwide", href: null },
+];
+
 const ContactSection = () => {
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(1);
@@ -831,8 +838,30 @@ const ContactSection = () => {
   const [submitProgress, setSubmitProgress] = useState(0);
   const [successData, setSuccessData] = useState<{ referenceId: string } | null>(null);
 
+  const sectionRef = useRef<HTMLElement>(null);
   const step1Ref = useRef<any>(null);
 
+  // ── Scroll spring ──────────────────────────────────────────
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
+  const s = useSpring(scrollYProgress, { stiffness: 50, damping: 16, restDelta: 0.001 });
+
+  // Header
+  const labelO  = useTransform(s, [0.04, 0.14], [0, 1]);
+  const labelX  = useTransform(s, [0.04, 0.14], [-32, 0]);
+  const titleO  = useTransform(s, [0.08, 0.19], [0, 1]);
+  const titleY  = useTransform(s, [0.08, 0.19], [50, 0]);
+  const subO    = useTransform(s, [0.13, 0.22], [0, 1]);
+
+  // Left col parallax
+  const leftY   = useTransform(s, [0.1, 0.9], [30, -20]);
+
+  // Right card parallax (slightly slower = depth)
+  const rightY  = useTransform(s, [0.1, 0.9], [60, -10]);
+
+  // ── Form logic ─────────────────────────────────────────────
   const update = useCallback((patch: Partial<ProjectFormData>) => {
     setFormData(prev => ({ ...prev, ...patch }));
   }, []);
@@ -844,7 +873,6 @@ const ContactSection = () => {
 
   const handleNext = () => {
     if (step === 1) {
-      // Run step 1 validation (stored on component as static)
       const validate = (Step1 as any).__validate;
       if (validate && !validate()) return;
     }
@@ -880,64 +908,63 @@ const ContactSection = () => {
   };
 
   return (
-    <section id="contact" className="py-32 px-6 md:px-20 relative overflow-hidden">
+    <section id="contact" ref={sectionRef} className="py-32 px-6 md:px-20 relative overflow-hidden">
 
-      {/* ── Section background: distinct from other sections ── */}
-
-      {/* Top separator gradient line */}
+      {/* Top separator */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#00E5FF]/20 to-transparent pointer-events-none" />
 
-      {/* Ambient cyan mass — top right */}
+      {/* Ambient orbs */}
       <div className="absolute -top-60 -right-60 w-[800px] h-[800px] rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(0,229,255,0.055) 0%, transparent 70%)" }} />
-
-      {/* Ambient purple mass — bottom left */}
       <div className="absolute -bottom-60 -left-60 w-[700px] h-[700px] rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(123,97,255,0.06) 0%, transparent 70%)" }} />
-
-      {/* Aurora horizontal ribbon */}
       <div className="absolute top-[45%] left-0 right-0 h-[120px] pointer-events-none" style={{ background: "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(0,229,255,0.04), transparent)", filter: "blur(20px)" }} />
-
-      {/* Large focused orb — concentrated behind right card */}
       <div className="absolute top-[15%] right-[-5%] w-[580px] h-[580px] pointer-events-none" style={{ background: "radial-gradient(circle, rgba(0,229,255,0.09) 0%, rgba(0,229,255,0.03) 40%, transparent 70%)" }} />
 
-      {/* Fine dot grid */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: "radial-gradient(circle, rgba(0,229,255,0.13) 1px, transparent 1px)",
-          backgroundSize: "44px 44px",
-          opacity: 0.35,
-          maskImage: "radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 75%)",
-          WebkitMaskImage: "radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 75%)",
-        }}
-      />
+      {/* Dot grid */}
+      <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "radial-gradient(circle, rgba(0,229,255,0.13) 1px, transparent 1px)", backgroundSize: "44px 44px", opacity: 0.35, maskImage: "radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 75%)", WebkitMaskImage: "radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 75%)" }} />
 
       <div className="max-w-7xl mx-auto relative z-10">
 
-        {/* Section Header */}
+        {/* ── Section Header ── */}
         <div className="mb-20">
+          {/* Label */}
           <motion.p
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="text-[#00E5FF] font-mono tracking-widest uppercase mb-4"
+            style={{ opacity: labelO, x: labelX }}
+            className="text-[#00E5FF] font-mono text-xs tracking-[0.3em] uppercase mb-4"
           >
             [ START YOUR PROJECT ]
           </motion.p>
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight tracking-tight"
-          >
-            Let&apos;s Build{" "}
-            <span style={{ background: "linear-gradient(90deg, #ffffff 0%, #00E5FF 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-              Together
-            </span>
-          </motion.h2>
+
+          {/* "Let's Build" */}
+          <motion.div style={{ opacity: titleO, y: titleY }}>
+            <h2 className="text-5xl md:text-7xl font-bold text-white leading-tight tracking-tight">
+              Let&apos;s Build
+            </h2>
+          </motion.div>
+
+          {/* "Together" — letter by letter */}
+          <h2 className="text-5xl md:text-7xl font-bold leading-tight tracking-tight mb-6">
+            {TITLE_LETTERS.map((char, i) => (
+              <motion.span
+                key={i}
+                initial={{ opacity: 0, y: 60 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.65, delay: 0.18 + i * 0.05, ease: [0.22, 1, 0.36, 1] }}
+                style={{
+                  display: "inline-block",
+                  background: "linear-gradient(90deg, #ffffff 0%, #00E5FF 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >
+                {char}
+              </motion.span>
+            ))}
+          </h2>
+
           <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            style={{ opacity: subO }}
             dir="rtl"
             className="text-zinc-500 text-xl md:text-2xl text-right"
           >
@@ -948,77 +975,70 @@ const ContactSection = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
 
           {/* ── Left Column: Contact Info ── */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="flex flex-col"
-          >
-            {/* Intro paragraph with cyan accent bar */}
-            <div className="border-l-2 border-[#00E5FF]/25 pl-6 mb-12">
+          <motion.div style={{ y: leftY }} className="flex flex-col">
+
+            {/* Intro paragraph */}
+            <motion.div
+              initial={{ opacity: 0, x: -40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              className="border-l-2 border-[#00E5FF]/25 pl-6 mb-12"
+            >
               <p className="text-zinc-400 text-lg leading-[1.85]">
                 Whether you need a premium website, an AI automation system, or a complete digital transformation — we&apos;re ready. No pressure. Just results.
               </p>
-            </div>
+            </motion.div>
 
-            {/* Contact items — layered glow rings */}
+            {/* Contact items — staggered from left */}
             <div className="mb-12">
-
-              {/* Email */}
-              <div className="flex items-center gap-5 group py-6 border-b border-white/[0.05]">
-                <div className="relative shrink-0 w-14 h-14">
-                  <div className="absolute inset-0 rounded-full border border-[#00E5FF]/10 scale-[1.45] group-hover:scale-[1.65] transition-transform duration-500 pointer-events-none" />
-                  <div className="absolute inset-0 rounded-full border border-[#00E5FF]/5 scale-[1.9] group-hover:scale-[2.1] transition-transform duration-700 pointer-events-none" />
-                  <div className="w-14 h-14 rounded-full bg-[#00E5FF]/10 border border-[#00E5FF]/30 flex items-center justify-center text-[#00E5FF] shadow-[0_0_14px_rgba(0,229,255,0.18)] group-hover:shadow-[0_0_32px_rgba(0,229,255,0.5)] group-hover:bg-[#00E5FF]/16 transition-all duration-300">
-                    <Mail size={22} />
+              {contactItems.map(({ Icon, label, value, href }, i) => (
+                <motion.div
+                  key={label}
+                  initial={{ opacity: 0, x: -60 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: "-40px" }}
+                  transition={{ duration: 0.65, delay: i * 0.12, ease: [0.22, 1, 0.36, 1] }}
+                  className="flex items-center gap-5 group py-6 border-b border-white/[0.05]"
+                >
+                  <div className="relative shrink-0 w-14 h-14">
+                    <motion.div
+                      className="absolute inset-0 rounded-full border border-[#00E5FF]/10 pointer-events-none"
+                      style={{ scale: 1.45 }}
+                      whileHover={{ scale: 1.65 }}
+                      transition={{ duration: 0.5 }}
+                    />
+                    <motion.div
+                      className="absolute inset-0 rounded-full border border-[#00E5FF]/05 pointer-events-none"
+                      style={{ scale: 1.9 }}
+                      whileHover={{ scale: 2.1 }}
+                      transition={{ duration: 0.7 }}
+                    />
+                    <div className="w-14 h-14 rounded-full bg-[#00E5FF]/10 border border-[#00E5FF]/30 flex items-center justify-center text-[#00E5FF] shadow-[0_0_14px_rgba(0,229,255,0.18)] group-hover:shadow-[0_0_32px_rgba(0,229,255,0.5)] group-hover:bg-[#00E5FF]/16 transition-all duration-300">
+                      <Icon size={22} />
+                    </div>
                   </div>
-                </div>
-                <div>
-                  <p className="text-white/45 text-[10px] font-mono tracking-[0.22em] uppercase mb-1.5">Email us</p>
-                  <a href="mailto:contact@vortexdigital.ma" className="text-white text-base font-bold hover:text-[#00E5FF] transition-colors duration-200">
-                    contact@vortexdigital.ma
-                  </a>
-                </div>
-              </div>
-
-              {/* WhatsApp */}
-              <div className="flex items-center gap-5 group py-6 border-b border-white/[0.05]">
-                <div className="relative shrink-0 w-14 h-14">
-                  <div className="absolute inset-0 rounded-full border border-[#00E5FF]/10 scale-[1.45] group-hover:scale-[1.65] transition-transform duration-500 pointer-events-none" />
-                  <div className="absolute inset-0 rounded-full border border-[#00E5FF]/5 scale-[1.9] group-hover:scale-[2.1] transition-transform duration-700 pointer-events-none" />
-                  <div className="w-14 h-14 rounded-full bg-[#00E5FF]/10 border border-[#00E5FF]/30 flex items-center justify-center text-[#00E5FF] shadow-[0_0_14px_rgba(0,229,255,0.18)] group-hover:shadow-[0_0_32px_rgba(0,229,255,0.5)] group-hover:bg-[#00E5FF]/16 transition-all duration-300">
-                    <MessageCircle size={22} />
+                  <div>
+                    <p className="text-white/45 text-[10px] font-mono tracking-[0.22em] uppercase mb-1.5">{label}</p>
+                    {href ? (
+                      <a href={href} className="text-white text-base font-bold hover:text-[#00E5FF] transition-colors duration-200">{value}</a>
+                    ) : (
+                      <p className="text-white text-base font-bold">{value}</p>
+                    )}
                   </div>
-                </div>
-                <div>
-                  <p className="text-white/45 text-[10px] font-mono tracking-[0.22em] uppercase mb-1.5">WhatsApp</p>
-                  <a href="#" className="text-white text-base font-bold hover:text-[#00E5FF] transition-colors duration-200">
-                    +212 6XX-XXXXXX
-                  </a>
-                </div>
-              </div>
-
-              {/* Location */}
-              <div className="flex items-center gap-5 group py-6 border-b border-white/[0.05]">
-                <div className="relative shrink-0 w-14 h-14">
-                  <div className="absolute inset-0 rounded-full border border-[#00E5FF]/10 scale-[1.45] group-hover:scale-[1.65] transition-transform duration-500 pointer-events-none" />
-                  <div className="absolute inset-0 rounded-full border border-[#00E5FF]/5 scale-[1.9] group-hover:scale-[2.1] transition-transform duration-700 pointer-events-none" />
-                  <div className="w-14 h-14 rounded-full bg-[#00E5FF]/10 border border-[#00E5FF]/30 flex items-center justify-center text-[#00E5FF] shadow-[0_0_14px_rgba(0,229,255,0.18)] group-hover:shadow-[0_0_32px_rgba(0,229,255,0.5)] group-hover:bg-[#00E5FF]/16 transition-all duration-300">
-                    <MapPin size={22} />
-                  </div>
-                </div>
-                <div>
-                  <p className="text-white/45 text-[10px] font-mono tracking-[0.22em] uppercase mb-1.5">Location</p>
-                  <p className="text-white text-base font-bold">Morocco — Available Worldwide</p>
-                </div>
-              </div>
-
+                </motion.div>
+              ))}
             </div>
 
             <div className="mt-auto">
-              {/* Premium response-time badge — gradient border */}
-              <div className="inline-flex mb-10">
+              {/* Response time badge */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className="inline-flex mb-10"
+              >
                 <div className="p-px rounded-full" style={{ background: "linear-gradient(90deg, rgba(0,229,255,0.45), rgba(123,97,255,0.28), rgba(0,229,255,0.18))" }}>
                   <div className="flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-[#00050A]">
                     <div className="relative w-2 h-2 shrink-0">
@@ -1030,18 +1050,23 @@ const ContactSection = () => {
                     </span>
                   </div>
                 </div>
-              </div>
+              </motion.div>
 
-              {/* Social icons */}
+              {/* Social icons — staggered float up */}
               <div className="flex gap-3">
                 {[Instagram, Linkedin, Twitter].map((Icon, i) => (
-                  <a
+                  <motion.a
                     key={i}
                     href="#"
-                    className="w-12 h-12 rounded-xl border border-white/8 bg-white/[0.02] flex items-center justify-center text-zinc-500 hover:text-[#00E5FF] hover:border-[#00E5FF]/30 hover:bg-[#00E5FF]/5 hover:shadow-[0_0_20px_rgba(0,229,255,0.12)] transition-all duration-300"
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-40px" }}
+                    transition={{ duration: 0.5, delay: 0.4 + i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                    whileHover={{ y: -3, transition: { duration: 0.2 } }}
+                    className="w-12 h-12 rounded-xl border border-white/8 bg-white/[0.02] flex items-center justify-center text-zinc-500 hover:text-[#00E5FF] hover:border-[#00E5FF]/30 hover:bg-[#00E5FF]/5 hover:shadow-[0_0_20px_rgba(0,229,255,0.12)] transition-colors duration-300"
                   >
                     <Icon size={18} />
-                  </a>
+                  </motion.a>
                 ))}
               </div>
             </div>
@@ -1049,11 +1074,11 @@ const ContactSection = () => {
 
           {/* ── Right Column: Premium CTA Card ── */}
           <motion.div
-            initial={{ opacity: 0, y: 40, filter: "blur(8px)" }}
-            whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            initial={{ opacity: 0, y: 60, filter: "blur(10px)" }}
+            whileInView={{ opacity: 1, filter: "blur(0px)" }}
             viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
-            style={{ willChange: "transform, opacity, filter" }}
+            transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1], delay: 0.18 }}
+            style={{ y: rightY, willChange: "transform, opacity, filter" }}
             className="relative flex flex-col"
           >
             {/* Gradient-border wrapper */}
