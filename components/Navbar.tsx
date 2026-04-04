@@ -187,54 +187,129 @@ export default function Navbar() {
           {/* ── Right Controls ───────────────────────────────────── */}
           <div className="flex items-center gap-4 md:gap-6 shrink-0">
 
-            {/* Audio Toggle */}
+            {/* ── Audio Toggle — vinyl/waveform design ── */}
             <motion.button
               onClick={toggleAudio}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.93 }}
               aria-label={isPlaying ? "Pause background music" : "Play background music"}
-              className={`flex items-center gap-2 md:gap-3 px-3 md:px-4 py-1.5 rounded-full border transition-all duration-500 relative group overflow-hidden ${
-                isPlaying
-                  ? "border-[#00E5FF]/50 shadow-[0_0_15px_rgba(0,229,255,0.2)] bg-[#00E5FF]/5"
-                  : "border-white/10 hover:border-[#00E5FF]/30 hover:bg-[#00E5FF]/5 bg-transparent"
-              }`}
+              className="relative flex items-center gap-2.5 px-3 py-1.5 rounded-full overflow-hidden group"
+              style={{
+                background: isPlaying
+                  ? "linear-gradient(135deg, rgba(0,229,255,0.12), rgba(0,229,255,0.04))"
+                  : "rgba(255,255,255,0.03)",
+                border: isPlaying
+                  ? "1px solid rgba(0,229,255,0.45)"
+                  : "1px solid rgba(255,255,255,0.1)",
+                boxShadow: isPlaying
+                  ? "0 0 18px rgba(0,229,255,0.22), inset 0 0 12px rgba(0,229,255,0.06)"
+                  : "none",
+                transition: "all 0.4s ease",
+              }}
             >
-              <div className="flex gap-[3px] h-3 items-center justify-center w-3">
-                {[1, 2, 3, 4].map((i) => (
+              {/* Shimmer sweep on hover */}
+              <span className="absolute inset-0 -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-[#00E5FF]/8 to-transparent pointer-events-none" />
+
+              {/* Vinyl disc */}
+              <div className="relative shrink-0 w-5 h-5">
+                <motion.div
+                  animate={{ rotate: isPlaying ? 360 : 0 }}
+                  transition={{ duration: 3, repeat: isPlaying ? Infinity : 0, ease: "linear" }}
+                  className="w-5 h-5 rounded-full flex items-center justify-center"
+                  style={{
+                    background: isPlaying
+                      ? "conic-gradient(from 0deg, rgba(0,229,255,0.9) 0%, rgba(0,229,255,0.1) 25%, rgba(0,229,255,0.7) 50%, rgba(0,229,255,0.15) 75%, rgba(0,229,255,0.9) 100%)"
+                      : "conic-gradient(from 0deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.3) 100%)",
+                    boxShadow: isPlaying ? "0 0 10px rgba(0,229,255,0.5)" : "none",
+                    transition: "box-shadow 0.4s",
+                  }}
+                >
+                  {/* Center hole */}
+                  <div
+                    className="w-1.5 h-1.5 rounded-full"
+                    style={{
+                      background: isPlaying ? "#001a1f" : "#111",
+                      boxShadow: isPlaying ? "0 0 4px rgba(0,229,255,0.6)" : "none",
+                    }}
+                  />
+                </motion.div>
+              </div>
+
+              {/* Waveform bars */}
+              <div className="flex gap-[2.5px] h-4 items-center">
+                {[0.6, 1, 0.75, 1, 0.5].map((scale, i) => (
                   <motion.div
                     key={i}
-                    animate={{
-                      height: isPlaying ? [3, 10, 5, 12, 3] : 3,
-                      opacity: isPlaying ? 1 : 0.4,
+                    animate={isPlaying ? {
+                      height: ["30%", `${55 + scale * 45}%`, "25%", `${40 + scale * 55}%`, "30%"],
+                      opacity: [0.6, 1, 0.7, 1, 0.6],
+                    } : {
+                      height: "25%",
+                      opacity: 0.25,
                     }}
-                    transition={{
-                      repeat: isPlaying ? Infinity : 0,
-                      duration: 0.8,
-                      delay: isPlaying ? i * 0.15 : 0,
+                    transition={isPlaying ? {
+                      duration: 0.7 + i * 0.1,
+                      repeat: Infinity,
+                      delay: i * 0.12,
                       ease: "easeInOut",
+                    } : { duration: 0.3 }}
+                    className="w-[2px] rounded-full"
+                    style={{
+                      background: isPlaying
+                        ? `rgba(0,229,255,${0.6 + scale * 0.4})`
+                        : "rgba(255,255,255,0.35)",
+                      boxShadow: isPlaying ? `0 0 6px rgba(0,229,255,${scale * 0.8})` : "none",
                     }}
-                    className={`w-[1.5px] rounded-full ${isPlaying ? "bg-[#00E5FF]" : "bg-white"}`}
-                    style={{ boxShadow: isPlaying ? "0 0 8px #00E5FF" : "none" }}
                   />
                 ))}
               </div>
+
               <span
-                className={`hidden sm:block text-[9px] font-mono tracking-widest uppercase transition-colors duration-300 ${
-                  isPlaying ? "text-[#00E5FF] drop-shadow-[0_0_8px_#00E5FF]" : "text-white/60 group-hover:text-[#00E5FF]/80"
-                }`}
+                className="hidden sm:block text-[9px] font-mono tracking-[0.18em] uppercase transition-all duration-300"
+                style={{
+                  color: isPlaying ? "#00E5FF" : "rgba(255,255,255,0.45)",
+                  textShadow: isPlaying ? "0 0 10px rgba(0,229,255,0.7)" : "none",
+                }}
               >
-                {isPlaying ? "Audio On" : "Audio Off"}
+                {isPlaying ? "Playing" : "Audio Off"}
               </span>
             </motion.button>
 
-            {/* Desktop CTA */}
+            {/* ── Desktop CTA ── */}
             <motion.a
               href="#contact"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="hidden md:block px-5 py-1.5 border border-white/20 rounded-full text-[9px] font-bold uppercase tracking-widest hover:border-[#00E5FF] hover:bg-[#00E5FF] hover:text-black transition-all"
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.93 }}
+              className="hidden md:flex items-center gap-2 px-5 py-1.5 rounded-full font-mono text-[9px] font-bold uppercase tracking-widest relative overflow-hidden group"
+              style={{
+                background: "linear-gradient(135deg, rgba(0,229,255,0.15), rgba(0,229,255,0.06))",
+                border: "1px solid rgba(0,229,255,0.45)",
+                color: "#00E5FF",
+                boxShadow: "0 0 14px rgba(0,229,255,0.18)",
+              }}
+              onMouseEnter={e => {
+                const el = e.currentTarget as HTMLAnchorElement;
+                el.style.background = "#00E5FF";
+                el.style.color = "#000";
+                el.style.boxShadow = "0 0 28px rgba(0,229,255,0.55)";
+              }}
+              onMouseLeave={e => {
+                const el = e.currentTarget as HTMLAnchorElement;
+                el.style.background = "linear-gradient(135deg, rgba(0,229,255,0.15), rgba(0,229,255,0.06))";
+                el.style.color = "#00E5FF";
+                el.style.boxShadow = "0 0 14px rgba(0,229,255,0.18)";
+              }}
             >
-              Initiate Project
+              {/* Shine sweep */}
+              <span className="absolute inset-0 -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-600 bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
+              <span className="relative">Initiate Project</span>
+              <motion.span
+                className="relative text-[10px]"
+                animate={{ x: [0, 3, 0] }}
+                transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+              >
+                →
+              </motion.span>
             </motion.a>
 
             {/* Mobile Hamburger */}
