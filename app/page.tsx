@@ -7,7 +7,7 @@ import TestimonialsSection from "@/components/TestimonialsSection";
 import AboutSection from "@/components/AboutSection";
 import ContactSection from "@/components/ContactSection";
 import ProofBar from "@/components/ProofBar";
-import PricingSection from "@/components/PricingSection";
+import FAQSection from "@/components/FAQSection";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import CustomCursor from "@/components/CustomCursor";
 
@@ -60,8 +60,7 @@ export default function Home() {
         <TestimonialsSection />
         <AboutSection />
 
-        {/* Pricing section before contact */}
-        <PricingSection />
+        <FAQSection />
 
         <ContactSection />
 
