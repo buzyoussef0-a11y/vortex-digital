@@ -8,6 +8,7 @@ import AboutSection from "@/components/AboutSection";
 import ContactSection from "@/components/ContactSection";
 import ProofBar from "@/components/ProofBar";
 import FAQSection from "@/components/FAQSection";
+import MeteorBackground from "@/components/MeteorBackground";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import CustomCursor from "@/components/CustomCursor";
 
@@ -42,6 +43,9 @@ export default function Home() {
           }} 
         />
       </div>
+
+      {/* Animated meteor background — hidden under hero, visible across all other sections */}
+      <MeteorBackground />
 
       {/* Global overlays */}
       <CustomCursor />
