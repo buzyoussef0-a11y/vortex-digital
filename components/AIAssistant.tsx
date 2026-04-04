@@ -67,30 +67,19 @@ export default function AIAssistant() {
     setLoading(true);
 
     try {
-      const webhookUrl = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL;
+      const webhookUrl = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL
+        || "https://n8n.srv1521649.hstgr.cloud/webhook/vortex-ai-assistant";
 
-      if (!webhookUrl) {
-        // Placeholder until n8n webhook is configured
-        await new Promise(r => setTimeout(r, 900));
-        const botMsg: Message = {
-          role: "assistant",
-          text: "شكرًا على رسالتك! 🙏\nسيتم ربط هذا المساعد قريبًا بنظام الذكاء الاصطناعي. في الوقت الحالي، تواصل معنا مباشرة عبر واتساب أو نموذج الاتصال.",
-          time: timestamp(),
-        };
-        setMessages(prev => [...prev, botMsg]);
-        if (!open) setUnread(n => n + 1);
-      } else {
-        const res = await fetch(webhookUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: text, sessionId: "vortex-widget" }),
-        });
-        const data = await res.json();
-        const reply = data?.reply ?? data?.text ?? data?.message ?? "عذرًا، حدث خطأ. حاول مجددًا.";
-        const botMsg: Message = { role: "assistant", text: reply, time: timestamp() };
-        setMessages(prev => [...prev, botMsg]);
-        if (!open) setUnread(n => n + 1);
-      }
+      const res = await fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text, sessionId: "vortex-widget" }),
+      });
+      const data = await res.json();
+      const reply = data?.reply ?? data?.text ?? data?.message ?? "عذرًا، حدث خطأ. حاول مجددًا.";
+      const botMsg: Message = { role: "assistant", text: reply, time: timestamp() };
+      setMessages(prev => [...prev, botMsg]);
+      if (!open) setUnread(n => n + 1);
     } catch {
       const errMsg: Message = {
         role: "assistant",
