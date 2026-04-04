@@ -21,15 +21,15 @@ export default function WhatsAppButton() {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.5, y: 20 }}
           transition={{ type: "spring", stiffness: 300, damping: 22 }}
-          className="fixed bottom-8 right-8 z-[9999] flex items-center gap-3"
+          className="fixed bottom-8 left-8 z-[9999] flex items-center gap-3"
         >
           {/* Tooltip */}
           <AnimatePresence>
             {hovered && (
               <motion.div
-                initial={{ opacity: 0, x: 10 }}
+                initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 10 }}
+                exit={{ opacity: 0, x: -10 }}
                 transition={{ duration: 0.2 }}
                 className="bg-[#00050A] border border-white/10 text-white text-xs font-mono px-4 py-2 rounded-xl whitespace-nowrap shadow-lg"
                 dir="rtl"

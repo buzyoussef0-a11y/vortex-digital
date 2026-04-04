@@ -11,6 +11,7 @@ import FAQSection from "@/components/FAQSection";
 import MeteorBackground from "@/components/MeteorBackground";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import CustomCursor from "@/components/CustomCursor";
+import AIAssistant from "@/components/AIAssistant";
 
 export default function Home() {
   return (
@@ -50,6 +51,7 @@ export default function Home() {
       {/* Global overlays */}
       <CustomCursor />
       <WhatsAppButton />
+      <AIAssistant />
 
       <Navbar />
       <Hero />

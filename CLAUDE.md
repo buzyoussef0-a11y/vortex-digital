@@ -246,6 +246,38 @@ const filterStr = useMotionTemplate`blur(${blurValue}px)`;
 
 ---
 
+---
+
+## ✅ Global Animated Background — Proven Pattern (NEBULA NETWORK)
+
+When the user asks for a spectacular animated background, use this architecture:
+
+**Stack:**
+- `position: fixed, inset: 0, z-index: 25, mix-blend-mode: screen` on the canvas
+- Dark canvas pixels = transparent (clearRect) → sections show through naturally
+- White text is NEVER affected by screen blend (screen with white = white)
+- Particles glow additively through any section background without modifying text
+
+**Three layers that always look great:**
+1. **Aurora blobs** — 5 large elliptical radial gradients (cyan + purple), drifting via sin/cos at 7–10e-5 speed, 3–5% opacity each → `source-over`
+2. **Neural network** — 40–50 nodes with velocity bounce, connection lines within 150–160px at 8–10% opacity, data pulses along edges → `lighter` blend
+3. **Comets** — 8–12 fast streaks at 36–58° angle, fade-in/out lifecycle, 5% "ultra comet" (longer trail, double bloom glow) → `lighter` blend
+
+**Key canvas settings:**
+```tsx
+// Aurora: source-over (doesn't over-add)
+// Network + comets: lighter (additive glow where particles overlap)
+// Element CSS: mix-blend-mode: screen (transparent on dark, glow on dark areas)
+ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // always use this for DPR, not ctx.scale
+```
+
+**Why mix-blend-mode: screen works:**
+- Canvas z-index: 25 sits above sections (z-20)
+- Screen formula: `1 - (1-canvas)(1-page)` → dark canvas = transparent, bright = additive glow
+- Hero covered by its own `bg-[#00050A]` background naturally — canvas invisible in hero ✓
+
+---
+
 ### ✅ Scroll Animation Checklist (before implementing)
 
 Before adding any scroll-driven animation to this project:
