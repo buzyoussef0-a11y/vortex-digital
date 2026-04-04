@@ -4,85 +4,74 @@ import { useEffect, useRef } from "react";
 
 /* ─── Types ──────────────────────────────────────────────── */
 
-interface Particle {
-  x: number;
-  y: number;
-  angle: number;      // radians
-  speed: number;
-  length: number;     // trail length px
-  width: number;      // stroke width
-  opacity: number;    // max opacity
-  r: number; g: number; b: number; // color
-  life: number;
-  maxLife: number;
-  isUltra: boolean;   // rare super-bright comet
+interface Node {
+  x: number; y: number;
+  vx: number; vy: number;
+  r: number;
+  opacity: number;
+  pulseActive: boolean;
+  pulseTimer: number;
+  pulseMax: number;
 }
 
-/* ─── Helpers ────────────────────────────────────────────── */
+interface DataPulse {
+  fromIdx: number;
+  toIdx: number;
+  progress: number;
+  speed: number;
+  alpha: number;
+}
+
+interface Comet {
+  x: number; y: number;
+  angle: number; speed: number;
+  length: number; width: number; opacity: number;
+  r: number; g: number; b: number;
+  life: number; maxLife: number;
+}
+
+interface Blob {
+  bx: number; by: number;   // 0-1 base position
+  phase: number; phaseY: number;
+  speed: number;
+  radius: number;            // 0-1 relative to max(W,H)
+  r: number; g: number; b: number;
+  alpha: number;
+}
+
+/* ─── Constants ──────────────────────────────────────────── */
 
 const CYAN   = { r: 0,   g: 229, b: 255 };
 const PURPLE = { r: 123, g: 97,  b: 255 };
-const ICE    = { r: 160, g: 230, b: 255 };
+const ICE    = { r: 100, g: 210, b: 255 };
+const NODE_COUNT  = 44;
+const COMET_COUNT = 10;
+const MAX_LINK    = 155;   // px — max distance for connections
 
-function pickColor(): { r: number; g: number; b: number } {
-  const t = Math.random();
-  if (t < 0.58) return CYAN;
-  if (t < 0.88) return PURPLE;
-  return ICE;
-}
+/* ─── Helpers ────────────────────────────────────────────── */
 
-function makeParticle(
-  w: number,
-  h: number,
-  randomStart = false,
-  forceUltra = false,
-): Particle {
-  const isUltra = forceUltra || Math.random() < 0.04; // 4% chance
-  const angle   = (Math.PI / 180) * (36 + Math.random() * 22); // 36–58°
-  const speed   = isUltra
-    ? 7 + Math.random() * 5
-    : 0.8 + Math.random() * 4.5;
+function rnd(min: number, max: number) { return min + Math.random() * (max - min); }
 
-  const speedRatio = Math.min((speed - 0.8) / 4.5, 1);
-  const maxLife    = isUltra
-    ? 60  + Math.random() * 60
-    : 90  + Math.random() * 200;
-  const col = pickColor();
-
-  // Spawn along the top edge or left edge, randomly distributed
-  let startX: number, startY: number;
-  if (randomStart) {
-    startX = Math.random() * w;
-    startY = Math.random() * h;
-  } else {
-    const useTop = Math.random() < 0.65;
-    if (useTop) {
-      startX = Math.random() * (w + 600) - 300;
-      startY = -80 - Math.random() * 120;
-    } else {
-      startX = -80 - Math.random() * 120;
-      startY = Math.random() * h;
-    }
-  }
+function makeComet(W: number, H: number, warm = false): Comet {
+  const isUltra = Math.random() < 0.05;
+  const col     = Math.random() < 0.62 ? CYAN : Math.random() < 0.7 ? PURPLE : ICE;
+  const speed   = isUltra ? rnd(7, 13) : rnd(0.8, 5.5);
+  const sr      = Math.min((speed - 0.8) / 5, 1);
+  const maxLife = rnd(70, 180);
+  const angle   = (Math.PI / 180) * rnd(34, 58);
+  let sx: number, sy: number;
+  if (warm) { sx = rnd(0, W); sy = rnd(0, H); }
+  else if (Math.random() < 0.6) { sx = rnd(-200, W + 200); sy = rnd(-80, -30); }
+  else { sx = rnd(-80, -30); sy = rnd(0, H); }
 
   return {
-    x: startX,
-    y: startY,
-    angle,
-    speed,
-    length: isUltra
-      ? 280 + Math.random() * 220
-      : 25  + speedRatio * 260 + Math.random() * 80,
-    width: isUltra
-      ? 1.8 + Math.random() * 1.2
-      : 0.35 + speedRatio * 2   + Math.random() * 0.6,
-    opacity: isUltra
-      ? 0.75 + Math.random() * 0.25
-      : 0.12 + speedRatio * 0.60 + Math.random() * 0.18,
+    x: sx, y: sy, angle, speed,
+    length:  isUltra ? rnd(240, 480) : 18 + sr * 230 + rnd(0, 70),
+    width:   isUltra ? rnd(1.5, 2.8) : 0.3 + sr * 2.2 + rnd(0, 0.6),
+    opacity: isUltra ? rnd(0.55, 0.9) : 0.08 + sr * 0.52 + rnd(0, 0.18),
     r: col.r, g: col.g, b: col.b,
-    life: randomStart ? Math.random() * maxLife : 0,
+    life: warm ? rnd(0, maxLife) : 0,
     maxLife,
-    isUltra,
   };
 }
 
@@ -98,8 +87,7 @@ export default function MeteorBackground() {
     if (!ctx) return;
 
     const dpr = Math.min(window.devicePixelRatio ?? 1, 2);
-    let W = window.innerWidth;
-    let H = window.innerHeight;
+    let W = 0, H = 0;
 
     const resize = () => {
       W = window.innerWidth;
@@ -113,88 +101,216 @@ export default function MeteorBackground() {
     resize();
     window.addEventListener("resize", resize);
 
-    /* ── Particles ── */
-    const COUNT = 60;
-    const particles: Particle[] = Array.from({ length: COUNT }, () =>
-      makeParticle(W, H, true),
-    );
-    // Seed 2 ultra comets from the start
-    particles[0] = makeParticle(W, H, true, true);
+    /* ── Aurora blobs ──────────────────────────────────────── */
+    const blobs: Blob[] = [
+      { bx: 0.12, by: 0.22, phase: 0,              phaseY: 1.1, speed: 8e-5, radius: 0.48, ...CYAN,   alpha: 0.038 },
+      { bx: 0.88, by: 0.72, phase: Math.PI,        phaseY: 2.1, speed: 7e-5, radius: 0.55, ...PURPLE, alpha: 0.032 },
+      { bx: 0.52, by: 0.42, phase: 1.6,            phaseY: 0.7, speed: 1e-4, radius: 0.44, ...CYAN,   alpha: 0.024 },
+      { bx: 0.18, by: 0.82, phase: 4.3,            phaseY: 3.5, speed: 9e-5, radius: 0.42, ...PURPLE, alpha: 0.028 },
+      { bx: 0.78, by: 0.18, phase: 2.9,            phaseY: 5.2, speed: 6e-5, radius: 0.40, ...CYAN,   alpha: 0.020 },
+    ];
 
+    /* ── Neural network nodes ──────────────────────────────── */
+    const nodes: Node[] = Array.from({ length: NODE_COUNT }, () => ({
+      x: rnd(0, W || window.innerWidth),
+      y: rnd(0, H || window.innerHeight),
+      vx: rnd(-0.28, 0.28),
+      vy: rnd(-0.28, 0.28),
+      r:  rnd(0.8, 2.2),
+      opacity: rnd(0.18, 0.55),
+      pulseActive: false,
+      pulseTimer:  0,
+      pulseMax:    rnd(250, 600),
+    }));
+
+    /* ── Data pulses ───────────────────────────────────────── */
+    const pulses: DataPulse[] = [];
+
+    /* ── Comets ────────────────────────────────────────────── */
+    const comets: Comet[] = Array.from({ length: COMET_COUNT }, () => makeComet(W, H, true));
+
+    let t = 0;
     let rafId: number;
 
+    /* ════════════════ MAIN DRAW ════════════════ */
     const draw = () => {
+      t++;
       ctx.clearRect(0, 0, W, H);
 
-      // "lighter" blend → particles glow brightly where they overlap
+      /* ── 1. Aurora ── */
+      ctx.globalCompositeOperation = "source-over";
+      blobs.forEach(b => {
+        const cx = (b.bx + Math.sin(t * b.speed        + b.phase ) * 0.17) * W;
+        const cy = (b.by + Math.cos(t * b.speed * 0.83 + b.phaseY) * 0.11) * H;
+        const R  = b.radius * Math.max(W, H);
+        // Stretch horizontally via scale trick for ellipse
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.scale(1.35, 1);
+        const g = ctx.createRadialGradient(0, 0, 0, 0, 0, R);
+        g.addColorStop(0,   `rgba(${b.r},${b.g},${b.b},${b.alpha})`);
+        g.addColorStop(0.45,`rgba(${b.r},${b.g},${b.b},${b.alpha * 0.35})`);
+        g.addColorStop(1,   `rgba(${b.r},${b.g},${b.b},0)`);
+        ctx.beginPath();
+        ctx.arc(0, 0, R, 0, Math.PI * 2);
+        ctx.fillStyle = g;
+        ctx.fill();
+        ctx.restore();
+      });
+
+      /* ── 2. Move nodes (bounded bounce) ── */
+      nodes.forEach(n => {
+        n.x += n.vx;
+        n.y += n.vy;
+        if (n.x < 0) { n.x = 0;  n.vx *= -1; }
+        if (n.x > W) { n.x = W;  n.vx *= -1; }
+        if (n.y < 0) { n.y = 0;  n.vy *= -1; }
+        if (n.y > H) { n.y = H;  n.vy *= -1; }
+        // Pulse timer
+        if (!n.pulseActive) {
+          n.pulseTimer++;
+          if (n.pulseTimer >= n.pulseMax) {
+            n.pulseTimer = 0;
+            n.pulseMax   = rnd(250, 600);
+            n.pulseActive = true;
+          }
+        }
+      });
+
+      /* ── 3. Connections ── */
       ctx.globalCompositeOperation = "lighter";
+      for (let i = 0; i < NODE_COUNT; i++) {
+        for (let j = i + 1; j < NODE_COUNT; j++) {
+          const dx   = nodes[i].x - nodes[j].x;
+          const dy   = nodes[i].y - nodes[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist >= MAX_LINK) continue;
 
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
+          const a = (1 - dist / MAX_LINK) * 0.09;
 
-        // Advance
-        p.x    += Math.cos(p.angle) * p.speed;
-        p.y    += Math.sin(p.angle) * p.speed;
-        p.life += 1;
-
-        // Life-cycle alpha envelope
-        const t       = p.life / p.maxLife;
-        const fadeIn  = Math.min(t * 7, 1);
-        const fadeOut = t > 0.6 ? 1 - (t - 0.6) / 0.4 : 1;
-        const alpha   = p.opacity * fadeIn * fadeOut;
-
-        if (alpha > 0.005) {
-          const cosA = Math.cos(p.angle);
-          const sinA = Math.sin(p.angle);
-          const tx   = p.x - cosA * p.length;
-          const ty   = p.y - sinA * p.length;
-
-          // ── Trail ──
-          const trail = ctx.createLinearGradient(tx, ty, p.x, p.y);
-          trail.addColorStop(0,    `rgba(${p.r},${p.g},${p.b},0)`);
-          trail.addColorStop(0.45, `rgba(${p.r},${p.g},${p.b},${alpha * 0.25})`);
-          trail.addColorStop(1,    `rgba(${p.r},${p.g},${p.b},${alpha})`);
+          const lg = ctx.createLinearGradient(nodes[i].x, nodes[i].y, nodes[j].x, nodes[j].y);
+          lg.addColorStop(0,   `rgba(0,229,255,${a})`);
+          lg.addColorStop(0.5, `rgba(0,229,255,${a * 1.6})`);
+          lg.addColorStop(1,   `rgba(0,229,255,${a})`);
 
           ctx.beginPath();
+          ctx.moveTo(nodes[i].x, nodes[i].y);
+          ctx.lineTo(nodes[j].x, nodes[j].y);
+          ctx.strokeStyle = lg;
+          ctx.lineWidth   = 0.55;
+          ctx.stroke();
+
+          // Occasionally spawn a data pulse on this edge
+          if (Math.random() < 0.00025) {
+            pulses.push({
+              fromIdx:  i,
+              toIdx:    j,
+              progress: 0,
+              speed:    rnd(0.007, 0.018),
+              alpha:    rnd(0.35, 0.75),
+            });
+          }
+        }
+      }
+
+      /* ── 4. Nodes ── */
+      nodes.forEach(n => {
+        // Glow halo
+        const halo = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 5);
+        halo.addColorStop(0,   `rgba(0,229,255,${n.opacity * 0.5})`);
+        halo.addColorStop(1,   `rgba(0,229,255,0)`);
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r * 5, 0, Math.PI * 2);
+        ctx.fillStyle = halo;
+        ctx.fill();
+
+        // Core dot
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(0,229,255,${n.opacity})`;
+        ctx.fill();
+
+        // Pulse ring
+        if (n.pulseActive) {
+          const pr = (n.pulseTimer / 80) * 36;
+          const pa = Math.max(0, 1 - n.pulseTimer / 80) * 0.28;
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, pr, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(0,229,255,${pa})`;
+          ctx.lineWidth   = 1;
+          ctx.stroke();
+          if (++n.pulseTimer > 80) { n.pulseActive = false; n.pulseTimer = 0; }
+        }
+      });
+
+      /* ── 5. Data pulses ── */
+      for (let i = pulses.length - 1; i >= 0; i--) {
+        const p = pulses[i];
+        p.progress += p.speed;
+        if (p.progress > 1) { pulses.splice(i, 1); continue; }
+
+        const fn = nodes[p.fromIdx];
+        const tn = nodes[p.toIdx];
+        const px = fn.x + (tn.x - fn.x) * p.progress;
+        const py = fn.y + (tn.y - fn.y) * p.progress;
+
+        const dg = ctx.createRadialGradient(px, py, 0, px, py, 6);
+        dg.addColorStop(0,   `rgba(0,229,255,${p.alpha})`);
+        dg.addColorStop(0.45,`rgba(0,229,255,${p.alpha * 0.28})`);
+        dg.addColorStop(1,   `rgba(0,229,255,0)`);
+        ctx.beginPath();
+        ctx.arc(px, py, 6, 0, Math.PI * 2);
+        ctx.fillStyle = dg;
+        ctx.fill();
+      }
+
+      /* ── 6. Comets ── */
+      for (let i = 0; i < COMET_COUNT; i++) {
+        const c = comets[i];
+        c.x    += Math.cos(c.angle) * c.speed;
+        c.y    += Math.sin(c.angle) * c.speed;
+        c.life += 1;
+
+        const tv  = c.life / c.maxLife;
+        const fi  = Math.min(tv * 7, 1);
+        const fo  = tv > 0.6 ? 1 - (tv - 0.6) / 0.4 : 1;
+        const alp = c.opacity * fi * fo;
+
+        if (alp > 0.005) {
+          const ca = Math.cos(c.angle);
+          const sa = Math.sin(c.angle);
+          const tx = c.x - ca * c.length;
+          const ty = c.y - sa * c.length;
+
+          // Trail
+          const tg = ctx.createLinearGradient(tx, ty, c.x, c.y);
+          tg.addColorStop(0,    `rgba(${c.r},${c.g},${c.b},0)`);
+          tg.addColorStop(0.45, `rgba(${c.r},${c.g},${c.b},${alp * 0.28})`);
+          tg.addColorStop(1,    `rgba(${c.r},${c.g},${c.b},${alp})`);
+          ctx.beginPath();
           ctx.moveTo(tx, ty);
-          ctx.lineTo(p.x, p.y);
-          ctx.strokeStyle = trail;
-          ctx.lineWidth   = p.width;
+          ctx.lineTo(c.x, c.y);
+          ctx.strokeStyle = tg;
+          ctx.lineWidth   = c.width;
           ctx.lineCap     = "round";
           ctx.stroke();
 
-          // ── Head glow (mid-bright + ultra particles only) ──
-          if ((p.opacity > 0.35 || p.isUltra) && alpha > 0.08) {
-            const glowR = p.width * (p.isUltra ? 10 : 6);
-            const halo  = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, glowR);
-            halo.addColorStop(0,   `rgba(${p.r},${p.g},${p.b},${alpha})`);
-            halo.addColorStop(0.35,`rgba(${p.r},${p.g},${p.b},${alpha * 0.4})`);
-            halo.addColorStop(1,   `rgba(${p.r},${p.g},${p.b},0)`);
+          // Head glow
+          if (c.opacity > 0.28 && alp > 0.07) {
+            const gr = c.width * 7;
+            const hg = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, gr);
+            hg.addColorStop(0,    `rgba(${c.r},${c.g},${c.b},${alp})`);
+            hg.addColorStop(0.38, `rgba(${c.r},${c.g},${c.b},${alp * 0.32})`);
+            hg.addColorStop(1,    `rgba(${c.r},${c.g},${c.b},0)`);
             ctx.beginPath();
-            ctx.arc(p.x, p.y, glowR, 0, Math.PI * 2);
-            ctx.fillStyle = halo;
+            ctx.arc(c.x, c.y, gr, 0, Math.PI * 2);
+            ctx.fillStyle = hg;
             ctx.fill();
-
-            // Ultra: extra wide outer bloom
-            if (p.isUltra && alpha > 0.2) {
-              const bloom = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, glowR * 3);
-              bloom.addColorStop(0,  `rgba(${p.r},${p.g},${p.b},${alpha * 0.25})`);
-              bloom.addColorStop(1,  `rgba(${p.r},${p.g},${p.b},0)`);
-              ctx.beginPath();
-              ctx.arc(p.x, p.y, glowR * 3, 0, Math.PI * 2);
-              ctx.fillStyle = bloom;
-              ctx.fill();
-            }
           }
         }
 
-        // ── Respawn ──
-        if (
-          p.life >= p.maxLife ||
-          p.x > W + 300 ||
-          p.y > H + 300
-        ) {
-          particles[i] = makeParticle(W, H, false);
+        if (c.life >= c.maxLife || c.x > W + 400 || c.y > H + 400) {
+          comets[i] = makeComet(W, H, false);
         }
       }
 
@@ -203,7 +319,6 @@ export default function MeteorBackground() {
     };
 
     rafId = requestAnimationFrame(draw);
-
     return () => {
       cancelAnimationFrame(rafId);
       window.removeEventListener("resize", resize);
@@ -215,7 +330,10 @@ export default function MeteorBackground() {
       ref={canvasRef}
       aria-hidden="true"
       className="fixed inset-0 pointer-events-none"
-      style={{ zIndex: 0 }}
+      style={{
+        zIndex: 25,           // above sections wrapper (z-20)
+        mixBlendMode: "screen", // dark canvas = transparent, particles = additive glow
+      }}
     />
   );
 }
