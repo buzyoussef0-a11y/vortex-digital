@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Upload, X, FileText, Image, Film } from "lucide-react";
+import { Check, Upload, X, FileText, Image, Film, ChevronDown, Search, Plus } from "lucide-react";
 import {
   ProjectFormData, ROLE_OPTIONS, ROLE_TO_SEGMENT, WEBSITE_TYPES, TIMELINE_CARDS,
   GENERAL_SERVICE_CARDS, GENERAL_PROBLEMS, GENERAL_SITUATION,
   DENTAL_SERVICE_CARDS, DENTAL_PROBLEMS, DENTAL_SITUATION,
   BRAND_SERVICE_CARDS, BRAND_PROBLEMS, BRAND_SITUATION,
   STARTUP_SERVICE_CARDS, STARTUP_PROBLEMS, STARTUP_SITUATION,
-  SEGMENT_STEP2_HEADER,
+  SEGMENT_STEP2_HEADER, ALL_SERVICES,
 } from "./types";
 import * as LucideIcons from "lucide-react";
 
@@ -21,6 +21,177 @@ export const labelCls = "block text-[#00E5FF] font-mono text-xs tracking-widest 
 export const subLabelCls = "text-white/50 text-sm mb-4";
 export const errorCls = "text-red-400 text-sm mt-1";
 export const qNumCls = "text-[#00E5FF] font-mono text-xs mb-1";
+
+// ─── Service Dropdown ─────────────────────────────────────────────────────────
+
+function ServiceDropdown({ selected, onChange }: {
+  selected: string[];
+  onChange: (ids: string[]) => void;
+}) {
+  const [open, setOpen]         = useState(false);
+  const [search, setSearch]     = useState("");
+  const [custom, setCustom]     = useState("");
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const q = search.toLowerCase();
+  const filtered = ALL_SERVICES.filter(
+    s => s.label.toLowerCase().includes(q) || s.labelEn.toLowerCase().includes(q) || s.category.toLowerCase().includes(q)
+  );
+
+  const categories = [...new Set(filtered.map(s => s.category))];
+
+  const toggle = (id: string) => {
+    onChange(selected.includes(id) ? selected.filter(x => x !== id) : [...selected, id]);
+  };
+
+  const addCustom = () => {
+    const v = custom.trim();
+    if (!v) return;
+    const customId = `custom:${v}`;
+    onChange(selected.includes(customId) ? selected : [...selected, customId]);
+    setCustom("");
+  };
+
+  const selectedLabels = selected.map(id => {
+    if (id.startsWith("custom:")) return id.replace("custom:", "");
+    return ALL_SERVICES.find(s => s.id === id)?.label ?? id;
+  });
+
+  return (
+    <div ref={ref} className="relative">
+      {/* Trigger */}
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className={`w-full min-h-[56px] px-5 py-3 rounded-xl border text-left flex items-center justify-between gap-3 transition-all duration-200 ${
+          open
+            ? "border-[#00E5FF] shadow-[0_0_0_3px_rgba(0,229,255,0.08)] bg-[#00E5FF]/[0.04]"
+            : "border-[#00E5FF]/20 bg-[#00E5FF]/[0.04] hover:border-[#00E5FF]/40"
+        }`}
+      >
+        <div className="flex flex-wrap gap-1.5 flex-1">
+          {selectedLabels.length === 0 ? (
+            <span className="text-white/30 text-sm">اختر الخدمات اللي تبغيها...</span>
+          ) : (
+            selectedLabels.map((label, i) => (
+              <span key={i} className="flex items-center gap-1 bg-[#00E5FF]/15 border border-[#00E5FF]/30 text-[#00E5FF] text-xs font-mono px-2.5 py-1 rounded-full">
+                {label}
+                <button type="button" onClick={e => { e.stopPropagation(); onChange(selected.filter((_, idx) => idx !== i)); }}
+                  className="hover:text-white transition-colors ml-0.5">
+                  <X size={10} />
+                </button>
+              </span>
+            ))
+          )}
+        </div>
+        <motion.div animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}>
+          <ChevronDown size={18} className="text-[#00E5FF]/60 shrink-0" />
+        </motion.div>
+      </button>
+
+      {/* Dropdown panel */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.98 }}
+            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute top-full mt-2 left-0 right-0 z-50 rounded-2xl border border-[#00E5FF]/20 bg-[#00060E] shadow-[0_24px_80px_rgba(0,0,0,0.7)] overflow-hidden"
+          >
+            {/* Search bar */}
+            <div className="p-3 border-b border-white/5">
+              <div className="flex items-center gap-2 bg-white/[0.04] rounded-xl px-4 py-2.5 border border-white/8">
+                <Search size={14} className="text-white/40 shrink-0" />
+                <input
+                  autoFocus
+                  type="text"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  placeholder="ابحث عن خدمة... Search service..."
+                  className="flex-1 bg-transparent text-white text-sm placeholder-white/30 outline-none"
+                  dir="rtl"
+                />
+                {search && (
+                  <button type="button" onClick={() => setSearch("")} className="text-white/30 hover:text-white transition-colors">
+                    <X size={12} />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Services list */}
+            <div className="max-h-[320px] overflow-y-auto overscroll-contain p-2" onWheel={e => e.stopPropagation()}>
+              {categories.length === 0 ? (
+                <p className="text-white/30 text-sm text-center py-6" dir="rtl">ما لقينا نتيجة — استخدم الخانة هاتحت باش تكتب خدمتك</p>
+              ) : (
+                categories.map(cat => (
+                  <div key={cat} className="mb-3">
+                    <p className="text-white/25 text-[10px] font-mono uppercase tracking-widest px-3 py-1">{cat}</p>
+                    {filtered.filter(s => s.category === cat).map(service => {
+                      const sel = selected.includes(service.id);
+                      return (
+                        <button
+                          key={service.id}
+                          type="button"
+                          onClick={() => toggle(service.id)}
+                          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all duration-150 ${
+                            sel ? "bg-[#00E5FF]/10" : "hover:bg-white/[0.04]"
+                          }`}
+                        >
+                          <span className="text-lg shrink-0 w-7 text-center">{service.emoji}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-sm font-medium leading-tight ${sel ? "text-[#00E5FF]" : "text-white/85"}`} dir="rtl">
+                              {service.label}
+                            </p>
+                            <p className="text-white/30 text-[11px]">{service.labelEn}</p>
+                          </div>
+                          <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-all ${
+                            sel ? "bg-[#00E5FF] border-[#00E5FF]" : "border-white/20"
+                          }`}>
+                            {sel && <Check size={10} className="text-black" strokeWidth={3} />}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Custom service input */}
+            <div className="p-3 border-t border-white/5">
+              <p className="text-white/30 text-[11px] font-mono mb-2" dir="rtl">ما لقيتيش خدمتك؟ كتبها هنا:</p>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={custom}
+                  onChange={e => setCustom(e.target.value)}
+                  onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addCustom(); } }}
+                  placeholder="مثلاً: نظام ERP مخصص..."
+                  className="flex-1 bg-white/[0.04] border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-white/25 outline-none focus:border-[#00E5FF]/40 transition-colors"
+                  dir="rtl"
+                />
+                <button type="button" onClick={addCustom}
+                  className="shrink-0 w-10 h-10 rounded-xl bg-[#00E5FF]/10 border border-[#00E5FF]/30 flex items-center justify-center hover:bg-[#00E5FF]/20 transition-colors">
+                  <Plus size={16} className="text-[#00E5FF]" />
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 // ─── Step 1 ───────────────────────────────────────────────────────────────────
 
@@ -309,36 +480,11 @@ export function Step2({ data, update, onNext, onBack }: Step2Props) {
       <div>
         <p className={qNumCls}>Q1 —</p>
         <label className={labelCls} dir="rtl">أشنو تبغي نبنيو ليك؟</label>
-        <p className={subLabelCls} dir="rtl">ممكن تختار أكثر من واحد</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {serviceCards.map(c => {
-            const sel = data.services.includes(c.id);
-            return (
-              <motion.button key={c.id} type="button" onClick={() => toggleService(c.id)}
-                whileHover={{ scale: sel ? 1.02 : 1.015 }}
-                animate={{ scale: sel ? 1.02 : 1 }}
-                className={`relative p-6 rounded-xl border text-left min-h-[140px] flex flex-col justify-between transition-all ${sel
-                  ? "border-[#00E5FF]/60 bg-[#00E5FF]/8 shadow-[0_0_20px_rgba(0,229,255,0.12)]"
-                  : "border-[#00E5FF]/15 bg-[#00E5FF]/3 hover:border-[#00E5FF]/30"}`}
-              >
-                {sel && (
-                  <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-[#00E5FF] flex items-center justify-center">
-                    <Check size={11} className="text-black" />
-                  </div>
-                )}
-                {c.badge && (
-                  <span className="absolute top-3 left-3 text-[9px] font-mono bg-[#00E5FF] text-black px-2 py-0.5 rounded-full">{c.badge}</span>
-                )}
-                <div>
-                  <DynIcon name={c.icon} size={28} className="text-[#00E5FF] mb-3" />
-                  <p className="text-white text-lg font-bold" dir="rtl">{c.title}</p>
-                  <p className="text-white/50 text-xs mt-0.5">{c.sub}</p>
-                </div>
-                <p className="text-white/40 text-xs mt-2" dir="rtl">{c.desc}</p>
-              </motion.button>
-            );
-          })}
-        </div>
+        <p className={subLabelCls} dir="rtl">ممكن تختار أكثر من خدمة</p>
+        <ServiceDropdown
+          selected={data.services}
+          onChange={ids => update({ services: ids })}
+        />
       </div>
 
       {/* Q2 — Website type (show for web-related services only) */}
