@@ -64,7 +64,7 @@ export const metadata: Metadata = {
       "نصمم مواقع premium ونبني أنظمة أتمتة بالذكاء الاصطناعي تشتغل 24/7. ردّ في أقل من 24 ساعة — مجاني وبلا التزام.",
     images: [
       {
-        url: "/vortex.jpeg",
+        url: `${BASE_URL}/vortex.jpeg`,
         width: 1200,
         height: 630,
         alt: "Vortex Digital — وكالة مواقع وأتمتة AI في المغرب",
@@ -76,7 +76,7 @@ export const metadata: Metadata = {
     title: "Vortex Digital | مواقع احترافية + أتمتة AI — المغرب",
     description:
       "نصمم مواقع premium ونبني أنظمة أتمتة بالذكاء الاصطناعي. ردّ في أقل من 24 ساعة.",
-    images: ["/vortex.jpeg"],
+    images: [`${BASE_URL}/vortex.jpeg`],
     creator: "@vortexdigital",
   },
   verification: {
@@ -159,7 +159,7 @@ export default function RootLayout({
                   "@type": "ProfessionalService",
                   "@id": `${BASE_URL}/#service`,
                   name: "Vortex Digital",
-                  image: `${BASE_URL}/og-image.jpg`,
+                  image: `${BASE_URL}/vortex.jpeg`,
                   url: BASE_URL,
                   telephone: "+212705960845",
                   email: "vortexagence.digital@gmail.com",
