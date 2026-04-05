@@ -22,6 +22,26 @@ export const subLabelCls = "text-white/50 text-sm mb-4";
 export const errorCls = "text-red-400 text-sm mt-1";
 export const qNumCls = "text-[#00E5FF] font-mono text-xs mb-1";
 
+// ─── Hook: trap scroll inside a div, prevent Lenis from stealing it ──────────
+
+function useScrollTrap(ref: React.RefObject<HTMLDivElement | null>) {
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const handler = (e: WheelEvent) => {
+      const { scrollTop, scrollHeight, clientHeight } = el;
+      const atTop    = scrollTop === 0 && e.deltaY < 0;
+      const atBottom = scrollTop + clientHeight >= scrollHeight && e.deltaY > 0;
+      if (!atTop && !atBottom) {
+        e.preventDefault();
+        el.scrollTop += e.deltaY;
+      }
+    };
+    el.addEventListener("wheel", handler, { passive: false });
+    return () => el.removeEventListener("wheel", handler);
+  }, [ref]);
+}
+
 // ─── Service Row (shared) ─────────────────────────────────────────────────────
 
 function ServiceRow({ service, sel, onToggle }: {
@@ -76,6 +96,8 @@ function RoleDropdown({ value, onChange }: { value: string; onChange: (v: string
   const [open, setOpen]     = useState(false);
   const [search, setSearch] = useState("");
   const ref = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  useScrollTrap(listRef);
   const selected = value?.startsWith("custom:")
     ? { emoji: "✏️", label: value.replace("custom:", ""), sub: "مهنة مخصصة" }
     : ROLE_OPTIONS.find(r => r.id === value);
@@ -145,9 +167,9 @@ function RoleDropdown({ value, onChange }: { value: string; onChange: (v: string
 
               {/* Role list */}
               <div
+                ref={listRef}
                 className="overflow-y-auto p-2"
                 style={{ maxHeight: "300px" }}
-                onWheel={e => { e.stopPropagation(); e.currentTarget.scrollTop += e.deltaY; }}
               >
                 {categories.length === 0 ? (
                   <p className="text-white/30 text-xs text-center py-6" dir="rtl">ما لقينا نتيجة</p>
@@ -203,6 +225,8 @@ function ServiceDropdown({ selected, onChange, role }: {
   const [open, setOpen]     = useState(false);
   const [search, setSearch] = useState("");
   const ref = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  useScrollTrap(listRef);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -297,7 +321,7 @@ function ServiceDropdown({ selected, onChange, role }: {
             </div>
 
             {/* Services list */}
-            <div className="max-h-[340px] overflow-y-auto overscroll-contain p-2" onWheel={e => { e.stopPropagation(); e.currentTarget.scrollTop += e.deltaY; }}>
+            <div ref={listRef} className="max-h-[340px] overflow-y-auto overscroll-contain p-2">
               {recommended.length === 0 && categories.length === 0 ? (
                 <p className="text-white/30 text-sm text-center py-6" dir="rtl">ما لقينا نتيجة</p>
               ) : (
