@@ -305,17 +305,21 @@ const NavArrow = ({ direction, onClick }: { direction: "left" | "right"; onClick
       onClick={onClick}
       onHoverStart={() => setHov(true)}
       onHoverEnd={() => setHov(false)}
-      whileTap={{ scale: 0.88 }}
-      className="relative w-10 h-10 rounded-full flex items-center justify-center z-20 shrink-0"
+      whileHover={{ scale: 1.12 }}
+      whileTap={{ scale: 0.9 }}
+      className="relative w-14 h-14 rounded-full flex items-center justify-center shrink-0"
       style={{
-        background: hov ? "rgba(0,229,255,0.15)" : "rgba(0,229,255,0.06)",
-        border: hov ? "1px solid rgba(0,229,255,0.55)" : "1px solid rgba(0,229,255,0.2)",
-        boxShadow: hov ? "0 0 20px rgba(0,229,255,0.3)" : "none",
-        transition: "all 0.25s ease",
+        background: hov ? "rgba(0,229,255,0.18)" : "rgba(0,5,10,0.75)",
+        border: hov ? "1.5px solid rgba(0,229,255,0.8)" : "1.5px solid rgba(0,229,255,0.35)",
+        boxShadow: hov
+          ? "0 0 28px rgba(0,229,255,0.5), inset 0 0 12px rgba(0,229,255,0.08)"
+          : "0 0 10px rgba(0,229,255,0.15)",
+        backdropFilter: "blur(12px)",
+        transition: "background 0.25s, border 0.25s, box-shadow 0.25s",
       }}
       aria-label={direction === "left" ? "Previous project" : "Next project"}
     >
-      <Icon size={16} style={{ color: hov ? "#00E5FF" : "rgba(0,229,255,0.55)" }} />
+      <Icon size={22} style={{ color: hov ? "#00E5FF" : "rgba(0,229,255,0.75)" }} strokeWidth={2.5} />
     </motion.button>
   );
 };
@@ -486,7 +490,7 @@ export default function PortfolioSection() {
           {/* ── Phase 2: carousel (layoutId — cards slide between slots, no fade) ── */}
           {carouselActive && (
             <LayoutGroup id="portfolio-carousel">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+              <div className="relative grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
                 <AnimatePresence mode="popLayout" initial={false}>
                   {[leftIdx, centerIdx, rightIdx].map((projIdx, slot) => (
                     <motion.div
@@ -500,18 +504,23 @@ export default function PortfolioSection() {
                       className="relative"
                     >
                       <ProjectCard project={projects[projIdx]} />
-
-                      {/* Nav arrows on center slot only */}
-                      {slot === 1 && (
-                        <div className="absolute bottom-7 left-1/2 -translate-x-1/2 flex items-center gap-3 z-30">
-                          <NavArrow direction="left" onClick={goPrev} />
-                          <DotIndicator total={TOTAL} active={centerIdx} />
-                          <NavArrow direction="right" onClick={goNext} />
-                        </div>
-                      )}
                     </motion.div>
                   ))}
                 </AnimatePresence>
+
+                {/* Left arrow — centered on boundary between col1 and col2 */}
+                <div className="hidden md:block absolute top-1/2 -translate-y-1/2 left-1/3 -translate-x-1/2 z-40 pointer-events-auto">
+                  <NavArrow direction="left" onClick={goPrev} />
+                </div>
+                {/* Right arrow — centered on boundary between col2 and col3 */}
+                <div className="hidden md:block absolute top-1/2 -translate-y-1/2 left-2/3 -translate-x-1/2 z-40 pointer-events-auto">
+                  <NavArrow direction="right" onClick={goNext} />
+                </div>
+
+                {/* Dot indicator — below grid, centered */}
+                <div className="md:col-span-3 flex justify-center pt-2">
+                  <DotIndicator total={TOTAL} active={centerIdx} />
+                </div>
               </div>
             </LayoutGroup>
           )}
