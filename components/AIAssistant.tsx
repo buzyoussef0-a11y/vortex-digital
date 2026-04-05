@@ -197,7 +197,10 @@ export default function AIAssistant() {
                   style={{
                     maxHeight: "320px",
                     scrollbarWidth: "none",
+                    overscrollBehavior: "contain",
                   }}
+                  onWheel={e => e.stopPropagation()}
+                  onTouchMove={e => e.stopPropagation()}
                 >
                   {messages.map((msg, i) => (
                     <motion.div
