@@ -148,7 +148,7 @@ function RoleDropdown({ value, onChange }: { value: string; onChange: (v: string
               <div
                 data-lenis-prevent
                 className="overflow-y-auto p-2"
-                style={{ maxHeight: "300px" }}
+                style={{ maxHeight: "280px" }}
               >
                 {categories.length === 0 ? (
                   <p className="text-white/30 text-xs text-center py-6" dir="rtl">ما لقينا نتيجة</p>
@@ -298,7 +298,7 @@ function ServiceDropdown({ selected, onChange, role }: {
             </div>
 
             {/* Services list */}
-            <div data-lenis-prevent className="max-h-[340px] overflow-y-auto overscroll-contain p-2">
+            <div data-lenis-prevent className="max-h-[280px] overflow-y-auto overscroll-contain p-2">
               {recommended.length === 0 && categories.length === 0 ? (
                 <p className="text-white/30 text-sm text-center py-6" dir="rtl">ما لقينا نتيجة</p>
               ) : (

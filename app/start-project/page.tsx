@@ -164,7 +164,7 @@ export default function StartProjectPage() {
           </AnimatePresence>
 
           {/* Wizard card */}
-          <div className="rounded-3xl border border-[#00E5FF]/12 bg-[#00E5FF]/[0.025] backdrop-blur-xl p-6 sm:p-10 relative overflow-hidden">
+          <div className="rounded-3xl border border-[#00E5FF]/12 bg-[#00E5FF]/[0.025] backdrop-blur-xl p-6 sm:p-10 relative">
             {/* Corner glow */}
             <div className="absolute -top-20 -right-20 w-64 h-64 bg-[#00E5FF]/8 blur-[80px] rounded-full pointer-events-none" />
 
