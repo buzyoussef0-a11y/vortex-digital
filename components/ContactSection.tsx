@@ -405,10 +405,9 @@ function FileUploadZone({
 // ─── Step 2 ────────────────────────────────────────────────────────────────────
 
 const SERVICE_CARDS: SelectCardItem[] = [
-  { id: "web", icon: Globe, title: "موقع ويب / Web Design", subtitle: "Landing page, portfolio, e-commerce" },
-  { id: "ai", icon: Bot, title: "أتمتة بالذكاء الاصطناعي / AI", subtitle: "WhatsApp bots, lead systems, auto-booking" },
-  { id: "brand", icon: Layers, title: "هوية بصرية / Brand Identity", subtitle: "Logo, colors, brand guidelines" },
-  { id: "full", icon: Package, title: "الباكاج الكامل / Full Package", subtitle: "Web + AI + Brand — everything" },
+  { id: "web", icon: Globe, title: "موقع ويب / Web Design", subtitle: "Landing page, portfolio, e-commerce, booking" },
+  { id: "ai", icon: Bot, title: "أتمتة بالذكاء الاصطناعي / AI", subtitle: "WhatsApp bots, lead systems, auto-booking 24/7" },
+  { id: "full", icon: Package, title: "الباكاج الكامل / Full Package", subtitle: "Web + AI Automation — الحل الشامل", badge: "⚡ الأكثر طلباً" },
 ];
 
 const WEB_TYPE_CARDS: SelectCardItem[] = [
@@ -545,7 +544,7 @@ function Step2({
       {/* Q6 — Inspiration */}
       <div>
         <label className={labelCls} dir="rtl">
-          عندك مواقع أو brands أعجبوك؟ <span className="text-white/25">(optional)</span>
+          عندك مواقع أعجبوك؟ <span className="text-white/25">(optional)</span>
         </label>
         <textarea
           rows={3}
@@ -560,7 +559,7 @@ function Step2({
       {/* Q7 — Files */}
       <div>
         <label className={labelCls} dir="rtl">عندك ملفات تخص مشروعك؟ <span className="text-white/25">(optional)</span></label>
-        <p className="text-white/30 text-[11px] mb-3" dir="rtl">Logo، صور، brand guidelines، mockups، أي حاجة تساعدنا نفهم مشروعك مزيان</p>
+        <p className="text-white/30 text-[11px] mb-3" dir="rtl">صور، mockups، أي حاجة تساعدنا نفهم مشروعك مزيان</p>
         <FileUploadZone files={data.files} onAdd={addFiles} onRemove={removeFile} />
       </div>
 
@@ -588,7 +587,7 @@ const BUDGETS = [
   { id: "lt5k", label: "< 5,000 MAD", sub: "موقع بسيط / Landing page", bars: 1 },
   { id: "5-15k", label: "5,000 – 15,000 MAD", sub: "موقع premium أو automation بسيط", bars: 2 },
   { id: "15-30k", label: "15,000 – 30,000 MAD", sub: "موقع + AI automation", bars: 3, badge: "الأكثر شيوعاً" },
-  { id: "gt30k", label: "30,000 MAD+", sub: "الباكاج الكامل — web + AI + brand", bars: 4 },
+  { id: "gt30k", label: "30,000 MAD+", sub: "مشاريع كبيرة — web + AI automation شاملة", bars: 4 },
   { id: "discuss", label: "نتكلمو على الميزانية", sub: "مابغيتش نحدد دابا — نتناقشو أولاً", bars: 0 },
 ];
 
@@ -616,7 +615,7 @@ function MiniBarChart({ bars }: { bars: number }) {
 }
 
 const SERVICE_LABELS: Record<string, string> = {
-  web: "موقع ويب", ai: "AI Automation", brand: "هوية بصرية", full: "الباكاج الكامل"
+  web: "موقع ويب", ai: "AI Automation", full: "الباكاج الكامل"
 };
 
 function Step3({

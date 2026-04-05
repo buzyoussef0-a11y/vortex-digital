@@ -535,12 +535,36 @@ export function Step2({ data, update, onNext, onBack }: Step2Props) {
       <div>
         <p className={qNumCls}>Q1 —</p>
         <label className={labelCls} dir="rtl">أشنو تبغي نبنيو ليك؟</label>
-        <p className={subLabelCls} dir="rtl">ممكن تختار أكثر من خدمة</p>
-        <ServiceDropdown
-          selected={data.services}
-          onChange={ids => update({ services: ids })}
-          role={data.role}
-        />
+        <p className={subLabelCls} dir="rtl">ممكن تختار أكثر من واحد</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {serviceCards.map(c => {
+            const sel = data.services.includes(c.id);
+            return (
+              <motion.button key={c.id} type="button" onClick={() => toggleService(c.id)}
+                whileHover={{ scale: sel ? 1.02 : 1.015 }}
+                animate={{ scale: sel ? 1.02 : 1 }}
+                className={`relative p-6 rounded-xl border text-left min-h-[140px] flex flex-col justify-between transition-all ${sel
+                  ? "border-[#00E5FF]/60 bg-[#00E5FF]/8 shadow-[0_0_20px_rgba(0,229,255,0.12)]"
+                  : "border-[#00E5FF]/15 bg-[#00E5FF]/3 hover:border-[#00E5FF]/30"}`}
+              >
+                {sel && (
+                  <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-[#00E5FF] flex items-center justify-center">
+                    <Check size={11} className="text-black" />
+                  </div>
+                )}
+                {c.badge && (
+                  <span className="absolute top-3 left-3 text-[9px] font-mono bg-[#00E5FF] text-black px-2 py-0.5 rounded-full">{c.badge}</span>
+                )}
+                <div>
+                  <DynIcon name={c.icon} size={28} className="text-[#00E5FF] mb-3" />
+                  <p className="text-white text-lg font-bold" dir="rtl">{c.title}</p>
+                  <p className="text-white/50 text-xs mt-0.5">{c.sub}</p>
+                </div>
+                <p className="text-white/40 text-xs mt-2" dir="rtl">{c.desc}</p>
+              </motion.button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Q2 — Website type (show for web-related services only) */}

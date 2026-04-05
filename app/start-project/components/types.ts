@@ -96,18 +96,11 @@ export const SERVICE_CARDS = [
     desc: "WhatsApp bots, lead qualification, auto-booking",
   },
   {
-    id: "brand",
-    icon: "Layers",
-    title: "هوية بصرية",
-    sub: "Brand Identity",
-    desc: "Logo, colors, brand guidelines, social media kit",
-  },
-  {
     id: "full",
     icon: "Package",
     title: "الباكاج الكامل",
-    sub: "Everything",
-    desc: "Web + AI Automation + Brand — الحل الشامل",
+    sub: "Web + AI Automation",
+    desc: "موقع ويب احترافي + أتمتة ذكية — الحل الشامل لمشروعك",
     badge: "⚡ الأكثر طلباً",
   },
 ];
@@ -146,7 +139,7 @@ export const BUDGETS = [
   { id: "lt5k", label: "< 5,000 MAD", desc: "موقع بسيط / Landing page / Redesign", pct: 20 },
   { id: "5-15k", label: "5,000 – 15,000 MAD", desc: "موقع premium أو automation بسيط", pct: 40 },
   { id: "15-30k", label: "15,000 – 30,000 MAD", desc: "موقع كامل + AI automation", pct: 65, badge: "⚡ الأكثر شيوعاً" },
-  { id: "gt30k", label: "30,000 MAD+", desc: "الباكاج الكامل — web + AI + brand", pct: 90 },
+  { id: "gt30k", label: "30,000 MAD+", desc: "مشاريع كبيرة — web + AI automation شاملة", pct: 90 },
   { id: "discuss", label: "نتكلمو — مابغيتش نحدد دابا", desc: "نتناقشو أولاً ونشوفو مع بعض", pct: 0 },
 ];
 
@@ -157,7 +150,7 @@ export const CONTACT_METHODS: { id: "whatsapp" | "email" | "call"; label: string
 ];
 
 export const SERVICE_LABELS: Record<string, string> = {
-  web: "موقع ويب", ai: "AI Automation", brand: "هوية بصرية", full: "الباكاج الكامل",
+  web: "موقع ويب", ai: "AI Automation", full: "الباكاج الكامل",
 };
 
 // ─── All services dropdown list ───────────────────────────────────────────────
@@ -171,7 +164,7 @@ export interface ServiceOption {
   roles: string[]; // which role ids this service is recommended for (empty = all)
 }
 
-// Vortex Digital only offers: Website Creation, AI Automation, Brand Identity
+// Vortex Digital offers: Website Creation + AI Automation
 export const ALL_SERVICES: ServiceOption[] = [
   // 🌐 إنشاء المواقع
   { id: "landing-page",       label: "Landing Page",               labelEn: "Landing Page",                  category: "🌐 إنشاء المواقع", emoji: "🌐", roles: ["startup-founder","marketing-manager","sales-manager","social-media-mgr","brand-manager","influencer","content-creator","copywriter","other"] },
@@ -190,12 +183,8 @@ export const ALL_SERVICES: ServiceOption[] = [
   { id: "booking-automation", label: "أتمتة الحجوزات",            labelEn: "Booking Automation",            category: "🤖 الأتمتة بالذكاء الاصطناعي", emoji: "📅", roles: ["doctor","dentist","therapist","coach","restaurant-owner","hotel-owner","contractor","teacher"] },
   { id: "crm-automation",     label: "أتمتة CRM / متابعة العملاء",labelEn: "CRM Automation",               category: "🤖 الأتمتة بالذكاء الاصطناعي", emoji: "🗂️", roles: ["business-owner","ceo","sales-manager","real-estate","ecommerce-seller"] },
   { id: "ai-content",         label: "توليد محتوى بالذكاء الاصطناعي",labelEn: "AI Content Generation",    category: "🤖 الأتمتة بالذكاء الاصطناعي", emoji: "✍️", roles: ["content-creator","copywriter","marketing-manager","social-media-mgr","influencer","brand-manager"] },
-  // 🎨 الهوية البصرية
-  { id: "logo",               label: "تصميم شعار احترافي",        labelEn: "Professional Logo Design",      category: "🎨 الهوية البصرية", emoji: "🎨", roles: ["freelancer","designer","startup-founder","business-owner","ceo","chef","coach","copywriter","photographer","architect"] },
-  { id: "brand-identity",     label: "هوية بصرية كاملة",          labelEn: "Full Brand Identity",           category: "🎨 الهوية البصرية", emoji: "✨", roles: ["startup-founder","business-owner","ceo","freelancer","influencer","content-creator","restaurant-owner","hotel-owner"] },
-  { id: "social-kit",         label: "تصاميم سوشيال ميديا",       labelEn: "Social Media Design Kit",       category: "🎨 الهوية البصرية", emoji: "📱", roles: ["social-media-mgr","influencer","content-creator","marketing-manager","brand-manager","copywriter","teacher","coach"] },
   // ⚡ الباكاج الكامل
-  { id: "full-package",       label: "الباكاج الكامل — ويب + أتمتة + هوية", labelEn: "Full Package (Web + AI + Brand)", category: "⚡ الباكاج الكامل", emoji: "⚡", roles: [] },
+  { id: "full-package",       label: "الباكاج الكامل — ويب + أتمتة ذكية", labelEn: "Full Package (Web + AI Automation)", category: "⚡ الباكاج الكامل", emoji: "⚡", roles: [] },
 ];
 
 // ─── Segment-specific Step 2 data ────────────────────────────────────────────
@@ -241,33 +230,31 @@ export const DENTAL_SITUATION = [
 
 // BRAND/FREELANCER segment
 export const BRAND_SERVICE_CARDS = [
-  { id: "brand-identity", icon: "Layers", title: "هوية بصرية", sub: "Brand Identity", desc: "Logo، ألوان، typography، brand guidelines كاملة" },
-  { id: "brand-web", icon: "Globe", title: "موقع Portfolio", sub: "Portfolio Website", desc: "موقع يعرض شغلك ويجيب ليك كلياني جدد" },
-  { id: "brand-social", icon: "Sparkles", title: "Social Media Kit", sub: "Content Design", desc: "تمبليتات Instagram، posts، stories — كل شي جاهز" },
-  { id: "brand-full", icon: "Package", title: "الباكاج الكامل", sub: "Brand + Web", desc: "هوية بصرية كاملة + موقع portfolio — الحل الشامل", badge: "⚡ الأكثر طلباً" },
+  { id: "brand-web", icon: "Globe", title: "موقع Portfolio", sub: "Portfolio Website", desc: "موقع يعرض شغلك ويجيب ليك كلياني جدد — احترافي ومميز" },
+  { id: "brand-ai", icon: "Bot", title: "أتمتة بالذكاء الاصطناعي", sub: "AI Automation", desc: "بوت WhatsApp يرد على الكلياني ويجدول المواعيد تلقائياً" },
+  { id: "brand-full", icon: "Package", title: "الباكاج الكامل", sub: "Web + AI Automation", desc: "موقع portfolio احترافي + أتمتة ذكية — الحل الشامل", badge: "⚡ الأكثر طلباً" },
 ];
 export const BRAND_PROBLEMS = [
-  "🎨 ما عنديش هوية بصرية واضحة",
   "👎 برصتي الديجيتال ما تعكسش مستواي",
   "📉 كنخسر كلياني لمنافسين بشغل أضعف",
   "🌫️ ما عنديش موقع يعرض شغلي",
-  "💸 كنخسر وقت في تصميم كل بوست",
+  "⏰ كنضيع وقت كثير في التواصل مع الكلياني",
   "🤷 الكلياني ما كيفهموش قيمة شغلي",
   "📲 بغيت نوصل لكلياني أحسن على الإنترنت",
-  "⚡ بغيت أتوماتيزي بعض الأشياء",
+  "🤖 ماعنديش أي أتمتة في شغلي",
+  "📅 الحجوزات والمواعيد كتاخد وقت بزاف",
 ];
 export const BRAND_SITUATION = [
-  "لا، ما عنديش أي هوية بصرية",
-  "عندي شعار بس بغيت نكملو",
-  "عندي هوية بصرية بغيت نحدثها",
+  "لا، هاد أول موقع ليا",
+  "عندي موقع قديم بغيت نجددو",
+  "عندي موقع بغيت نضيف ليه أتمتة ذكية",
 ];
 
 // STARTUP segment
 export const STARTUP_SERVICE_CARDS = [
   { id: "startup-web", icon: "Globe", title: "موقع المشروع", sub: "Product Website", desc: "Landing page أو full product site — يحول الزوار لعملاء" },
   { id: "startup-ai", icon: "Bot", title: "AI Automation", sub: "Smart Systems", desc: "Chatbot، lead qualification، onboarding تلقائي" },
-  { id: "startup-brand", icon: "Layers", title: "هوية بصرية", sub: "Brand Identity", desc: "Brand جذاب يبني الثقة مع الـ investors والعملاء" },
-  { id: "startup-full", icon: "Package", title: "الباكاج الكامل", sub: "Full System", desc: "Web + AI + Brand — كل ما يحتاجه startup ناجح", badge: "⚡ الأوفر" },
+  { id: "startup-full", icon: "Package", title: "الباكاج الكامل", sub: "Web + AI Automation", desc: "موقع احترافي + أتمتة ذكية — كل ما يحتاجه startup ناجح", badge: "⚡ الأوفر" },
 ];
 export const STARTUP_PROBLEMS = [
   "🚀 بغيت نطلق بسرعة قبل المنافسين",
@@ -275,7 +262,7 @@ export const STARTUP_PROBLEMS = [
   "🌫️ ما عنديش حضور رقمي واضح",
   "📉 Conversion rate ديالي ضعيف",
   "🤖 بغيت أتوماتيزي الـ onboarding",
-  "👎 الـ branding ديالي ما يعكسش vision ديالي",
+  "👎 موقعي ما يعكسش vision ديالي",
   "📲 بغيت نوصل لـ investors وعملاء جدد",
   "⚡ بغيت نسكل بسرعة",
 ];
@@ -287,10 +274,9 @@ export const STARTUP_SITUATION = [
 
 // GENERAL/BUSINESS segment (default)
 export const GENERAL_SERVICE_CARDS = [
-  { id: "web", icon: "Globe", title: "موقع ويب", sub: "Web Design & Development", desc: "Landing page, portfolio, e-commerce, booking" },
-  { id: "ai", icon: "Bot", title: "أتمتة بالذكاء الاصطناعي", sub: "AI Automation", desc: "WhatsApp bots, lead qualification, auto-booking" },
-  { id: "brand", icon: "Layers", title: "هوية بصرية", sub: "Brand Identity", desc: "Logo, colors, brand guidelines, social media kit" },
-  { id: "full", icon: "Package", title: "الباكاج الكامل", sub: "Everything", desc: "Web + AI Automation + Brand — الحل الشامل", badge: "⚡ الأكثر طلباً" },
+  { id: "web", icon: "Globe", title: "موقع ويب", sub: "Web Design & Development", desc: "Landing page, portfolio, e-commerce, booking — احترافي ومميز" },
+  { id: "ai", icon: "Bot", title: "أتمتة بالذكاء الاصطناعي", sub: "AI Automation", desc: "WhatsApp bots، lead qualification، auto-booking — يشتغل 24/7" },
+  { id: "full", icon: "Package", title: "الباكاج الكامل", sub: "Web + AI Automation", desc: "موقع ويب احترافي + أتمتة ذكية — الحل الشامل لمشروعك", badge: "⚡ الأكثر طلباً" },
 ];
 export const GENERAL_PROBLEMS = [
   "😔 مكيجيش كليان من الإنترنت",

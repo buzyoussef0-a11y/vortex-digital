@@ -146,11 +146,11 @@ export default function Services() {
                 imageGlow={<div className="absolute -bottom-10 -left-10 w-48 h-48 bg-[#00E5FF]/8 rounded-full blur-[50px]" />}
             />
             <Card
-                title="Digital Identity"
-                description="Exclusive brand architectures for the forward-thinking visionaries."
+                title="Web Experience"
+                description="Premium websites engineered for impact — scroll animations, 3D, and conversion-focused design."
                 accent="#00E5FF"
                 videoSrc="/video/Abstract_emblem_forming_in_space_e001b56b92.mp4"
-                imageSrc="https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=700&q=80"
+                imageSrc="https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=700&q=80"
                 imageGlow={<div className="absolute top-1/2 right-0 w-32 h-32 bg-[#7B61FF]/10 rounded-full blur-[40px]" />}
             />
         </section>

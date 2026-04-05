@@ -33,8 +33,8 @@ const testimonials: Testimonial[] = [
     {
         name: "Sara Benali",
         role: "Coach & Consultant — Rabat",
-        arabic: "البراند ديالي تبدل 180 درجة",
-        text: "My personal brand went from amateur to premium overnight. The digital identity package completely transformed how clients perceive me.",
+        arabic: "الموقع ديالي تبدل 180 درجة",
+        text: "My website went from amateur to premium overnight. The AI chatbot they built completely transformed how clients find and book me online.",
         rating: 5,
         initials: "SB",
     },
