@@ -3,7 +3,7 @@
 import React, { useRef, useState, useCallback, useEffect } from "react";
 import {
   motion, useScroll, useTransform, useSpring,
-  useMotionValue, AnimatePresence,
+  useMotionValue, AnimatePresence, useInView,
 } from "framer-motion";
 import {
   Stethoscope, Layers, Globe, ArrowRight, Building2,
@@ -345,6 +345,7 @@ const SLIDE_DURATION = 5500; // ms per auto-advance
 
 export default function PortfolioSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const cardsRef   = useRef<HTMLDivElement>(null);
   const [centerIdx, setCenterIdx]   = useState(1);
   const [direction, setDirection]   = useState(1); // 1=forward, -1=backward
   const [carouselActive, setCarouselActive] = useState(false);
@@ -353,13 +354,13 @@ export default function PortfolioSection() {
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start end", "end start"] });
   const s = useSpring(scrollYProgress, { stiffness: 50, damping: 16, restDelta: 0.001 });
 
-  /* Activate carousel once scroll has settled */
+  /* Activate carousel 2s after cards enter viewport */
+  const cardsInView = useInView(cardsRef, { once: true, margin: "-80px" });
   useEffect(() => {
-    const unsubscribe = s.on("change", v => {
-      if (v > 0.45) setCarouselActive(true);
-    });
-    return unsubscribe;
-  }, [s]);
+    if (!cardsInView) return;
+    const timer = setTimeout(() => setCarouselActive(true), 2000);
+    return () => clearTimeout(timer);
+  }, [cardsInView]);
 
   /* Auto-advance */
   useEffect(() => {
@@ -467,7 +468,7 @@ export default function PortfolioSection() {
         </motion.div>
 
         {/* Cards grid */}
-        <div className="relative" style={{ perspective: "1400px" }}>
+        <div ref={cardsRef} className="relative" style={{ perspective: "1400px" }}>
 
           {/* Spotlight burst */}
           <motion.div
