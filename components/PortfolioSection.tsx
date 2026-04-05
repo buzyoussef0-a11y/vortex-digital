@@ -3,7 +3,7 @@
 import React, { useRef, useState, useCallback, useEffect } from "react";
 import {
   motion, useScroll, useTransform, useSpring,
-  useMotionValue, AnimatePresence, useInView,
+  useMotionValue, AnimatePresence, useInView, LayoutGroup,
 } from "framer-motion";
 import {
   Stethoscope, Layers, Globe, ArrowRight, Building2,
@@ -416,14 +416,6 @@ export default function PortfolioSection() {
   const orb1Y = useTransform(s, [0, 1], ["-20%", "20%"]);
   const orb2Y = useTransform(s, [0, 1], ["15%", "-15%"]);
 
-  /* Carousel slide variants */
-  const slideVariants = {
-    enter:  (d: number) => ({ x: d > 0 ? 340 : -340, opacity: 0, scale: 0.88 }),
-    center: { x: 0, opacity: 1, scale: 1 },
-    exit:   (d: number) => ({ x: d > 0 ? -340 : 340, opacity: 0, scale: 0.88 }),
-  };
-
-  const transition = { duration: 0.7, ease: [0.22, 1, 0.36, 1] };
 
   return (
     <section ref={sectionRef} id="portfolio" className="relative bg-[#010912] overflow-hidden" style={{ minHeight: "185vh" }}>
@@ -491,68 +483,37 @@ export default function PortfolioSection() {
             </div>
           )}
 
-          {/* ── Phase 2: carousel ── */}
+          {/* ── Phase 2: carousel (layoutId — cards slide between slots, no fade) ── */}
           {carouselActive && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 relative">
+            <LayoutGroup id="portfolio-carousel">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+                <AnimatePresence mode="popLayout" initial={false}>
+                  {[leftIdx, centerIdx, rightIdx].map((projIdx, slot) => (
+                    <motion.div
+                      key={projects[projIdx].id}
+                      layoutId={`pf-card-${projects[projIdx].id}`}
+                      layout="position"
+                      initial={{ opacity: 0, scale: 0.94 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.94 }}
+                      transition={{ layout: { duration: 0.65, ease: [0.22, 1, 0.36, 1] }, opacity: { duration: 0.25 }, scale: { duration: 0.25 } }}
+                      className="relative"
+                    >
+                      <ProjectCard project={projects[projIdx]} />
 
-              {/* Left card slot */}
-              <div className="relative overflow-hidden">
-                <AnimatePresence custom={direction} mode="popLayout">
-                  <motion.div
-                    key={`left-${leftIdx}`}
-                    custom={direction}
-                    variants={slideVariants}
-                    initial="enter"
-                    animate="center"
-                    exit="exit"
-                    transition={transition}
-                  >
-                    <ProjectCard project={projects[leftIdx]} />
-                  </motion.div>
+                      {/* Nav arrows on center slot only */}
+                      {slot === 1 && (
+                        <div className="absolute bottom-7 left-1/2 -translate-x-1/2 flex items-center gap-3 z-30">
+                          <NavArrow direction="left" onClick={goPrev} />
+                          <DotIndicator total={TOTAL} active={centerIdx} />
+                          <NavArrow direction="right" onClick={goNext} />
+                        </div>
+                      )}
+                    </motion.div>
+                  ))}
                 </AnimatePresence>
               </div>
-
-              {/* Center card slot — with nav arrows */}
-              <div className="relative overflow-hidden">
-                <AnimatePresence custom={direction} mode="popLayout">
-                  <motion.div
-                    key={`center-${centerIdx}`}
-                    custom={direction}
-                    variants={slideVariants}
-                    initial="enter"
-                    animate="center"
-                    exit="exit"
-                    transition={transition}
-                  >
-                    <ProjectCard project={projects[centerIdx]} />
-                  </motion.div>
-                </AnimatePresence>
-
-                {/* Nav arrows — anchored to bottom of center card */}
-                <div className="absolute bottom-7 left-1/2 -translate-x-1/2 flex items-center gap-3 z-30">
-                  <NavArrow direction="left" onClick={goPrev} />
-                  <DotIndicator total={TOTAL} active={centerIdx} />
-                  <NavArrow direction="right" onClick={goNext} />
-                </div>
-              </div>
-
-              {/* Right card slot */}
-              <div className="relative overflow-hidden">
-                <AnimatePresence custom={direction} mode="popLayout">
-                  <motion.div
-                    key={`right-${rightIdx}`}
-                    custom={direction}
-                    variants={slideVariants}
-                    initial="enter"
-                    animate="center"
-                    exit="exit"
-                    transition={transition}
-                  >
-                    <ProjectCard project={projects[rightIdx]} />
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-            </div>
+            </LayoutGroup>
           )}
         </div>
 
