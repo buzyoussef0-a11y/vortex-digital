@@ -5,7 +5,7 @@ import { motion, AnimatePresence, useScroll, useTransform, useSpring } from "fra
 import {
   Mail, MessageCircle, MapPin, Instagram, Linkedin, Twitter,
   Check, Globe, Bot, Layers, Package, Layout, Sparkles,
-  ShoppingBag, Upload, X, MessageCircle as MsgCircle,
+  ShoppingBag, Upload, X,
   CheckCircle2, ChevronLeft, ChevronRight, BarChart2
 } from "lucide-react";
 import { sendProjectForm } from "@/app/actions/contact";
@@ -46,7 +46,7 @@ const defaultFormData: ProjectFormData = {
 const STEPS = [
   { num: 1, label: "Info" },
   { num: 2, label: "Project" },
-  { num: 3, label: "Budget" },
+  { num: 3, label: "Contact" },
 ];
 
 const StepIndicator = ({ current }: { current: number }) => (
@@ -583,13 +583,6 @@ function Step2({
 
 // ─── Step 3 ────────────────────────────────────────────────────────────────────
 
-const BUDGETS = [
-  { id: "lt5k", label: "< 5,000 MAD", sub: "موقع بسيط / Landing page", bars: 1 },
-  { id: "5-15k", label: "5,000 – 15,000 MAD", sub: "موقع premium أو automation بسيط", bars: 2 },
-  { id: "15-30k", label: "15,000 – 30,000 MAD", sub: "موقع + AI automation", bars: 3, badge: "الأكثر شيوعاً" },
-  { id: "gt30k", label: "30,000 MAD+", sub: "مشاريع كبيرة — web + AI automation شاملة", bars: 4 },
-  { id: "discuss", label: "نتكلمو على الميزانية", sub: "مابغيتش نحدد دابا — نتناقشو أولاً", bars: 0 },
-];
 
 const CONTACT_METHODS = [
   { id: "whatsapp", label: "📱 WhatsApp" },
@@ -597,22 +590,6 @@ const CONTACT_METHODS = [
   { id: "call", label: "📞 مكالمة هاتفية" },
 ];
 
-function MiniBarChart({ bars }: { bars: number }) {
-  return (
-    <div className="flex items-end gap-0.5 h-5">
-      {[1, 2, 3, 4].map(b => (
-        <div
-          key={b}
-          className="w-1.5 rounded-sm transition-all"
-          style={{
-            height: `${b * 25}%`,
-            backgroundColor: b <= bars ? "#00E5FF" : "rgba(0,229,255,0.15)",
-          }}
-        />
-      ))}
-    </div>
-  );
-}
 
 const SERVICE_LABELS: Record<string, string> = {
   web: "موقع ويب", ai: "AI Automation", full: "الباكاج الكامل"
@@ -629,46 +606,10 @@ function Step3({
     <div className="space-y-7">
       <div className="mb-4">
         <span className="text-[#00E5FF] font-mono text-[10px] tracking-widest">[ STEP 03 / 03 ]</span>
-        <h3 className="text-xl font-bold text-white mt-1" dir="rtl">الميزانية والتأكيد</h3>
+        <h3 className="text-xl font-bold text-white mt-1" dir="rtl">التواصل والتأكيد</h3>
         <p className="text-white/40 text-sm mt-1" dir="rtl">
           الخطوة الأخيرة — وعدنا نجاوبك في أقل من 24 ساعة
         </p>
-      </div>
-
-      {/* Budget Selector */}
-      <div>
-        <label className={labelCls} dir="rtl">شنو هو ميزانيتك التقريبية؟</label>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {BUDGETS.map(b => (
-            <motion.button
-              key={b.id}
-              type="button"
-              onClick={() => update({ budget: b.id })}
-              whileHover={{ scale: 1.01 }}
-              animate={{ scale: data.budget === b.id ? 1.01 : 1 }}
-              className={`relative p-4 rounded-xl border text-left transition-all duration-200 ${data.budget === b.id
-                ? "border-[#00E5FF]/60 bg-[#00E5FF]/8 shadow-[0_0_20px_rgba(0,229,255,0.10)]"
-                : "border-[#00E5FF]/15 bg-[#00E5FF]/3 hover:border-[#00E5FF]/30"
-                } ${b.id === "discuss" ? "md:col-span-2" : ""}`}
-            >
-              {data.budget === b.id && (
-                <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#00E5FF] flex items-center justify-center">
-                  <Check size={11} className="text-black" />
-                </div>
-              )}
-              {b.badge && (
-                <span className="absolute top-2 left-2 text-[9px] font-mono bg-[#00E5FF] text-black px-2 py-0.5 rounded-full">
-                  {b.badge}
-                </span>
-              )}
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-bold text-white text-sm">{b.label}</span>
-                {b.bars > 0 ? <MiniBarChart bars={b.bars} /> : <MsgCircle size={18} className="text-[#00E5FF]" />}
-              </div>
-              <p className="text-white/40 text-xs" dir="rtl">{b.sub}</p>
-            </motion.button>
-          ))}
-        </div>
       </div>
 
       {/* Contact Method */}
@@ -709,7 +650,6 @@ function Step3({
           )}
           {data.websiteType && <div className="flex justify-between"><span className="text-white/40">نوع الموقع</span><span className="text-white">{data.websiteType}</span></div>}
           {data.timeline && <div className="flex justify-between"><span className="text-white/40">الجدول الزمني</span><span className="text-white">{data.timeline}</span></div>}
-          {data.budget && <div className="flex justify-between"><span className="text-white/40">الميزانية</span><span className="text-white">{BUDGETS.find(b => b.id === data.budget)?.label}</span></div>}
           <div className="flex justify-between">
             <span className="text-white/40">الملفات</span>
             <span className="text-white">{data.files.length > 0 ? `${data.files.length} ملف` : "لا"}</span>
@@ -1191,7 +1131,7 @@ const ContactSection = () => {
                   {[
                     { n: "01", label: "معلوماتك الأساسية" },
                     { n: "02", label: "تفاصيل مشروعك" },
-                    { n: "03", label: "الميزانية والتواصل" },
+                    { n: "03", label: "التواصل والتأكيد" },
                   ].map((s, i, arr) => (
                     <div key={s.n} className="flex items-start gap-4" dir="rtl">
                       <div className="flex flex-col items-center shrink-0">

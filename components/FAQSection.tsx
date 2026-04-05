@@ -32,10 +32,10 @@ const faqs = [
     aAr: "كل مشروع معاه 30 يوم دعم مجاني بعد الإطلاق. بعد ذلك، كنقدمو خطط صيانة شهرية باش يبقى نظامك سريع، محدث، ومحمي. ماكنهربوش بعد التسليم.",
   },
   {
-    q: "How much does a project cost?",
-    qAr: "شحال تتكلف العملية؟",
-    a: "Pricing is scoped per project — every business has different needs. We don't list flat rates because a number without context misleads. Book a free 30-min call and we'll send a clear quote within 24 hours.",
-    aAr: "التكلفة كتتحدد حسب المشروع — كل بيزنس مختلف. ماكانش أسعار ثابتة لأن رقم بدون سياق يضلل. احجز مكالمة مجانية 30 دقيقة وغادي نبعتليك كوتاسيون واضح خلال 24 ساعة.",
+    q: "How do I get a quote for my project?",
+    qAr: "كيفاش نعرف شحال يتكلف مشروعي؟",
+    a: "Every project is scoped individually — every business has different needs. Book a free 30-min discovery call and we'll send you a clear, detailed proposal within 24 hours. No commitment, no pressure.",
+    aAr: "كل مشروع كيتحدد حسب احتياجاتو — كل بيزنس مختلف. احجز مكالمة مجانية 30 دقيقة وغادي نبعتليك عرض مفصل وواضح خلال 24 ساعة. بلا التزام وبلا ضغط.",
   },
   {
     q: "Do you offer any guarantee?",
