@@ -22,11 +22,111 @@ export const subLabelCls = "text-white/50 text-sm mb-4";
 export const errorCls = "text-red-400 text-sm mt-1";
 export const qNumCls = "text-[#00E5FF] font-mono text-xs mb-1";
 
+// ─── Service Row (shared) ─────────────────────────────────────────────────────
+
+function ServiceRow({ service, sel, onToggle }: {
+  service: { id: string; emoji: string; label: string; labelEn: string };
+  sel: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button type="button" onClick={onToggle}
+      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all duration-150 ${sel ? "bg-[#00E5FF]/10" : "hover:bg-white/[0.04]"}`}
+    >
+      <span className="text-lg shrink-0 w-7 text-center">{service.emoji}</span>
+      <div className="flex-1 min-w-0">
+        <p className={`text-sm font-medium leading-tight ${sel ? "text-[#00E5FF]" : "text-white/85"}`} dir="rtl">{service.label}</p>
+        <p className="text-white/30 text-[11px]">{service.labelEn}</p>
+      </div>
+      <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-all ${sel ? "bg-[#00E5FF] border-[#00E5FF]" : "border-white/20"}`}>
+        {sel && <Check size={10} className="text-black" strokeWidth={3} />}
+      </div>
+    </button>
+  );
+}
+
+// ─── Role Dropdown ────────────────────────────────────────────────────────────
+
+function RoleDropdown({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const selected = ROLE_OPTIONS.find(r => r.id === value);
+
+  useEffect(() => {
+    const h = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener("mousedown", h);
+    return () => document.removeEventListener("mousedown", h);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative mt-2">
+      {/* Trigger */}
+      <button type="button" onClick={() => setOpen(o => !o)}
+        className={`w-full h-14 px-5 rounded-xl border flex items-center justify-between gap-3 transition-all duration-200 ${
+          open ? "border-[#00E5FF] shadow-[0_0_0_3px_rgba(0,229,255,0.08)] bg-[#00E5FF]/[0.04]"
+               : "border-[#00E5FF]/20 bg-[#00E5FF]/[0.04] hover:border-[#00E5FF]/40"}`}
+      >
+        {selected ? (
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-[#00E5FF]/15 flex items-center justify-center text-lg shrink-0">{selected.emoji}</div>
+            <div className="text-left">
+              <p className="text-white text-sm font-semibold leading-tight" dir="rtl">{selected.label}</p>
+              {selected.sub && <p className="text-white/35 text-[11px]">{selected.sub}</p>}
+            </div>
+          </div>
+        ) : (
+          <span className="text-white/30 text-sm">اختر مهنتك / دورك...</span>
+        )}
+        <motion.div animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}>
+          <ChevronDown size={18} className="text-[#00E5FF]/60 shrink-0" />
+        </motion.div>
+      </button>
+
+      {/* Options panel */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -6, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.98 }}
+            transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute top-full mt-2 left-0 right-0 z-50 rounded-2xl border border-[#00E5FF]/20 bg-[#00060E] shadow-[0_24px_80px_rgba(0,0,0,0.7)] overflow-hidden p-2"
+          >
+            {ROLE_OPTIONS.map(r => {
+              const sel = r.id === value;
+              return (
+                <button key={r.id} type="button"
+                  onClick={() => { onChange(r.id); setOpen(false); }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-150 ${sel ? "bg-[#00E5FF]/10" : "hover:bg-white/[0.04]"}`}
+                >
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0 transition-all ${sel ? "bg-[#00E5FF]/20" : "bg-white/5"}`}>
+                    {r.emoji}
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className={`text-sm font-semibold ${sel ? "text-[#00E5FF]" : "text-white/85"}`} dir="rtl">{r.label}</p>
+                    {r.sub && <p className="text-white/30 text-[11px]">{r.sub}</p>}
+                  </div>
+                  {sel && (
+                    <div className="w-5 h-5 rounded-full bg-[#00E5FF] flex items-center justify-center shrink-0">
+                      <Check size={10} className="text-black" strokeWidth={3} />
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 // ─── Service Dropdown ─────────────────────────────────────────────────────────
 
-function ServiceDropdown({ selected, onChange }: {
+function ServiceDropdown({ selected, onChange, role }: {
   selected: string[];
   onChange: (ids: string[]) => void;
+  role?: string;
 }) {
   const [open, setOpen]         = useState(false);
   const [search, setSearch]     = useState("");
@@ -42,11 +142,19 @@ function ServiceDropdown({ selected, onChange }: {
   }, []);
 
   const q = search.toLowerCase();
-  const filtered = ALL_SERVICES.filter(
-    s => s.label.toLowerCase().includes(q) || s.labelEn.toLowerCase().includes(q) || s.category.toLowerCase().includes(q)
+
+  // Split into recommended (role match) and others
+  const isRecommended = (s: typeof ALL_SERVICES[0]) =>
+    role && s.roles.length > 0 && s.roles.includes(role);
+
+  const baseFiltered = ALL_SERVICES.filter(
+    s => !q || s.label.toLowerCase().includes(q) || s.labelEn.toLowerCase().includes(q) || s.category.toLowerCase().includes(q)
   );
 
-  const categories = [...new Set(filtered.map(s => s.category))];
+  const recommended = !q && role ? baseFiltered.filter(isRecommended) : [];
+  const others = baseFiltered.filter(s => !recommended.includes(s));
+
+  const categories = [...new Set(others.map(s => s.category))];
 
   const toggle = (id: string) => {
     onChange(selected.includes(id) ? selected.filter(x => x !== id) : [...selected, id]);
@@ -129,41 +237,31 @@ function ServiceDropdown({ selected, onChange }: {
             </div>
 
             {/* Services list */}
-            <div className="max-h-[320px] overflow-y-auto overscroll-contain p-2" onWheel={e => e.stopPropagation()}>
-              {categories.length === 0 ? (
+            <div className="max-h-[340px] overflow-y-auto overscroll-contain p-2" onWheel={e => e.stopPropagation()}>
+              {recommended.length === 0 && categories.length === 0 ? (
                 <p className="text-white/30 text-sm text-center py-6" dir="rtl">ما لقينا نتيجة — استخدم الخانة هاتحت باش تكتب خدمتك</p>
               ) : (
-                categories.map(cat => (
-                  <div key={cat} className="mb-3">
-                    <p className="text-white/25 text-[10px] font-mono uppercase tracking-widest px-3 py-1">{cat}</p>
-                    {filtered.filter(s => s.category === cat).map(service => {
-                      const sel = selected.includes(service.id);
-                      return (
-                        <button
-                          key={service.id}
-                          type="button"
-                          onClick={() => toggle(service.id)}
-                          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all duration-150 ${
-                            sel ? "bg-[#00E5FF]/10" : "hover:bg-white/[0.04]"
-                          }`}
-                        >
-                          <span className="text-lg shrink-0 w-7 text-center">{service.emoji}</span>
-                          <div className="flex-1 min-w-0">
-                            <p className={`text-sm font-medium leading-tight ${sel ? "text-[#00E5FF]" : "text-white/85"}`} dir="rtl">
-                              {service.label}
-                            </p>
-                            <p className="text-white/30 text-[11px]">{service.labelEn}</p>
-                          </div>
-                          <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-all ${
-                            sel ? "bg-[#00E5FF] border-[#00E5FF]" : "border-white/20"
-                          }`}>
-                            {sel && <Check size={10} className="text-black" strokeWidth={3} />}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                ))
+                <>
+                  {/* Recommended for this role */}
+                  {recommended.length > 0 && (
+                    <div className="mb-3">
+                      <div className="flex items-center gap-2 px-3 py-1">
+                        <span className="text-[10px] font-mono text-[#00E5FF]/70 uppercase tracking-widest">⚡ مقترح لمهنتك</span>
+                      </div>
+                      {recommended.map(service => <ServiceRow key={service.id} service={service} sel={selected.includes(service.id)} onToggle={() => toggle(service.id)} />)}
+                      {categories.length > 0 && <div className="my-2 border-t border-white/5" />}
+                    </div>
+                  )}
+                  {/* All other services by category */}
+                  {categories.map(cat => (
+                    <div key={cat} className="mb-3">
+                      <p className="text-white/25 text-[10px] font-mono uppercase tracking-widest px-3 py-1">{cat}</p>
+                      {others.filter(s => s.category === cat).map(service => (
+                        <ServiceRow key={service.id} service={service} sel={selected.includes(service.id)} onToggle={() => toggle(service.id)} />
+                      ))}
+                    </div>
+                  ))}
+                </>
               )}
             </div>
 
@@ -253,52 +351,12 @@ export function Step1({ data, update, onValidated }: Step1Props) {
         <p className="text-[#00E5FF] text-xs font-mono mt-2" dir="rtl">⚡ كنتواصلو معاك غالباً على WhatsApp</p>
       </div>
 
-      {/* Q4 Role cards */}
+      {/* Q4 Role dropdown */}
       <div>
         <p className={qNumCls}>Q4 —</p>
         <label className={labelCls} dir="rtl">مهنتك / دورك</label>
         {errors.role && <p className={errorCls} dir="rtl">{errors.role}</p>}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-2">
-          {ROLE_OPTIONS.map(r => {
-            const sel = data.role === r.id;
-            return (
-              <motion.button
-                key={r.id}
-                type="button"
-                onClick={() => update({ role: r.id })}
-                whileHover={{ x: sel ? 0 : 3 }}
-                transition={{ duration: 0.2 }}
-                className={`relative flex items-center gap-4 px-5 py-4 rounded-2xl border text-left transition-all overflow-hidden ${sel
-                  ? "border-[#00E5FF]/50 bg-[#00E5FF]/8 shadow-[0_0_24px_rgba(0,229,255,0.12)]"
-                  : "border-white/8 bg-white/[0.03] hover:border-[#00E5FF]/25 hover:bg-[#00E5FF]/5"}`}
-              >
-                {/* Left accent strip */}
-                <div className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full transition-all duration-300"
-                  style={{ background: sel ? "linear-gradient(to bottom,transparent,#00E5FF,transparent)" : "transparent" }} />
-
-                {/* Emoji bubble */}
-                <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 text-xl transition-all ${sel ? "bg-[#00E5FF]/15" : "bg-white/5"}`}>
-                  {r.emoji}
-                </div>
-
-                {/* Text */}
-                <div className="flex flex-col min-w-0">
-                  <span className={`font-semibold text-sm leading-tight transition-colors ${sel ? "text-[#00E5FF]" : "text-white"}`} dir="rtl">
-                    {r.label}
-                  </span>
-                  {r.sub && <span className="text-white/35 text-[11px] mt-0.5">{r.sub}</span>}
-                </div>
-
-                {/* Check badge */}
-                {sel && (
-                  <div className="ml-auto shrink-0 w-5 h-5 rounded-full bg-[#00E5FF] flex items-center justify-center">
-                    <Check size={10} className="text-black" strokeWidth={3} />
-                  </div>
-                )}
-              </motion.button>
-            );
-          })}
-        </div>
+        <RoleDropdown value={data.role} onChange={role => update({ role })} />
       </div>
 
       {/* Q5 City */}
@@ -484,6 +542,7 @@ export function Step2({ data, update, onNext, onBack }: Step2Props) {
         <ServiceDropdown
           selected={data.services}
           onChange={ids => update({ services: ids })}
+          role={data.role}
         />
       </div>
 

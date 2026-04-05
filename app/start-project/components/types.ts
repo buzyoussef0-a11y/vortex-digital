@@ -126,53 +126,54 @@ export interface ServiceOption {
   labelEn: string;
   category: string;
   emoji: string;
+  roles: string[]; // which role ids this service is recommended for (empty = all)
 }
 
 export const ALL_SERVICES: ServiceOption[] = [
   // 🌐 Web Design & Development
-  { id: "landing-page",      label: "Landing Page",              labelEn: "Landing Page",              category: "🌐 Web Design",     emoji: "🌐" },
-  { id: "portfolio",         label: "موقع Portfolio",            labelEn: "Portfolio Website",         category: "🌐 Web Design",     emoji: "💼" },
-  { id: "business-website",  label: "موقع شركة / مشروع",        labelEn: "Business Website",          category: "🌐 Web Design",     emoji: "🏢" },
-  { id: "booking-website",   label: "موقع مع نظام حجز",         labelEn: "Website + Booking System",  category: "🌐 Web Design",     emoji: "📅" },
-  { id: "restaurant-web",    label: "موقع مطعم / كافيه",        labelEn: "Restaurant Website",        category: "🌐 Web Design",     emoji: "🍽️" },
-  { id: "clinic-web",        label: "موقع عيادة / طبيب",        labelEn: "Clinic / Doctor Website",   category: "🌐 Web Design",     emoji: "🏥" },
-  { id: "real-estate-web",   label: "موقع عقارات",              labelEn: "Real Estate Website",       category: "🌐 Web Design",     emoji: "🏠" },
-  { id: "redesign",          label: "إعادة تصميم موقع قديم",    labelEn: "Website Redesign",          category: "🌐 Web Design",     emoji: "🔄" },
+  { id: "landing-page",      label: "Landing Page",              labelEn: "Landing Page",              category: "🌐 Web Design",      emoji: "🌐", roles: ["business-owner","startup-founder","freelancer","marketing-manager","other"] },
+  { id: "portfolio",         label: "موقع Portfolio",            labelEn: "Portfolio Website",         category: "🌐 Web Design",      emoji: "💼", roles: ["freelancer","other"] },
+  { id: "business-website",  label: "موقع شركة / مشروع",        labelEn: "Business Website",          category: "🌐 Web Design",      emoji: "🏢", roles: ["business-owner","marketing-manager"] },
+  { id: "booking-website",   label: "موقع مع نظام حجز",         labelEn: "Website + Booking System",  category: "🌐 Web Design",      emoji: "📅", roles: ["doctor","business-owner"] },
+  { id: "clinic-web",        label: "موقع عيادة / طبيب",        labelEn: "Clinic / Doctor Website",   category: "🌐 Web Design",      emoji: "🏥", roles: ["doctor"] },
+  { id: "restaurant-web",    label: "موقع مطعم / كافيه",        labelEn: "Restaurant Website",        category: "🌐 Web Design",      emoji: "🍽️", roles: ["business-owner"] },
+  { id: "real-estate-web",   label: "موقع عقارات",              labelEn: "Real Estate Website",       category: "🌐 Web Design",      emoji: "🏠", roles: ["business-owner"] },
+  { id: "redesign",          label: "إعادة تصميم موقع قديم",    labelEn: "Website Redesign",          category: "🌐 Web Design",      emoji: "🔄", roles: [] },
   // 🛒 E-Commerce
-  { id: "ecommerce",         label: "متجر إلكتروني",            labelEn: "E-Commerce Store",          category: "🛒 E-Commerce",     emoji: "🛒" },
-  { id: "dropshipping",      label: "متجر Dropshipping",        labelEn: "Dropshipping Store",        category: "🛒 E-Commerce",     emoji: "📦" },
-  { id: "fashion-store",     label: "متجر أزياء / موضة",        labelEn: "Fashion Store",             category: "🛒 E-Commerce",     emoji: "👗" },
-  { id: "food-delivery",     label: "تطبيق توصيل طلبات",        labelEn: "Food Delivery App",         category: "🛒 E-Commerce",     emoji: "🚀" },
-  { id: "subscription",      label: "موقع اشتراكات / خدمات",   labelEn: "Subscription Platform",     category: "🛒 E-Commerce",     emoji: "🔄" },
+  { id: "ecommerce",         label: "متجر إلكتروني",            labelEn: "E-Commerce Store",          category: "🛒 E-Commerce",      emoji: "🛒", roles: ["business-owner","startup-founder","other"] },
+  { id: "dropshipping",      label: "متجر Dropshipping",        labelEn: "Dropshipping Store",        category: "🛒 E-Commerce",      emoji: "📦", roles: ["startup-founder","other"] },
+  { id: "fashion-store",     label: "متجر أزياء / موضة",        labelEn: "Fashion Store",             category: "🛒 E-Commerce",      emoji: "👗", roles: ["business-owner","freelancer"] },
+  { id: "food-delivery",     label: "تطبيق توصيل طلبات",        labelEn: "Food Delivery App",         category: "🛒 E-Commerce",      emoji: "🚀", roles: ["startup-founder","business-owner"] },
+  { id: "subscription",      label: "موقع اشتراكات / خدمات",   labelEn: "Subscription Platform",     category: "🛒 E-Commerce",      emoji: "🔄", roles: ["startup-founder"] },
   // 🤖 AI & Automation
-  { id: "whatsapp-bot",      label: "بوت WhatsApp ذكي",         labelEn: "WhatsApp AI Bot",           category: "🤖 AI & Automation", emoji: "💬" },
-  { id: "chatbot",           label: "Chatbot لموقعك",           labelEn: "Website Chatbot",           category: "🤖 AI & Automation", emoji: "🤖" },
-  { id: "lead-automation",   label: "أتمتة جمع العملاء",        labelEn: "Lead Generation Automation",category: "🤖 AI & Automation", emoji: "📊" },
-  { id: "crm-automation",    label: "أتمتة CRM",                labelEn: "CRM Automation",            category: "🤖 AI & Automation", emoji: "🗂️" },
-  { id: "email-automation",  label: "أتمتة الإيميل",           labelEn: "Email Automation",          category: "🤖 AI & Automation", emoji: "📧" },
-  { id: "ai-content",        label: "توليد محتوى بالذكاء",      labelEn: "AI Content Generation",     category: "🤖 AI & Automation", emoji: "✍️" },
-  { id: "n8n-workflow",      label: "n8n Workflows",            labelEn: "n8n Workflow Automation",   category: "🤖 AI & Automation", emoji: "⚙️" },
+  { id: "whatsapp-bot",      label: "بوت WhatsApp ذكي",         labelEn: "WhatsApp AI Bot",           category: "🤖 AI & Automation", emoji: "💬", roles: ["business-owner","doctor","marketing-manager"] },
+  { id: "chatbot",           label: "Chatbot لموقعك",           labelEn: "Website Chatbot",           category: "🤖 AI & Automation", emoji: "🤖", roles: ["business-owner","doctor","startup-founder"] },
+  { id: "lead-automation",   label: "أتمتة جمع العملاء",        labelEn: "Lead Generation Automation",category: "🤖 AI & Automation", emoji: "📊", roles: ["marketing-manager","business-owner","startup-founder"] },
+  { id: "crm-automation",    label: "أتمتة CRM",                labelEn: "CRM Automation",            category: "🤖 AI & Automation", emoji: "🗂️", roles: ["business-owner","marketing-manager"] },
+  { id: "email-automation",  label: "أتمتة الإيميل",           labelEn: "Email Automation",          category: "🤖 AI & Automation", emoji: "📧", roles: ["marketing-manager","startup-founder"] },
+  { id: "ai-content",        label: "توليد محتوى بالذكاء",      labelEn: "AI Content Generation",     category: "🤖 AI & Automation", emoji: "✍️", roles: ["freelancer","marketing-manager"] },
+  { id: "n8n-workflow",      label: "n8n Workflows",            labelEn: "n8n Workflow Automation",   category: "🤖 AI & Automation", emoji: "⚙️", roles: ["startup-founder","other"] },
   // 🎨 Branding & Identity
-  { id: "logo",              label: "تصميم شعار",               labelEn: "Logo Design",               category: "🎨 Brand & Identity", emoji: "🎨" },
-  { id: "brand-identity",    label: "هوية بصرية كاملة",         labelEn: "Full Brand Identity",       category: "🎨 Brand & Identity", emoji: "✨" },
-  { id: "social-kit",        label: "تصاميم سوشيال ميديا",      labelEn: "Social Media Kit",          category: "🎨 Brand & Identity", emoji: "📱" },
-  { id: "pitch-deck",        label: "تصميم Pitch Deck",         labelEn: "Pitch Deck Design",         category: "🎨 Brand & Identity", emoji: "📊" },
-  { id: "print-design",      label: "تصميم للطباعة",            labelEn: "Print Design",              category: "🎨 Brand & Identity", emoji: "🖨️" },
+  { id: "logo",              label: "تصميم شعار",               labelEn: "Logo Design",               category: "🎨 Brand & Identity", emoji: "🎨", roles: ["freelancer","business-owner","startup-founder"] },
+  { id: "brand-identity",    label: "هوية بصرية كاملة",         labelEn: "Full Brand Identity",       category: "🎨 Brand & Identity", emoji: "✨", roles: ["freelancer","business-owner","startup-founder"] },
+  { id: "social-kit",        label: "تصاميم سوشيال ميديا",      labelEn: "Social Media Kit",          category: "🎨 Brand & Identity", emoji: "📱", roles: ["freelancer","marketing-manager"] },
+  { id: "pitch-deck",        label: "تصميم Pitch Deck",         labelEn: "Pitch Deck Design",         category: "🎨 Brand & Identity", emoji: "📊", roles: ["startup-founder"] },
+  { id: "print-design",      label: "تصميم للطباعة",            labelEn: "Print Design",              category: "🎨 Brand & Identity", emoji: "🖨️", roles: ["freelancer","business-owner"] },
   // 📱 Mobile & Apps
-  { id: "mobile-app",        label: "تطبيق موبايل",             labelEn: "Mobile Application",        category: "📱 Mobile & Apps",    emoji: "📱" },
-  { id: "pwa",               label: "Progressive Web App",      labelEn: "Progressive Web App",       category: "📱 Mobile & Apps",    emoji: "⚡" },
-  { id: "dashboard",         label: "لوحة تحكم / Dashboard",   labelEn: "Admin Dashboard",           category: "📱 Mobile & Apps",    emoji: "🖥️" },
+  { id: "mobile-app",        label: "تطبيق موبايل",             labelEn: "Mobile Application",        category: "📱 Mobile & Apps",    emoji: "📱", roles: ["startup-founder","business-owner"] },
+  { id: "pwa",               label: "Progressive Web App",      labelEn: "Progressive Web App",       category: "📱 Mobile & Apps",    emoji: "⚡", roles: ["startup-founder"] },
+  { id: "dashboard",         label: "لوحة تحكم / Dashboard",   labelEn: "Admin Dashboard",           category: "📱 Mobile & Apps",    emoji: "🖥️", roles: ["startup-founder","business-owner"] },
   // 📣 Marketing & SEO
-  { id: "seo",               label: "تحسين محركات البحث SEO",   labelEn: "SEO Optimization",          category: "📣 Marketing & SEO",  emoji: "🔍" },
-  { id: "google-ads",        label: "إعلانات Google Ads",       labelEn: "Google Ads Management",     category: "📣 Marketing & SEO",  emoji: "📣" },
-  { id: "meta-ads",          label: "إعلانات Meta / Facebook",  labelEn: "Meta Ads Management",       category: "📣 Marketing & SEO",  emoji: "📘" },
-  { id: "content-strategy",  label: "استراتيجية محتوى",         labelEn: "Content Strategy",          category: "📣 Marketing & SEO",  emoji: "📝" },
-  { id: "email-marketing",   label: "تسويق عبر الإيميل",        labelEn: "Email Marketing",           category: "📣 Marketing & SEO",  emoji: "📧" },
-  // 🧩 Integrations & Systems
-  { id: "payment-gateway",   label: "نظام دفع إلكتروني",        labelEn: "Payment Gateway Integration",category: "🧩 Systems",         emoji: "💳" },
-  { id: "erp",               label: "نظام ERP / إدارة",         labelEn: "ERP / Management System",   category: "🧩 Systems",          emoji: "🗄️" },
-  { id: "api-integration",   label: "ربط API خارجي",            labelEn: "API Integration",           category: "🧩 Systems",          emoji: "🔗" },
-  { id: "saas",              label: "منصة SaaS",                labelEn: "SaaS Platform",             category: "🧩 Systems",          emoji: "☁️" },
+  { id: "seo",               label: "تحسين محركات البحث SEO",   labelEn: "SEO Optimization",          category: "📣 Marketing & SEO",  emoji: "🔍", roles: ["marketing-manager","business-owner"] },
+  { id: "google-ads",        label: "إعلانات Google Ads",       labelEn: "Google Ads Management",     category: "📣 Marketing & SEO",  emoji: "📣", roles: ["marketing-manager","business-owner"] },
+  { id: "meta-ads",          label: "إعلانات Meta / Facebook",  labelEn: "Meta Ads Management",       category: "📣 Marketing & SEO",  emoji: "📘", roles: ["marketing-manager","business-owner"] },
+  { id: "content-strategy",  label: "استراتيجية محتوى",         labelEn: "Content Strategy",          category: "📣 Marketing & SEO",  emoji: "📝", roles: ["marketing-manager","freelancer"] },
+  { id: "email-marketing",   label: "تسويق عبر الإيميل",        labelEn: "Email Marketing",           category: "📣 Marketing & SEO",  emoji: "📧", roles: ["marketing-manager","startup-founder"] },
+  // 🧩 Systems
+  { id: "payment-gateway",   label: "نظام دفع إلكتروني",        labelEn: "Payment Gateway",           category: "🧩 Systems",          emoji: "💳", roles: ["business-owner","startup-founder"] },
+  { id: "erp",               label: "نظام ERP / إدارة",         labelEn: "ERP / Management System",   category: "🧩 Systems",          emoji: "🗄️", roles: ["business-owner"] },
+  { id: "api-integration",   label: "ربط API خارجي",            labelEn: "API Integration",           category: "🧩 Systems",          emoji: "🔗", roles: ["startup-founder","other"] },
+  { id: "saas",              label: "منصة SaaS",                labelEn: "SaaS Platform",             category: "🧩 Systems",          emoji: "☁️", roles: ["startup-founder"] },
 ];
 
 // ─── Segment-specific Step 2 data ────────────────────────────────────────────
