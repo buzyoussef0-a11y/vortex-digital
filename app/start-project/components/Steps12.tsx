@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Upload, X, FileText, Image, Film, ChevronDown, Search } from "lucide-react";
+import { Check, Upload, X, FileText, Image, Film, ChevronDown, Search, Plus, Pencil } from "lucide-react";
 import {
   ProjectFormData, ROLE_OPTIONS, ROLE_TO_SEGMENT, WEBSITE_TYPES, TIMELINE_CARDS,
   GENERAL_SERVICE_CARDS, GENERAL_PROBLEMS, GENERAL_SITUATION,
@@ -45,13 +45,40 @@ function ServiceRow({ service, sel, onToggle }: {
   );
 }
 
+// ─── Custom Role Input ────────────────────────────────────────────────────────
+
+function CustomRoleInput({ onSubmit }: { onSubmit: (v: string) => void }) {
+  const [val, setVal] = useState("");
+  const submit = () => { const v = val.trim(); if (v) { onSubmit(v); setVal(""); } };
+  return (
+    <div className="flex flex-col gap-2">
+      <textarea
+        rows={3}
+        value={val}
+        onChange={e => setVal(e.target.value)}
+        placeholder="مثلاً: مصمم داخلي، مدرب يوغا..."
+        dir="rtl"
+        className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-3 py-2.5 text-white text-xs placeholder-white/25 outline-none focus:border-[#00E5FF]/40 transition-colors resize-none leading-relaxed"
+      />
+      <button type="button" onClick={submit}
+        className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-[#00E5FF]/10 border border-[#00E5FF]/30 text-[#00E5FF] text-xs font-mono hover:bg-[#00E5FF]/20 transition-colors"
+      >
+        <Plus size={12} />
+        تأكيد
+      </button>
+    </div>
+  );
+}
+
 // ─── Role Dropdown ────────────────────────────────────────────────────────────
 
 function RoleDropdown({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const [open, setOpen]     = useState(false);
   const [search, setSearch] = useState("");
   const ref = useRef<HTMLDivElement>(null);
-  const selected = ROLE_OPTIONS.find(r => r.id === value);
+  const selected = value?.startsWith("custom:")
+    ? { emoji: "✏️", label: value.replace("custom:", ""), sub: "مهنة مخصصة" }
+    : ROLE_OPTIONS.find(r => r.id === value);
 
   useEffect(() => {
     const h = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
@@ -89,7 +116,7 @@ function RoleDropdown({ value, onChange }: { value: string; onChange: (v: string
         </motion.div>
       </button>
 
-      {/* Dropdown panel — same design as ServiceDropdown */}
+      {/* Dropdown panel — two columns */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -97,50 +124,67 @@ function RoleDropdown({ value, onChange }: { value: string; onChange: (v: string
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
             transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute top-full mt-2 left-0 right-0 z-50 rounded-2xl border border-[#00E5FF]/20 bg-[#00060E] shadow-[0_24px_80px_rgba(0,0,0,0.7)] overflow-hidden"
+            className="absolute top-full mt-2 left-0 right-0 z-50 rounded-2xl border border-[#00E5FF]/20 bg-[#00060E] shadow-[0_24px_80px_rgba(0,0,0,0.7)] overflow-hidden flex"
           >
-            {/* Search bar */}
-            <div className="p-3 border-b border-white/5">
-              <div className="flex items-center gap-2 bg-white/[0.04] rounded-xl px-4 py-2.5 border border-white/8">
-                <Search size={14} className="text-white/40 shrink-0" />
-                <input autoFocus type="text" value={search} onChange={e => setSearch(e.target.value)}
-                  placeholder="ابحث عن مهنتك... Search your role..."
-                  className="flex-1 bg-transparent text-white text-sm placeholder-white/30 outline-none" dir="rtl" />
-                {search && (
-                  <button type="button" onClick={() => setSearch("")} className="text-white/30 hover:text-white transition-colors">
-                    <X size={12} />
-                  </button>
-                )}
+            {/* LEFT — searchable list */}
+            <div className="flex-1 flex flex-col min-w-0 border-r border-white/5">
+              {/* Search bar */}
+              <div className="p-3 border-b border-white/5 shrink-0">
+                <div className="flex items-center gap-2 bg-white/[0.04] rounded-xl px-3 py-2 border border-white/8">
+                  <Search size={13} className="text-white/40 shrink-0" />
+                  <input autoFocus type="text" value={search} onChange={e => setSearch(e.target.value)}
+                    placeholder="ابحث... Search..."
+                    className="flex-1 bg-transparent text-white text-sm placeholder-white/30 outline-none" dir="rtl" />
+                  {search && (
+                    <button type="button" onClick={() => setSearch("")} className="text-white/30 hover:text-white transition-colors">
+                      <X size={11} />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Role list */}
+              <div
+                className="overflow-y-auto p-2"
+                style={{ maxHeight: "300px" }}
+                onWheel={e => { e.stopPropagation(); }}
+              >
+                {categories.length === 0 ? (
+                  <p className="text-white/30 text-xs text-center py-6" dir="rtl">ما لقينا نتيجة</p>
+                ) : categories.map(cat => (
+                  <div key={cat} className="mb-3">
+                    <p className="text-white/25 text-[9px] font-mono uppercase tracking-widest px-2 py-1">{cat}</p>
+                    {filtered.filter(r => r.category === cat).map(r => {
+                      const sel = r.id === value;
+                      return (
+                        <button key={r.id} type="button"
+                          onClick={() => { onChange(r.id); setOpen(false); setSearch(""); }}
+                          className={`w-full flex items-center gap-2 px-2 py-2 rounded-xl text-left transition-all duration-150 ${sel ? "bg-[#00E5FF]/10" : "hover:bg-white/[0.04]"}`}
+                        >
+                          <span className="text-base shrink-0 w-6 text-center">{r.emoji}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-xs font-medium leading-tight truncate ${sel ? "text-[#00E5FF]" : "text-white/85"}`} dir="rtl">{r.label}</p>
+                          </div>
+                          {sel && (
+                            <div className="w-4 h-4 rounded-full bg-[#00E5FF] flex items-center justify-center shrink-0">
+                              <Check size={8} className="text-black" strokeWidth={3} />
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Role list by category */}
-            <div className="max-h-[320px] overflow-y-auto overscroll-contain p-2" onWheel={e => e.stopPropagation()}>
-              {categories.length === 0 ? (
-                <p className="text-white/30 text-sm text-center py-6" dir="rtl">ما لقينا نتيجة</p>
-              ) : categories.map(cat => (
-                <div key={cat} className="mb-3">
-                  <p className="text-white/25 text-[10px] font-mono uppercase tracking-widest px-3 py-1">{cat}</p>
-                  {filtered.filter(r => r.category === cat).map(r => {
-                    const sel = r.id === value;
-                    return (
-                      <button key={r.id} type="button"
-                        onClick={() => { onChange(r.id); setOpen(false); setSearch(""); }}
-                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all duration-150 ${sel ? "bg-[#00E5FF]/10" : "hover:bg-white/[0.04]"}`}
-                      >
-                        <span className="text-lg shrink-0 w-7 text-center">{r.emoji}</span>
-                        <div className="flex-1 min-w-0">
-                          <p className={`text-sm font-medium leading-tight ${sel ? "text-[#00E5FF]" : "text-white/85"}`} dir="rtl">{r.label}</p>
-                          {r.sub && <p className="text-white/30 text-[11px]">{r.sub}</p>}
-                        </div>
-                        <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-all ${sel ? "bg-[#00E5FF] border-[#00E5FF]" : "border-white/20"}`}>
-                          {sel && <Check size={10} className="text-black" strokeWidth={3} />}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              ))}
+            {/* RIGHT — custom role input */}
+            <div className="w-[200px] shrink-0 flex flex-col p-4 gap-3 justify-start">
+              <div>
+                <p className="text-[#00E5FF] text-[10px] font-mono uppercase tracking-widest mb-1">ما لقيتيش مهنتك؟</p>
+                <p className="text-white/30 text-[11px] leading-snug" dir="rtl">كتب مهنتك هنا وغادي نتواصلو معاك مع خدمات مناسبة ليك</p>
+              </div>
+              <CustomRoleInput onSubmit={customRole => { onChange(`custom:${customRole}`); setOpen(false); }} />
             </div>
           </motion.div>
         )}
