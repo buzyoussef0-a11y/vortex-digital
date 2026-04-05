@@ -421,36 +421,9 @@ export function Step2({ data, update, onNext, onBack }: Step2Props) {
         </div>
       </div>
 
-      {/* Q6 — Inspiration */}
+      {/* Q6 — Notes */}
       <div>
         <p className={qNumCls}>Q6 —</p>
-        <label className={labelCls} dir="rtl">
-          مواقع أعجبوك <span className="text-white/30 normal-case font-sans tracking-normal">(optional)</span>
-        </label>
-        <p className={subLabelCls} dir="rtl">هاد الإجابة كتساعدنا نفهم taste ديالك 🎯</p>
-        <textarea rows={4} dir="rtl"
-          className={`${inputCls} !h-auto py-4 resize-none`}
-          placeholder={"مثلاً: apple.com، linear.app، أو كتعجبني المواقع الـ dark مع animations...\nأو نسخ رابط موقع منافس ديالك باش نشوفو..."}
-          value={data.inspiration} onChange={e => update({ inspiration: e.target.value })}
-        />
-      </div>
-
-      {/* Q7 — Files */}
-      <div>
-        <p className={qNumCls}>Q7 —</p>
-        <label className={labelCls} dir="rtl">
-          تحميل الملفات <span className="text-white/30 normal-case font-sans tracking-normal">(optional)</span>
-        </label>
-        <div className="mt-2">
-          <FileUploadZone files={data.files}
-            onAdd={f => update({ files: [...data.files, ...f] })}
-            onRemove={i => update({ files: data.files.filter((_, idx) => idx !== i) })} />
-        </div>
-      </div>
-
-      {/* Q8 — Notes */}
-      <div>
-        <p className={qNumCls}>Q8 —</p>
         <label className={labelCls} dir="rtl">
           ملاحظات إضافية <span className="text-white/30 normal-case font-sans tracking-normal">(optional)</span>
         </label>
