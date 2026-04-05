@@ -2,32 +2,16 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, MessageCircle, Send, CheckCircle2, ClipboardCopy } from "lucide-react";
-import { BarChart2 } from "lucide-react";
+import { Check, Send, CheckCircle2, ClipboardCopy } from "lucide-react";
 import {
-  ProjectFormData, BUDGETS, CONTACT_METHODS, SERVICE_LABELS, TIMELINE_CARDS,
+  ProjectFormData, CONTACT_METHODS, SERVICE_LABELS, TIMELINE_CARDS,
 } from "./types";
 import { submitProjectForm } from "@/app/actions/contact";
 import { inputCls, labelCls, qNumCls } from "./Steps12";
 
-// ─── Mini bar chart ────────────────────────────────────────────────────────────
-
-function BarGraph({ pct }: { pct: number }) {
-  const bars = [25, 50, 75, 100];
-  return (
-    <div className="flex items-end gap-0.5 h-6">
-      {bars.map(b => (
-        <div key={b} className="w-2 rounded-sm transition-all"
-          style={{ height: `${b}%`, backgroundColor: b <= pct ? "#00E5FF" : "rgba(0,229,255,0.15)" }} />
-      ))}
-    </div>
-  );
-}
-
 // ─── Order Summary ────────────────────────────────────────────────────────────
 
 function OrderSummary({ data, onEdit }: { data: ProjectFormData; onEdit: () => void }) {
-  const budget = BUDGETS.find(b => b.id === data.budget);
   const timeline = TIMELINE_CARDS.find(t => t.id === data.timeline);
   return (
     <div className="rounded-2xl border border-[#00E5FF]/20 bg-[#00E5FF]/4 p-6">
@@ -67,22 +51,7 @@ function OrderSummary({ data, onEdit }: { data: ProjectFormData; onEdit: () => v
             <span className="text-white text-right leading-relaxed">{data.problems.join("، ")}</span>
           </div>
         )}
-        {data.files.length > 0 && (
-          <div className="flex justify-between gap-4">
-            <span className="text-white/40 shrink-0">الملفات</span>
-            <span className="text-white">{data.files.length} ملف</span>
-          </div>
-        )}
       </div>
-      {budget && (
-        <div className="mt-5 pt-5 border-t border-[#00E5FF]/15">
-          <div className="flex items-center justify-between">
-            <span className="text-white font-bold text-base">{budget.label}</span>
-            {budget.pct > 0 ? <BarGraph pct={budget.pct} /> : <MessageCircle size={18} className="text-[#00E5FF]" />}
-          </div>
-          <p className="text-white/40 text-xs mt-1" dir="rtl">{budget.desc}</p>
-        </div>
-      )}
     </div>
   );
 }
@@ -102,7 +71,6 @@ export function Step3({ data, update, onBack, onSuccess }: Step3Props) {
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async () => {
-    if (!data.budget) { setError("اختر ميزانيتك التقريبية"); return; }
     setError(null);
     setSubmitting(true);
     setProgress(0);
@@ -138,49 +106,13 @@ export function Step3({ data, update, onBack, onSuccess }: Step3Props) {
       {/* Step title */}
       <div dir="rtl">
         <span className="text-[#00E5FF] font-mono text-xs tracking-widest">[ 03 ]</span>
-        <h2 className="text-4xl font-bold text-white mt-1">الميزانية</h2>
+        <h2 className="text-4xl font-bold text-white mt-1">التواصل</h2>
         <p className="text-white/50 mt-1">الخطوة الأخيرة — نجاوبك في أقل من 24 ساعة</p>
       </div>
 
-      {/* Q1 Budget */}
+      {/* Contact method */}
       <div>
-        <p className={qNumCls}>Q9 —</p>
-        <label className={labelCls} dir="rtl">شنو هو ميزانيتك التقريبية؟</label>
-        {error && <p className="text-red-400 text-sm mt-1" dir="rtl">{error}</p>}
-        <div className="grid grid-cols-1 gap-3 mt-3">
-          {BUDGETS.map(b => {
-            const sel = data.budget === b.id;
-            return (
-              <motion.button key={b.id} type="button" onClick={() => { update({ budget: b.id }); setError(null); }}
-                whileHover={{ scale: 1.01 }} animate={{ scale: sel ? 1.01 : 1 }}
-                className={`relative p-5 rounded-xl border text-left transition-all ${sel
-                  ? "border-[#00E5FF]/60 bg-[#00E5FF]/8 shadow-[0_0_20px_rgba(0,229,255,0.10)]"
-                  : "border-[#00E5FF]/15 bg-[#00E5FF]/3 hover:border-[#00E5FF]/30"}`}
-              >
-                {sel && (
-                  <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-[#00E5FF] flex items-center justify-center">
-                    <Check size={11} className="text-black" />
-                  </div>
-                )}
-                {b.badge && (
-                  <span className="absolute top-3 left-3 text-[9px] font-mono bg-[#00E5FF] text-black px-2 py-0.5 rounded-full">{b.badge}</span>
-                )}
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-white font-bold text-base">{b.label}</p>
-                    <p className="text-white/40 text-sm mt-0.5" dir="rtl">{b.desc}</p>
-                  </div>
-                  {b.pct > 0 ? <BarGraph pct={b.pct} /> : <MessageCircle size={20} className="text-[#00E5FF] shrink-0 mt-1" />}
-                </div>
-              </motion.button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Q2 Contact method */}
-      <div>
-        <p className={qNumCls}>Q10 —</p>
+        <p className={qNumCls}>Q7 —</p>
         <label className={labelCls} dir="rtl">كيفاش تحب نتواصلو معاك؟</label>
         <div className="flex flex-wrap gap-2 mt-2">
           {CONTACT_METHODS.map(m => {
