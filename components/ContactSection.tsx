@@ -764,7 +764,7 @@ const statItem = {
 
 const TITLE_LETTERS = "Together".split("");
 const contactItems = [
-  { Icon: Mail, label: "Email us", value: "vortexagence.digital@gmail.com", href: "mailto:vortexagence.digital@gmail.com" },
+  { Icon: Mail, label: "Email us", value: "vortexagence.digital@gmail.com", href: "https://mail.google.com/mail/?view=cm&fs=1&to=vortexagence.digital@gmail.com" },
   { Icon: MessageCircle, label: "WhatsApp", value: "+212 705-960845", href: "https://wa.me/212705960845" },
   { Icon: MapPin, label: "Location", value: "Morocco — Available Worldwide", href: null },
 ];
@@ -960,7 +960,7 @@ const ContactSection = () => {
                   <div>
                     <p className="text-white/45 text-[10px] font-mono tracking-[0.22em] uppercase mb-1.5">{label}</p>
                     {href ? (
-                      <a href={href} className="text-white text-base font-bold hover:text-[#00E5FF] transition-colors duration-200">{value}</a>
+                      <a href={href} target="_blank" rel="noopener noreferrer" className="text-white text-base font-bold hover:text-[#00E5FF] transition-colors duration-200">{value}</a>
                     ) : (
                       <p className="text-white text-base font-bold">{value}</p>
                     )}
