@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Upload, X, FileText, Image, Film, ChevronDown, Search, Plus } from "lucide-react";
+import { Check, Upload, X, FileText, Image, Film, ChevronDown, Search } from "lucide-react";
 import {
   ProjectFormData, ROLE_OPTIONS, ROLE_TO_SEGMENT, WEBSITE_TYPES, TIMELINE_CARDS,
   GENERAL_SERVICE_CARDS, GENERAL_PROBLEMS, GENERAL_SITUATION,
@@ -156,9 +156,8 @@ function ServiceDropdown({ selected, onChange, role }: {
   onChange: (ids: string[]) => void;
   role?: string;
 }) {
-  const [open, setOpen]         = useState(false);
-  const [search, setSearch]     = useState("");
-  const [custom, setCustom]     = useState("");
+  const [open, setOpen]     = useState(false);
+  const [search, setSearch] = useState("");
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -188,18 +187,7 @@ function ServiceDropdown({ selected, onChange, role }: {
     onChange(selected.includes(id) ? selected.filter(x => x !== id) : [...selected, id]);
   };
 
-  const addCustom = () => {
-    const v = custom.trim();
-    if (!v) return;
-    const customId = `custom:${v}`;
-    onChange(selected.includes(customId) ? selected : [...selected, customId]);
-    setCustom("");
-  };
-
-  const selectedLabels = selected.map(id => {
-    if (id.startsWith("custom:")) return id.replace("custom:", "");
-    return ALL_SERVICES.find(s => s.id === id)?.label ?? id;
-  });
+  const selectedLabels = selected.map(id => ALL_SERVICES.find(s => s.id === id)?.label ?? id);
 
   return (
     <div ref={ref} className="relative">
@@ -267,7 +255,7 @@ function ServiceDropdown({ selected, onChange, role }: {
             {/* Services list */}
             <div className="max-h-[340px] overflow-y-auto overscroll-contain p-2" onWheel={e => e.stopPropagation()}>
               {recommended.length === 0 && categories.length === 0 ? (
-                <p className="text-white/30 text-sm text-center py-6" dir="rtl">ما لقينا نتيجة — استخدم الخانة هاتحت باش تكتب خدمتك</p>
+                <p className="text-white/30 text-sm text-center py-6" dir="rtl">ما لقينا نتيجة</p>
               ) : (
                 <>
                   {/* Recommended for this role */}
@@ -293,25 +281,6 @@ function ServiceDropdown({ selected, onChange, role }: {
               )}
             </div>
 
-            {/* Custom service input */}
-            <div className="p-3 border-t border-white/5">
-              <p className="text-white/30 text-[11px] font-mono mb-2" dir="rtl">ما لقيتيش خدمتك؟ كتبها هنا:</p>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={custom}
-                  onChange={e => setCustom(e.target.value)}
-                  onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addCustom(); } }}
-                  placeholder="مثلاً: نظام ERP مخصص..."
-                  className="flex-1 bg-white/[0.04] border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-white/25 outline-none focus:border-[#00E5FF]/40 transition-colors"
-                  dir="rtl"
-                />
-                <button type="button" onClick={addCustom}
-                  className="shrink-0 w-10 h-10 rounded-xl bg-[#00E5FF]/10 border border-[#00E5FF]/30 flex items-center justify-center hover:bg-[#00E5FF]/20 transition-colors">
-                  <Plus size={16} className="text-[#00E5FF]" />
-                </button>
-              </div>
-            </div>
           </motion.div>
         )}
       </AnimatePresence>
