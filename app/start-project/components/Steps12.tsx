@@ -443,7 +443,7 @@ export function Step2({ data, update, onNext, onBack }: Step2Props) {
           whileHover={{ scale: 1.01, boxShadow: "0 0 40px rgba(0,229,255,0.18)" }}
           whileTap={{ scale: 0.99 }}
           className="flex-1 h-14 bg-[#00E5FF] text-black font-bold rounded-xl transition-all"
-          dir="rtl">التالي — الميزانية ←</motion.button>
+          dir="rtl">التالي — التواصل ←</motion.button>
       </div>
 
     </div>
