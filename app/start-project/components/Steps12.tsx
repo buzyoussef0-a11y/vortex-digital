@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Upload, X, FileText, Image, Film, ChevronDown, Search, Plus, Pencil } from "lucide-react";
 import {
@@ -22,37 +22,6 @@ export const subLabelCls = "text-white/50 text-sm mb-4";
 export const errorCls = "text-red-400 text-sm mt-1";
 export const qNumCls = "text-[#00E5FF] font-mono text-xs mb-1";
 
-// ─── Hook: trap scroll inside a dropdown list, prevent Lenis from stealing it ─
-// Returns a callback ref to attach directly to the scrollable div.
-// Callback refs fire when the element mounts/unmounts (unlike useRef + useEffect
-// which runs before AnimatePresence renders the child).
-
-function useScrollTrap(open: boolean) {
-  const cleanupRef = useRef<(() => void) | null>(null);
-
-  const attach = useCallback((el: HTMLDivElement | null) => {
-    if (cleanupRef.current) { cleanupRef.current(); cleanupRef.current = null; }
-    if (!el) return;
-    const handler = (e: WheelEvent) => {
-      const { scrollTop, scrollHeight, clientHeight } = el;
-      if (scrollHeight <= clientHeight) return;
-      const atTop    = scrollTop <= 0 && e.deltaY < 0;
-      const atBottom = scrollTop + clientHeight >= scrollHeight - 1 && e.deltaY > 0;
-      if (!atTop && !atBottom) {
-        e.preventDefault();
-        el.scrollTop += e.deltaY;
-      }
-    };
-    el.addEventListener("wheel", handler, { passive: false });
-    cleanupRef.current = () => el.removeEventListener("wheel", handler);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    if (!open && cleanupRef.current) { cleanupRef.current(); cleanupRef.current = null; }
-  }, [open]);
-
-  return attach;
-}
 
 // ─── Service Row (shared) ─────────────────────────────────────────────────────
 
@@ -108,7 +77,6 @@ function RoleDropdown({ value, onChange }: { value: string; onChange: (v: string
   const [open, setOpen]     = useState(false);
   const [search, setSearch] = useState("");
   const ref = useRef<HTMLDivElement>(null);
-  const scrollTrapRef = useScrollTrap(open);
   const selected = value?.startsWith("custom:")
     ? { emoji: "✏️", label: value.replace("custom:", ""), sub: "مهنة مخصصة" }
     : ROLE_OPTIONS.find(r => r.id === value);
@@ -178,7 +146,7 @@ function RoleDropdown({ value, onChange }: { value: string; onChange: (v: string
 
               {/* Role list */}
               <div
-                ref={scrollTrapRef}
+                data-lenis-prevent
                 className="overflow-y-auto p-2"
                 style={{ maxHeight: "300px" }}
               >
@@ -236,7 +204,6 @@ function ServiceDropdown({ selected, onChange, role }: {
   const [open, setOpen]     = useState(false);
   const [search, setSearch] = useState("");
   const ref = useRef<HTMLDivElement>(null);
-  const scrollTrapRef = useScrollTrap(open);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -331,7 +298,7 @@ function ServiceDropdown({ selected, onChange, role }: {
             </div>
 
             {/* Services list */}
-            <div ref={scrollTrapRef} className="max-h-[340px] overflow-y-auto overscroll-contain p-2">
+            <div data-lenis-prevent className="max-h-[340px] overflow-y-auto overscroll-contain p-2">
               {recommended.length === 0 && categories.length === 0 ? (
                 <p className="text-white/30 text-sm text-center py-6" dir="rtl">ما لقينا نتيجة</p>
               ) : (
