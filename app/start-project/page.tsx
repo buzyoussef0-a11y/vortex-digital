@@ -14,7 +14,7 @@ import { Step3, SuccessState } from "./components/Steps3Success";
 const STEPS = [
   { n: 1, label: "معلوماتك", en: "Your Info" },
   { n: 2, label: "مشروعك", en: "Your Project" },
-  { n: 3, label: "الميزانية", en: "Budget" },
+  { n: 3, label: "التواصل", en: "Contact" },
 ];
 
 function StepIndicator({ current }: { current: number }) {

@@ -765,7 +765,7 @@ const statItem = {
 const TITLE_LETTERS = "Together".split("");
 const contactItems = [
   { Icon: Mail, label: "Email us", value: "contact@vortexdigital.ma", href: "mailto:contact@vortexdigital.ma" },
-  { Icon: MessageCircle, label: "WhatsApp", value: "+212 6XX-XXXXXX", href: "#" },
+  { Icon: MessageCircle, label: "WhatsApp", value: "+212 705-960845", href: "https://wa.me/212705960845" },
   { Icon: MapPin, label: "Location", value: "Morocco — Available Worldwide", href: null },
 ];
 

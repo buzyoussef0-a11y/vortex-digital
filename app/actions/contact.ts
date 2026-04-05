@@ -52,10 +52,6 @@ export async function submitProjectForm(data: {
   if (!data.step2.services || data.step2.services.length === 0) {
     return { success: false, message: "اختر خدمة واحدة على الأقل" };
   }
-  if (!data.step3.budget) {
-    return { success: false, message: "اختر ميزانيتك التقريبية" };
-  }
-
   // Simulate network delay
   await new Promise((resolve) => setTimeout(resolve, 1500));
 

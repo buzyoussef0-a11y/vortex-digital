@@ -50,7 +50,7 @@ export default function WhatsAppButton() {
             <span className="absolute inset-0 rounded-full bg-[#25D366] animate-ping opacity-15 [animation-delay:0.5s]" />
 
             <a
-              href="https://wa.me/212600000000"
+              href="https://wa.me/212705960845"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Contact us on WhatsApp"
