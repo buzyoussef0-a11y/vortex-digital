@@ -29,13 +29,55 @@ export const defaultFormData: ProjectFormData = {
   budget: "", contactMethod: "whatsapp",
 };
 
-export const ROLE_OPTIONS = [
-  { id: "business-owner", emoji: "🏢", label: "صاحب مشروع", sub: "Business Owner" },
-  { id: "startup-founder", emoji: "🚀", label: "Startup Founder", sub: "" },
-  { id: "freelancer", emoji: "🎨", label: "Freelancer / مستقل", sub: "" },
-  { id: "marketing-manager", emoji: "📊", label: "Marketing Manager", sub: "" },
-  { id: "doctor", emoji: "🏥", label: "طبيب / دكتور", sub: "" },
-  { id: "other", emoji: "✨", label: "أخرى / Other", sub: "" },
+export interface RoleOption {
+  id: string;
+  emoji: string;
+  label: string;
+  sub: string;
+  category: string;
+}
+
+export const ROLE_OPTIONS: RoleOption[] = [
+  // 💼 Entrepreneurs & Business
+  { id: "business-owner",     emoji: "🏢", label: "صاحب مشروع",          sub: "Business Owner",        category: "💼 Business & Entrepreneurs" },
+  { id: "startup-founder",    emoji: "🚀", label: "Startup Founder",      sub: "مؤسس شركة ناشئة",       category: "💼 Business & Entrepreneurs" },
+  { id: "ceo",                emoji: "👔", label: "مدير تنفيذي / CEO",    sub: "CEO / Director",        category: "💼 Business & Entrepreneurs" },
+  { id: "investor",           emoji: "💰", label: "مستثمر",               sub: "Investor",              category: "💼 Business & Entrepreneurs" },
+  { id: "franchise",          emoji: "🏪", label: "صاحب فرانشايز",        sub: "Franchise Owner",       category: "💼 Business & Entrepreneurs" },
+  // 🎨 Creatives & Freelancers
+  { id: "freelancer",         emoji: "🎨", label: "Freelancer / مستقل",   sub: "Freelance Professional",category: "🎨 Creatives & Freelancers" },
+  { id: "designer",           emoji: "✏️", label: "مصمم",                 sub: "Graphic / UI Designer", category: "🎨 Creatives & Freelancers" },
+  { id: "developer",          emoji: "💻", label: "مطور / Developer",     sub: "Web / App Developer",   category: "🎨 Creatives & Freelancers" },
+  { id: "photographer",       emoji: "📸", label: "مصور",                 sub: "Photographer",          category: "🎨 Creatives & Freelancers" },
+  { id: "content-creator",    emoji: "🎬", label: "صانع محتوى",           sub: "Content Creator",       category: "🎨 Creatives & Freelancers" },
+  { id: "copywriter",         emoji: "📝", label: "Copywriter",           sub: "كاتب محتوى",            category: "🎨 Creatives & Freelancers" },
+  { id: "video-editor",       emoji: "🎥", label: "مونتير فيديو",         sub: "Video Editor",          category: "🎨 Creatives & Freelancers" },
+  // 📣 Marketing & Sales
+  { id: "marketing-manager",  emoji: "📊", label: "Marketing Manager",    sub: "مدير تسويق",            category: "📣 Marketing & Sales" },
+  { id: "sales-manager",      emoji: "🤝", label: "مدير مبيعات",          sub: "Sales Manager",         category: "📣 Marketing & Sales" },
+  { id: "social-media-mgr",   emoji: "📱", label: "Social Media Manager", sub: "مدير سوشيال ميديا",     category: "📣 Marketing & Sales" },
+  { id: "brand-manager",      emoji: "💡", label: "Brand Manager",        sub: "مدير العلامة التجارية", category: "📣 Marketing & Sales" },
+  { id: "influencer",         emoji: "⭐", label: "مؤثر / Influencer",    sub: "Social Media Influencer",category: "📣 Marketing & Sales" },
+  // 🏥 Healthcare & Education
+  { id: "doctor",             emoji: "🩺", label: "طبيب / دكتور",         sub: "Doctor / Physician",    category: "🏥 Healthcare & Education" },
+  { id: "dentist",            emoji: "🦷", label: "طبيب أسنان",           sub: "Dentist",               category: "🏥 Healthcare & Education" },
+  { id: "therapist",          emoji: "🧠", label: "معالج نفسي / كوتش",    sub: "Therapist / Coach",     category: "🏥 Healthcare & Education" },
+  { id: "teacher",            emoji: "📚", label: "أستاذ / مدرب",         sub: "Teacher / Trainer",     category: "🏥 Healthcare & Education" },
+  { id: "coach",              emoji: "🏋️", label: "كوتش / مدرب رياضي",   sub: "Coach / Fitness Trainer",category: "🏥 Healthcare & Education" },
+  // 🏠 Real Estate & Trades
+  { id: "real-estate",        emoji: "🏠", label: "وكيل عقارات",          sub: "Real Estate Agent",     category: "🏠 Real Estate & Trades" },
+  { id: "contractor",         emoji: "🔨", label: "مقاول / بناء",         sub: "Contractor / Builder",  category: "🏠 Real Estate & Trades" },
+  { id: "architect",          emoji: "📐", label: "مهندس معماري",          sub: "Architect",             category: "🏠 Real Estate & Trades" },
+  // 🍽️ Food & Hospitality
+  { id: "restaurant-owner",   emoji: "🍽️", label: "صاحب مطعم / كافيه",  sub: "Restaurant Owner",      category: "🍽️ Food & Hospitality" },
+  { id: "chef",               emoji: "👨‍🍳", label: "طباخ / شيف",         sub: "Chef / Cook",           category: "🍽️ Food & Hospitality" },
+  { id: "hotel-owner",        emoji: "🏨", label: "صاحب فندق / رياض",     sub: "Hotel / Riad Owner",    category: "🍽️ Food & Hospitality" },
+  // 🛒 E-Commerce & Retail
+  { id: "ecommerce-seller",   emoji: "🛒", label: "بائع إلكتروني",        sub: "E-Commerce Seller",     category: "🛒 E-Commerce & Retail" },
+  { id: "dropshipper",        emoji: "📦", label: "Dropshipper",          sub: "دروبشيبر",              category: "🛒 E-Commerce & Retail" },
+  { id: "retailer",           emoji: "🏪", label: "تاجر / محل تجاري",     sub: "Retailer",              category: "🛒 E-Commerce & Retail" },
+  // ✨ Other
+  { id: "other",              emoji: "✨", label: "أخرى / Other",         sub: "غير مذكورة",            category: "✨ Other" },
 ];
 
 export const SERVICE_CARDS = [
@@ -180,11 +222,17 @@ export const ALL_SERVICES: ServiceOption[] = [
 
 // Maps role id → segment key
 export const ROLE_TO_SEGMENT: Record<string, string> = {
-  "business-owner": "business",
-  "startup-founder": "startup",
-  "freelancer": "brand",
-  "marketing-manager": "business",
-  "doctor": "dental",
+  "business-owner": "business", "ceo": "business", "investor": "business", "franchise": "business",
+  "startup-founder": "startup", "developer": "startup",
+  "freelancer": "brand", "designer": "brand", "photographer": "brand", "copywriter": "brand",
+  "content-creator": "brand", "video-editor": "brand",
+  "marketing-manager": "business", "sales-manager": "business", "social-media-mgr": "business",
+  "brand-manager": "brand", "influencer": "brand",
+  "doctor": "dental", "dentist": "dental", "therapist": "dental",
+  "teacher": "brand", "coach": "brand",
+  "real-estate": "business", "contractor": "business", "architect": "brand",
+  "restaurant-owner": "business", "chef": "brand", "hotel-owner": "business",
+  "ecommerce-seller": "business", "dropshipper": "startup", "retailer": "business",
   "other": "general",
 };
 

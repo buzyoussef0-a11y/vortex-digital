@@ -48,7 +48,8 @@ function ServiceRow({ service, sel, onToggle }: {
 // ─── Role Dropdown ────────────────────────────────────────────────────────────
 
 function RoleDropdown({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen]     = useState(false);
+  const [search, setSearch] = useState("");
   const ref = useRef<HTMLDivElement>(null);
   const selected = ROLE_OPTIONS.find(r => r.id === value);
 
@@ -58,11 +59,17 @@ function RoleDropdown({ value, onChange }: { value: string; onChange: (v: string
     return () => document.removeEventListener("mousedown", h);
   }, []);
 
+  const q = search.toLowerCase();
+  const filtered = ROLE_OPTIONS.filter(
+    r => !q || r.label.toLowerCase().includes(q) || r.sub.toLowerCase().includes(q) || r.category.toLowerCase().includes(q)
+  );
+  const categories = [...new Set(filtered.map(r => r.category))];
+
   return (
     <div ref={ref} className="relative mt-2">
       {/* Trigger */}
       <button type="button" onClick={() => setOpen(o => !o)}
-        className={`w-full h-14 px-5 rounded-xl border flex items-center justify-between gap-3 transition-all duration-200 ${
+        className={`w-full min-h-[56px] px-5 py-3 rounded-xl border flex items-center justify-between gap-3 transition-all duration-200 ${
           open ? "border-[#00E5FF] shadow-[0_0_0_3px_rgba(0,229,255,0.08)] bg-[#00E5FF]/[0.04]"
                : "border-[#00E5FF]/20 bg-[#00E5FF]/[0.04] hover:border-[#00E5FF]/40"}`}
       >
@@ -82,38 +89,59 @@ function RoleDropdown({ value, onChange }: { value: string; onChange: (v: string
         </motion.div>
       </button>
 
-      {/* Options panel */}
+      {/* Dropdown panel — same design as ServiceDropdown */}
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: -6, scale: 0.98 }}
+            initial={{ opacity: 0, y: -8, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -6, scale: 0.98 }}
-            transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute top-full mt-2 left-0 right-0 z-50 rounded-2xl border border-[#00E5FF]/20 bg-[#00060E] shadow-[0_24px_80px_rgba(0,0,0,0.7)] overflow-hidden p-2"
+            exit={{ opacity: 0, y: -8, scale: 0.98 }}
+            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute top-full mt-2 left-0 right-0 z-50 rounded-2xl border border-[#00E5FF]/20 bg-[#00060E] shadow-[0_24px_80px_rgba(0,0,0,0.7)] overflow-hidden"
           >
-            {ROLE_OPTIONS.map(r => {
-              const sel = r.id === value;
-              return (
-                <button key={r.id} type="button"
-                  onClick={() => { onChange(r.id); setOpen(false); }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-150 ${sel ? "bg-[#00E5FF]/10" : "hover:bg-white/[0.04]"}`}
-                >
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0 transition-all ${sel ? "bg-[#00E5FF]/20" : "bg-white/5"}`}>
-                    {r.emoji}
-                  </div>
-                  <div className="flex-1 text-left">
-                    <p className={`text-sm font-semibold ${sel ? "text-[#00E5FF]" : "text-white/85"}`} dir="rtl">{r.label}</p>
-                    {r.sub && <p className="text-white/30 text-[11px]">{r.sub}</p>}
-                  </div>
-                  {sel && (
-                    <div className="w-5 h-5 rounded-full bg-[#00E5FF] flex items-center justify-center shrink-0">
-                      <Check size={10} className="text-black" strokeWidth={3} />
-                    </div>
-                  )}
-                </button>
-              );
-            })}
+            {/* Search bar */}
+            <div className="p-3 border-b border-white/5">
+              <div className="flex items-center gap-2 bg-white/[0.04] rounded-xl px-4 py-2.5 border border-white/8">
+                <Search size={14} className="text-white/40 shrink-0" />
+                <input autoFocus type="text" value={search} onChange={e => setSearch(e.target.value)}
+                  placeholder="ابحث عن مهنتك... Search your role..."
+                  className="flex-1 bg-transparent text-white text-sm placeholder-white/30 outline-none" dir="rtl" />
+                {search && (
+                  <button type="button" onClick={() => setSearch("")} className="text-white/30 hover:text-white transition-colors">
+                    <X size={12} />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Role list by category */}
+            <div className="max-h-[320px] overflow-y-auto overscroll-contain p-2" onWheel={e => e.stopPropagation()}>
+              {categories.length === 0 ? (
+                <p className="text-white/30 text-sm text-center py-6" dir="rtl">ما لقينا نتيجة</p>
+              ) : categories.map(cat => (
+                <div key={cat} className="mb-3">
+                  <p className="text-white/25 text-[10px] font-mono uppercase tracking-widest px-3 py-1">{cat}</p>
+                  {filtered.filter(r => r.category === cat).map(r => {
+                    const sel = r.id === value;
+                    return (
+                      <button key={r.id} type="button"
+                        onClick={() => { onChange(r.id); setOpen(false); setSearch(""); }}
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all duration-150 ${sel ? "bg-[#00E5FF]/10" : "hover:bg-white/[0.04]"}`}
+                      >
+                        <span className="text-lg shrink-0 w-7 text-center">{r.emoji}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className={`text-sm font-medium leading-tight ${sel ? "text-[#00E5FF]" : "text-white/85"}`} dir="rtl">{r.label}</p>
+                          {r.sub && <p className="text-white/30 text-[11px]">{r.sub}</p>}
+                        </div>
+                        <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-all ${sel ? "bg-[#00E5FF] border-[#00E5FF]" : "border-white/20"}`}>
+                          {sel && <Check size={10} className="text-black" strokeWidth={3} />}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
