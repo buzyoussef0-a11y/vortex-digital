@@ -87,7 +87,7 @@ export function Step1({ data, update, onValidated }: Step1Props) {
         <p className={qNumCls}>Q4 —</p>
         <label className={labelCls} dir="rtl">مهنتك / دورك</label>
         {errors.role && <p className={errorCls} dir="rtl">{errors.role}</p>}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-2">
           {ROLE_OPTIONS.map(r => {
             const sel = data.role === r.id;
             return (
@@ -95,20 +95,35 @@ export function Step1({ data, update, onValidated }: Step1Props) {
                 key={r.id}
                 type="button"
                 onClick={() => update({ role: r.id })}
-                whileHover={{ scale: 1.02 }}
-                animate={{ scale: sel ? 1.02 : 1 }}
-                className={`relative p-4 rounded-xl border text-center transition-all flex flex-col items-center gap-1.5 min-h-[100px] justify-center ${sel
-                  ? "border-[#00E5FF]/60 bg-[#00E5FF]/10 shadow-[0_0_20px_rgba(0,229,255,0.10)]"
-                  : "border-[#00E5FF]/15 bg-[#00E5FF]/3 hover:border-[#00E5FF]/30"}`}
+                whileHover={{ x: sel ? 0 : 3 }}
+                transition={{ duration: 0.2 }}
+                className={`relative flex items-center gap-4 px-5 py-4 rounded-2xl border text-left transition-all overflow-hidden ${sel
+                  ? "border-[#00E5FF]/50 bg-[#00E5FF]/8 shadow-[0_0_24px_rgba(0,229,255,0.12)]"
+                  : "border-white/8 bg-white/[0.03] hover:border-[#00E5FF]/25 hover:bg-[#00E5FF]/5"}`}
               >
+                {/* Left accent strip */}
+                <div className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full transition-all duration-300"
+                  style={{ background: sel ? "linear-gradient(to bottom,transparent,#00E5FF,transparent)" : "transparent" }} />
+
+                {/* Emoji bubble */}
+                <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 text-xl transition-all ${sel ? "bg-[#00E5FF]/15" : "bg-white/5"}`}>
+                  {r.emoji}
+                </div>
+
+                {/* Text */}
+                <div className="flex flex-col min-w-0">
+                  <span className={`font-semibold text-sm leading-tight transition-colors ${sel ? "text-[#00E5FF]" : "text-white"}`} dir="rtl">
+                    {r.label}
+                  </span>
+                  {r.sub && <span className="text-white/35 text-[11px] mt-0.5">{r.sub}</span>}
+                </div>
+
+                {/* Check badge */}
                 {sel && (
-                  <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-[#00E5FF] flex items-center justify-center">
-                    <Check size={9} className="text-black" />
+                  <div className="ml-auto shrink-0 w-5 h-5 rounded-full bg-[#00E5FF] flex items-center justify-center">
+                    <Check size={10} className="text-black" strokeWidth={3} />
                   </div>
                 )}
-                <span className="text-2xl">{r.emoji}</span>
-                <p className="text-white text-xs font-semibold leading-tight" dir="rtl">{r.label}</p>
-                {r.sub && <p className="text-white/40 text-[10px]">{r.sub}</p>}
               </motion.button>
             );
           })}
