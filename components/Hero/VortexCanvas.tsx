@@ -8,7 +8,7 @@ const DESKTOP_BASE  = '/images/ezgif-33b3c9ca929bfbc9-jpg/ezgif-7d8c322d6bd76eef
 const DESKTOP_TOTAL = 162;
 
 // Mobile sequence
-const MOBILE_BASE   = '/images/ezgif-33b3c9ca929bfbc9-jpg/image scrool animation for phone/';
+const MOBILE_BASE   = '/images/ezgif-33b3c9ca929bfbc9-jpg/image%20scrool%20animation%20for%20phone/';
 const MOBILE_TOTAL  = 154;
 
 const FRAME_PREFIX = 'ezgif-frame-';
