@@ -125,20 +125,20 @@ function RoleDropdown({ value, onChange }: { value: string; onChange: (v: string
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
             transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute top-full mt-2 left-0 right-0 z-50 rounded-2xl border border-[#00E5FF]/20 bg-[#00060E] shadow-[0_24px_80px_rgba(0,0,0,0.7)] overflow-hidden flex"
+            className="absolute top-full mt-2 left-0 right-0 z-50 rounded-2xl border border-[#00E5FF]/20 bg-[#00060E] shadow-[0_24px_80px_rgba(0,0,0,0.7)] overflow-hidden flex flex-col md:flex-row"
           >
-            {/* LEFT — searchable list */}
-            <div className="flex-1 flex flex-col min-w-0 border-r border-white/5">
+            {/* TOP/LEFT — searchable list */}
+            <div className="flex-1 flex flex-col min-w-0 md:border-r border-white/5">
               {/* Search bar */}
               <div className="p-3 border-b border-white/5 shrink-0">
-                <div className="flex items-center gap-2 bg-white/[0.04] rounded-xl px-3 py-2 border border-white/8">
-                  <Search size={13} className="text-white/40 shrink-0" />
+                <div className="flex items-center gap-2 bg-white/[0.04] rounded-xl px-3 py-2.5 border border-white/8">
+                  <Search size={14} className="text-white/40 shrink-0" />
                   <input autoFocus type="text" value={search} onChange={e => setSearch(e.target.value)}
                     placeholder="ابحث... Search..."
                     className="flex-1 bg-transparent text-white text-sm placeholder-white/30 outline-none" dir="rtl" />
                   {search && (
-                    <button type="button" onClick={() => setSearch("")} className="text-white/30 hover:text-white transition-colors">
-                      <X size={11} />
+                    <button type="button" onClick={() => setSearch("")} className="text-white/30 hover:text-white transition-colors p-1">
+                      <X size={12} />
                     </button>
                   )}
                 </div>
@@ -148,7 +148,7 @@ function RoleDropdown({ value, onChange }: { value: string; onChange: (v: string
               <div
                 data-lenis-prevent
                 className="overflow-y-auto p-2"
-                style={{ maxHeight: "280px" }}
+                style={{ maxHeight: "220px" }}
               >
                 {categories.length === 0 ? (
                   <p className="text-white/30 text-xs text-center py-6" dir="rtl">ما لقينا نتيجة</p>
@@ -160,11 +160,11 @@ function RoleDropdown({ value, onChange }: { value: string; onChange: (v: string
                       return (
                         <button key={r.id} type="button"
                           onClick={() => { onChange(r.id); setOpen(false); setSearch(""); }}
-                          className={`w-full flex items-center gap-2 px-2 py-2 rounded-xl text-left transition-all duration-150 ${sel ? "bg-[#00E5FF]/10" : "hover:bg-white/[0.04]"}`}
+                          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all duration-150 ${sel ? "bg-[#00E5FF]/10" : "hover:bg-white/[0.04]"}`}
                         >
                           <span className="text-base shrink-0 w-6 text-center">{r.emoji}</span>
                           <div className="flex-1 min-w-0">
-                            <p className={`text-xs font-medium leading-tight truncate ${sel ? "text-[#00E5FF]" : "text-white/85"}`} dir="rtl">{r.label}</p>
+                            <p className={`text-sm font-medium leading-tight truncate ${sel ? "text-[#00E5FF]" : "text-white/85"}`} dir="rtl">{r.label}</p>
                           </div>
                           {sel && (
                             <div className="w-4 h-4 rounded-full bg-[#00E5FF] flex items-center justify-center shrink-0">
@@ -179,11 +179,11 @@ function RoleDropdown({ value, onChange }: { value: string; onChange: (v: string
               </div>
             </div>
 
-            {/* RIGHT — custom role input */}
-            <div className="w-[200px] shrink-0 flex flex-col p-4 gap-3 justify-start">
+            {/* BOTTOM/RIGHT — custom role input */}
+            <div className="md:w-[200px] shrink-0 flex flex-col p-4 gap-3 border-t md:border-t-0 border-white/5">
               <div>
                 <p className="text-[#00E5FF] text-[10px] font-mono uppercase tracking-widest mb-1">ما لقيتيش مهنتك؟</p>
-                <p className="text-white/30 text-[11px] leading-snug" dir="rtl">كتب مهنتك هنا وغادي نتواصلو معاك مع خدمات مناسبة ليك</p>
+                <p className="text-white/30 text-xs leading-relaxed" dir="rtl">كتب مهنتك هنا وغادي نتواصلو معاك مع خدمات مناسبة ليك</p>
               </div>
               <CustomRoleInput onSubmit={customRole => { onChange(`custom:${customRole}`); setOpen(false); }} />
             </div>
