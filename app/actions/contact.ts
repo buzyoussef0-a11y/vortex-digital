@@ -45,9 +45,32 @@ export async function submitProjectForm(data: {
   if (!data.step2.services || data.step2.services.length === 0)
     return { success: false, message: "اختر خدمة واحدة على الأقل" };
 
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
   const referenceId = `VDX-${Date.now().toString(36).toUpperCase().slice(-6)}`;
+
+  // Send to n8n webhook (fire and forget — don't block on failure)
+  try {
+    await fetch("https://n8n.srv1521649.hstgr.cloud/webhook/vortex-lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name:          data.step1.name,
+        email:         data.step1.email,
+        phone:         data.step1.phone,
+        role:          data.step1.role,
+        city:          data.step1.city,
+        service:       data.step2.services.join(", "),
+        websiteType:   data.step2.websiteType,
+        situation:     data.step2.currentSituation,
+        problems:      data.step2.problems.join(", "),
+        timeline:      data.step2.timeline,
+        notes:         data.step2.notes,
+        contactMethod: data.step3.contactMethod,
+        referenceId,
+      }),
+    });
+  } catch {
+    // Webhook failure should not block the user
+  }
 
   return { success: true, message: "تم الإرسال", referenceId };
 }
@@ -59,8 +82,32 @@ export async function sendProjectForm(data: ProjectFormData): Promise<{
   message: string;
   referenceId: string;
 }> {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
   const referenceId = `VDX-${Date.now().toString(36).toUpperCase()}`;
+
+  try {
+    await fetch("https://n8n.srv1521649.hstgr.cloud/webhook/vortex-lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name:          data.name,
+        email:         data.email,
+        phone:         data.phone,
+        role:          data.role,
+        city:          data.city,
+        service:       data.services.join(", "),
+        websiteType:   data.websiteType,
+        situation:     data.currentSituation,
+        problems:      data.problems.join(", "),
+        timeline:      data.timeline,
+        notes:         data.notes,
+        contactMethod: data.contactMethod,
+        referenceId,
+      }),
+    });
+  } catch {
+    // Webhook failure should not block the user
+  }
+
   return { success: true, message: "وصل الطلب ديالك بنجاح!", referenceId };
 }
 
