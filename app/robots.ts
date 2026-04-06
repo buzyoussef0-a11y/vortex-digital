@@ -9,7 +9,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/api/", "/_next/"],
       },
     ],
-    sitemap: "https://vortex-digital-phi.vercel.app/sitemap.xml",
-    host: "https://vortex-digital-phi.vercel.app",
+    sitemap: "https://vortexagence.com/sitemap.xml",
+    host: "https://vortexagence.com",
   };
 }

@@ -1,6 +1,6 @@
 import { MetadataRoute } from "next";
 
-const BASE_URL = "https://vortex-digital-phi.vercel.app";
+const BASE_URL = "https://vortexagence.com";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [

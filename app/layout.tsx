@@ -13,7 +13,7 @@ const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
 });
 
-const BASE_URL = "https://vortex-digital-phi.vercel.app";
+const BASE_URL = "https://vortexagence.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
