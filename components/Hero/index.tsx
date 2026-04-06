@@ -16,7 +16,9 @@ export default function Hero() {
         <section ref={containerRef} className="relative h-[500vh] w-full bg-[#00050A]">
             <div className="sticky top-0 h-screen w-full overflow-hidden">
                 <VortexCanvas scrollYProgress={scrollYProgress} />
-                <ContentOverlays scrollYProgress={scrollYProgress} />
+                <div className="hidden md:block">
+                  <ContentOverlays scrollYProgress={scrollYProgress} />
+                </div>
             </div>
         </section>
     );

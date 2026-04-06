@@ -145,7 +145,7 @@ export default function Navbar() {
           borderColor: navBorder,
           y: navY
         }}
-        className="fixed top-0 left-0 w-full z-50 h-16 px-8 md:px-10 border-b transition-colors duration-300 backdrop-blur-md flex items-center"
+        className="fixed top-0 left-0 w-full z-50 h-16 px-4 md:px-10 border-b transition-colors duration-300 backdrop-blur-md flex items-center"
       >
         <div className="w-full max-w-7xl mx-auto flex items-center justify-between gap-6">
 
@@ -316,7 +316,7 @@ export default function Navbar() {
             <button
               onClick={() => setMobileOpen((v) => !v)}
               aria-label="Toggle mobile menu"
-              className="md:hidden flex flex-col gap-[5px] justify-center items-center w-8 h-8 rounded-lg border border-white/10 hover:border-[#00E5FF]/30 transition-colors"
+              className="md:hidden flex flex-col gap-[5px] justify-center items-center w-10 h-10 rounded-lg border border-white/10 hover:border-[#00E5FF]/30 transition-colors shrink-0"
             >
               <motion.span
                 animate={mobileOpen ? { rotate: 45, y: 6 } : { rotate: 0, y: 0 }}

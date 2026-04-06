@@ -347,6 +347,66 @@ const DotIndicator = ({ total, active }: { total: number; active: number }) => (
 
 const SLIDE_DURATION = 5500; // ms per auto-advance
 
+/* ─── Mobile Card ────────────────────────────────────────── */
+
+const MobileProjectCard = ({ project, index }: { project: CaseStudy; index: number }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 40 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, margin: "-40px" }}
+    transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: index * 0.07 }}
+    className="rounded-2xl overflow-hidden border border-white/[0.07] bg-[#010912]"
+  >
+    {/* Image */}
+    <div className="relative h-44 overflow-hidden">
+      {project.imagePath ? (
+        <img src={project.imagePath} alt={project.tagline} className="w-full h-full object-cover object-center" />
+      ) : (
+        <div className="w-full h-full bg-gradient-to-br from-[#00111A] to-[#010912] flex items-center justify-center">
+          <project.icon className="w-12 h-12 text-cyan-400/20" strokeWidth={0.75} />
+        </div>
+      )}
+      <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom,transparent 40%,rgba(1,9,18,0.9) 100%)" }} />
+      <div className="absolute top-3 left-3">
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-md border border-[#00E5FF]/25 bg-[#010912]/70">
+          <div className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+          <span className="text-[8px] font-mono uppercase tracking-[0.15em] text-cyan-300/90">{project.category}</span>
+        </div>
+      </div>
+    </div>
+
+    {/* Content */}
+    <div className="px-5 pt-4 pb-5 flex flex-col gap-3">
+      <h3 className="text-lg font-black text-white leading-snug" dir="rtl">{project.tagline}</h3>
+      <p className="text-white/45 text-xs leading-relaxed">{project.description}</p>
+
+      <div className="flex flex-wrap gap-1.5">
+        {project.tags.map(tag => (
+          <span key={tag} className="text-[8px] font-mono px-2.5 py-1 rounded-full border border-[#00E5FF]/20 text-[#00E5FF]/60 uppercase tracking-wider">
+            {tag}
+          </span>
+        ))}
+      </div>
+
+      <div className="flex items-center gap-5 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        {project.stats.map((stat, i) => (
+          <React.Fragment key={stat.label}>
+            <div className="flex flex-col">
+              <span className="text-lg font-bold text-[#00E5FF] font-mono">{stat.value}</span>
+              <span className="text-[9px] text-white/35 uppercase tracking-widest font-mono">{stat.label}</span>
+            </div>
+            {i < project.stats.length - 1 && (
+              <div className="h-7 w-px bg-[#00E5FF]/15" />
+            )}
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
+  </motion.div>
+);
+
+/* ─── Main Section ───────────────────────────────────────── */
+
 export default function PortfolioSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const cardsRef   = useRef<HTMLDivElement>(null);
@@ -422,7 +482,60 @@ export default function PortfolioSection() {
 
 
   return (
-    <section ref={sectionRef} id="portfolio" className="relative bg-[#010912] overflow-hidden" style={{ minHeight: "185vh" }}>
+    <>
+    {/* ── Mobile Portfolio ── */}
+    <div className="md:hidden bg-[#010912] py-20 px-5 relative overflow-hidden">
+      {/* Atmosphere */}
+      <div className="absolute top-0 right-0 w-64 h-64 rounded-full pointer-events-none"
+        style={{ background: "radial-gradient(circle, rgba(0,229,255,0.07) 0%, transparent 70%)", filter: "blur(80px)" }} />
+      <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full pointer-events-none"
+        style={{ background: "radial-gradient(circle, rgba(123,97,255,0.05) 0%, transparent 70%)", filter: "blur(60px)" }} />
+
+      <div className="relative z-10 flex flex-col gap-8">
+        {/* Header */}
+        <div className="flex flex-col items-center gap-3 text-center">
+          <p className="text-[#00E5FF] font-mono text-[10px] tracking-[0.4em] uppercase">[ OUR IMPACT ]</p>
+          <h2 className="text-4xl font-black text-white tracking-tight">
+            Our <span className="bg-gradient-to-r from-[#00E5FF] to-white bg-clip-text text-transparent">Impact</span>
+          </h2>
+          <p dir="rtl" className="text-white/40 text-sm font-light max-w-xs">
+            مشاريعنا كتثبت قوتنا. ماشي غير هدرة — هادي نتيحة.
+          </p>
+        </div>
+
+        {/* Cards */}
+        <div className="flex flex-col gap-4">
+          {projects.map((project, i) => (
+            <MobileProjectCard key={project.id} project={project} index={i} />
+          ))}
+        </div>
+
+        {/* CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="flex justify-center pt-4"
+        >
+          <a
+            href="/start-project"
+            className="flex items-center gap-2 px-7 py-3 rounded-full font-mono text-xs font-bold uppercase tracking-widest transition-all duration-300 active:scale-95"
+            style={{
+              border: "1px solid rgba(0,229,255,0.4)",
+              color: "#00E5FF",
+              background: "rgba(0,229,255,0.06)",
+            }}
+          >
+            ابدأ مشروعك الآن
+            <ArrowRight size={13} />
+          </a>
+        </motion.div>
+      </div>
+    </div>
+
+    {/* ── Desktop Portfolio ── */}
+    <section ref={sectionRef} id="portfolio" className="relative bg-[#010912] overflow-hidden hidden md:block" style={{ minHeight: "185vh" }}>
 
       {/* Atmosphere */}
       <div className="absolute inset-0 pointer-events-none">
@@ -534,5 +647,6 @@ export default function PortfolioSection() {
 
       </div>
     </section>
+    </>
   );
 }
