@@ -316,7 +316,7 @@ export default function Navbar() {
             <button
               onClick={() => setMobileOpen((v) => !v)}
               aria-label="Toggle mobile menu"
-              className="md:hidden flex flex-col gap-[5px] justify-center items-center w-10 h-10 rounded-lg border border-white/10 hover:border-[#00E5FF]/30 transition-colors shrink-0 mr-2"
+              className="md:hidden flex flex-col gap-[5px] justify-center items-center w-10 h-10 rounded-lg border border-white/10 hover:border-[#00E5FF]/30 transition-colors shrink-0 -ml-2"
             >
               <motion.span
                 animate={mobileOpen ? { rotate: 45, y: 6 } : { rotate: 0, y: 0 }}
