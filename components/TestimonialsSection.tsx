@@ -2,229 +2,231 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Star, Quote } from "lucide-react";
+import { Shield, Clock, RefreshCw, Code2, Zap, HeartHandshake, Star, ArrowRight } from "lucide-react";
 
-interface Testimonial {
-    name: string;
-    role: string;
-    arabic: string;
-    text: string;
-    rating: number;
-    initials: string;
-}
-
-const testimonials: Testimonial[] = [
-    {
-        name: "Dr. Zouhri",
-        role: "Dentiste, Cabinet Zouhri — Azrou",
-        arabic: "الموقع زاد عندي الحجوزات بـ 3 مرات في شهر وحد",
-        text: "Before Vortex, patients called me during surgery. Now the booking system handles everything automatically. Best investment I made for my clinic.",
-        rating: 5,
-        initials: "DZ",
-    },
-    {
-        name: "Youssef Amrani",
-        role: "E-Commerce Founder — Casablanca",
-        arabic: "خدمة premium بسعر معقول — نادر تلقاها فالمغرب",
-        text: "I've worked with agencies in Dubai and France. Vortex Digital delivers the same level of quality without the inflated price tag. Exceptional team.",
-        rating: 5,
-        initials: "YA",
-    },
-    {
-        name: "Sara Benali",
-        role: "Coach & Consultant — Rabat",
-        arabic: "الموقع ديالي تبدل 180 درجة",
-        text: "My website went from amateur to premium overnight. The AI chatbot they built completely transformed how clients find and book me online.",
-        rating: 5,
-        initials: "SB",
-    },
-    {
-        name: "Karim El Fassi",
-        role: "Restaurant Owner — Fes",
-        arabic: "الأتمتة وفرات ليا 20 ساعة في الأسبوع",
-        text: "The WhatsApp automation system they built handles all my reservations and customer follow-ups. I literally don't touch my phone for bookings anymore.",
-        rating: 5,
-        initials: "KF",
-    },
-    {
-        name: "Imane Tazi",
-        role: "Real Estate Agency — Marrakech",
-        arabic: "ROI واضح من الأسبوع الأول",
-        text: "Our lead qualification AI filters serious buyers from time-wasters automatically. Our sales team closes 40% more deals now.",
-        rating: 5,
-        initials: "IT",
-    },
-    {
-        name: "Omar Idrissi",
-        role: "SaaS Startup — Casablanca",
-        arabic: "تيم صغير بنتيجة شركة كبيرة",
-        text: "What impressed me most was their speed. Full product website + onboarding flow delivered in 3 weeks. And it looks like it cost 10x more.",
-        rating: 5,
-        initials: "OI",
-    },
+const GUARANTEES = [
+  {
+    icon: Clock,
+    emoji: "⚡",
+    title: "رد في أقل من 24 ساعة",
+    titleEn: "< 24h Response",
+    desc: "كل رسالة، كل سؤال، كل طلب — نجاوبك قبل ما يجي النهار. مش أسبوع، مش يومين — 24 ساعة كحد أقصى.",
+    color: "#00E5FF",
+    glow: "rgba(0,229,255,0.15)",
+  },
+  {
+    icon: RefreshCw,
+    emoji: "🔄",
+    title: "تعديلات بلا حدود حتى ترضى",
+    titleEn: "Unlimited Revisions",
+    desc: "ماكنسلموش المشروع حتى تكون راضي 100%. مش راضي؟ نبدلو. مش عاجبك اللون؟ نغيرو. نتا الكابتن.",
+    color: "#00E5FF",
+    glow: "rgba(0,229,255,0.15)",
+  },
+  {
+    icon: Shield,
+    emoji: "🛡️",
+    title: "إذا ما عجبكش — مانطلبوش فلوس",
+    titleEn: "Money-Back Guarantee",
+    desc: "واثقين في شغلنا لدرجة أننا نضمن النتيجة. إذا ما وصلناش للمواصفات المتفق عليها — الفلوس ترجع كاملة.",
+    color: "#7B61FF",
+    glow: "rgba(123,97,255,0.15)",
+  },
+  {
+    icon: Code2,
+    emoji: "💻",
+    title: "الكود ديالك بالكامل",
+    titleEn: "You Own Everything",
+    desc: "مانحتفظوش بأي شيء. كل السورس كود، الدومين، الداتا — كلها ملكيتك 100% من اليوم الأول.",
+    color: "#00E5FF",
+    glow: "rgba(0,229,255,0.15)",
+  },
+  {
+    icon: Zap,
+    emoji: "🚀",
+    title: "تسليم في الوقت المحدد",
+    titleEn: "On-Time Delivery",
+    desc: "نحدد تاريخ، نلتزم به. مع تحديثات أسبوعية على التقدم باش دايما تكون في الصورة.",
+    color: "#00E5FF",
+    glow: "rgba(0,229,255,0.15)",
+  },
+  {
+    icon: HeartHandshake,
+    emoji: "🤝",
+    title: "30 يوم دعم مجاني بعد التسليم",
+    titleEn: "30-Day Free Support",
+    desc: "بعد ما نسلموك المشروع مانهربوش. 30 يوم دعم كامل مجاني — bugs، أسئلة، أي تعديل صغير.",
+    color: "#7B61FF",
+    glow: "rgba(123,97,255,0.15)",
+  },
 ];
 
-const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => (
-    <div className="flex-shrink-0 w-[380px] p-7 rounded-2xl border border-[#00E5FF]/40 bg-[#00E5FF]/[0.09] backdrop-blur-xl relative overflow-hidden transition-all duration-500 hover:border-[#00E5FF]/65 hover:shadow-[0_0_45px_rgba(0,229,255,0.28)] mx-4">
-        {/* Top glowing border line */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-[#00E5FF]/55 to-transparent" />
-        {/* Corner ambient glow */}
-        <div className="absolute -top-12 -right-12 w-40 h-40 bg-[#00E5FF]/8 blur-[50px] rounded-full pointer-events-none" />
-        {/* Decorative Quote Mark */}
-        <div className="absolute top-4 right-6 text-6xl font-serif text-[#00E5FF]/10 select-none">
-            "
+const STATS = [
+  { value: "< 24h", label: "وقت الرد" },
+  { value: "100%", label: "ملكية الكود" },
+  { value: "30 يوم", label: "دعم مجاني" },
+  { value: "∞", label: "تعديلات" },
+];
+
+export default function TestimonialsSection() {
+  return (
+    <section id="testimonials" className="py-24 md:py-32 px-6 md:px-20 relative overflow-hidden bg-[#00050A]">
+      {/* Background atmosphere */}
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] rounded-full pointer-events-none"
+        style={{ background: "radial-gradient(circle, rgba(0,229,255,0.06) 0%, transparent 70%)", filter: "blur(100px)" }} />
+      <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] rounded-full pointer-events-none"
+        style={{ background: "radial-gradient(circle, rgba(123,97,255,0.05) 0%, transparent 70%)", filter: "blur(100px)" }} />
+
+      <div className="max-w-7xl mx-auto">
+
+        {/* Header */}
+        <div className="text-center mb-20">
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-[#00E5FF] font-mono text-xs tracking-[0.4em] uppercase mb-4"
+          >
+            [ WHY TRUST US ]
+          </motion.p>
+          <motion.h2
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+            className="text-4xl md:text-6xl font-black text-white mb-5 leading-tight"
+            dir="rtl"
+          >
+            شغلنا بيحكي —<br />
+            <span className="bg-gradient-to-r from-white to-[#00E5FF] bg-clip-text text-transparent">
+              وضماناتنا بتحمي
+            </span>
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="text-white/40 text-lg max-w-xl mx-auto"
+            dir="rtl"
+          >
+            مابغيناش تثق فينا بكلام فقط — هاذي هي التزاماتنا الحقيقية معاك
+          </motion.p>
         </div>
 
-        {/* Star Rating */}
-        <div className="flex gap-1 mb-4">
-            {[...Array(testimonial.rating)].map((_, i) => (
-                <Star key={i} size={14} className="fill-[#00E5FF] text-[#00E5FF]" />
-            ))}
-        </div>
-
-        {/* Arabic Quote */}
-        <p dir="rtl" className="text-white font-bold text-lg mb-3 text-right leading-tight">
-            {testimonial.arabic}
-        </p>
-
-        {/* English Quote */}
-        <p className="text-zinc-500 italic text-sm leading-relaxed mb-6">
-            "{testimonial.text}"
-        </p>
-
-        {/* Author Info */}
-        <div className="flex items-center gap-3 mt-auto">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00E5FF] to-[#00A8BD] flex items-center justify-center text-white font-bold text-sm">
-                {testimonial.initials}
-            </div>
-            <div>
-                <h4 className="text-white font-bold text-sm">{testimonial.name}</h4>
-                <p className="text-zinc-600 text-[10px] uppercase tracking-wider">{testimonial.role}</p>
-            </div>
-        </div>
-    </div>
-);
-
-const TestimonialsSection = () => {
-    return (
-        <section id="testimonials" className="py-24 relative overflow-hidden bg-[#00050A]">
-            {/* Background Glows */}
-            <div className="absolute top-1/2 left-0 -translate-y-1/2 w-96 h-96 bg-[#00E5FF]/5 blur-[120px] rounded-full pointer-events-none" />
-            <div className="absolute top-1/2 right-0 -translate-y-1/2 w-96 h-96 bg-[#00A8BD]/5 blur-[120px] rounded-full pointer-events-none" />
-
-            <div className="max-w-7xl mx-auto px-6 md:px-20 mb-16">
-                <motion.p
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                    className="text-[#00E5FF] font-mono tracking-widest uppercase mb-4"
-                >
-                    [ CLIENT VOICES ]
-                </motion.p>
-                <motion.h2
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-                    className="text-4xl md:text-6xl font-bold text-white mb-4"
-                >
-                    What They Say
-                </motion.h2>
-                <motion.p
-                    initial={{ opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-                    dir="rtl"
-                    className="text-zinc-500 text-xl md:text-2xl text-right"
-                >
-                    كلام كليانتنا — مش كلامنا حنا
-                </motion.p>
-            </div>
-
-            {/* Marquee Rows */}
+        {/* Stats bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7, delay: 0.15 }}
+          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16"
+        >
+          {STATS.map((s, i) => (
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.1 }}
-              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
-              style={{ willChange: "transform, opacity" }}
-              className="flex flex-col gap-8 select-none relative mask-fade"
+              key={s.label}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.08 }}
+              className="text-center py-6 rounded-2xl border border-[#00E5FF]/10 bg-[#00E5FF]/[0.03]"
             >
-                {/* Row 1: Scrolling Left */}
-                <div className="flex marquee-row marquee-left group">
-                    <div className="flex marquee-content">
-                        {[...testimonials, ...testimonials].map((t, i) => (
-                            <TestimonialCard key={`row1-${i}`} testimonial={t} />
-                        ))}
-                    </div>
-                </div>
-
-                {/* Row 2: Scrolling Right */}
-                <div className="flex marquee-row marquee-right group">
-                    <div className="flex marquee-content">
-                        {[...testimonials, ...testimonials].map((t, i) => (
-                            <TestimonialCard key={`row2-${i}`} testimonial={t} />
-                        ))}
-                    </div>
-                </div>
+              <div className="text-3xl md:text-4xl font-black text-[#00E5FF] mb-1">{s.value}</div>
+              <div className="text-white/40 text-xs font-mono tracking-wider" dir="rtl">{s.label}</div>
             </motion.div>
+          ))}
+        </motion.div>
 
-            <style jsx>{`
-        .mask-fade {
-          mask-image: linear-gradient(
-            to right,
-            transparent,
-            black 10%,
-            black 90%,
-            transparent
-          );
-        }
+        {/* Guarantee cards grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {GUARANTEES.map((g, i) => (
+            <motion.div
+              key={g.titleEn}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: i * 0.08 }}
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
+              className="group relative rounded-2xl border border-white/[0.06] bg-white/[0.02] backdrop-blur-sm p-7 overflow-hidden cursor-default"
+              style={{
+                boxShadow: "0 0 0 0 transparent",
+                transition: "box-shadow 0.3s ease",
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLElement).style.boxShadow = `0 0 40px ${g.glow}`;
+                (e.currentTarget as HTMLElement).style.borderColor = `${g.color}30`;
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLElement).style.boxShadow = "0 0 0 0 transparent";
+                (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.06)";
+              }}
+            >
+              {/* Top border glow */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-px"
+                style={{ background: `linear-gradient(to right, transparent, ${g.color}50, transparent)` }} />
 
-        .marquee-row {
-          overflow: hidden;
-          width: 100%;
-          contain: layout style;
-        }
+              {/* Corner glow */}
+              <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                style={{ background: `radial-gradient(circle, ${g.glow} 0%, transparent 70%)`, filter: "blur(20px)" }} />
 
-        .marquee-content {
-          width: max-content;
-          will-change: transform;
-        }
+              {/* Icon */}
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+                  style={{ background: `${g.color}12`, border: `1px solid ${g.color}25` }}>
+                  <g.icon size={20} style={{ color: g.color }} strokeWidth={1.8} />
+                </div>
+                <span className="text-2xl">{g.emoji}</span>
+              </div>
 
-        .marquee-left .marquee-content {
-          animation: scrollLeft 35s linear infinite;
-        }
+              {/* Content */}
+              <h3 className="text-white font-bold text-base mb-2 leading-snug" dir="rtl">
+                {g.title}
+              </h3>
+              <p className="text-[10px] font-mono tracking-widest mb-3" style={{ color: g.color }}>
+                {g.titleEn}
+              </p>
+              <p className="text-white/40 text-sm leading-relaxed" dir="rtl">
+                {g.desc}
+              </p>
+            </motion.div>
+          ))}
+        </div>
 
-        .marquee-right .marquee-content {
-          animation: scrollRight 45s linear infinite;
-        }
+        {/* Bottom CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7, delay: 0.3 }}
+          className="mt-16 text-center"
+        >
+          <div className="inline-flex flex-col items-center gap-6 rounded-3xl border border-[#00E5FF]/15 bg-[#00E5FF]/[0.03] px-10 py-8">
+            <div className="flex items-center gap-1">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} size={18} className="fill-[#00E5FF] text-[#00E5FF]" />
+              ))}
+            </div>
+            <p className="text-white/60 text-sm max-w-md" dir="rtl">
+              كن أول عميل لنا وانتفع بسعر تأسيسي خاص — نبنيلك مشروع احترافي ونطلب منك مراجعتك الصادقة فقط
+            </p>
+            <a
+              href="/start-project"
+              className="flex items-center gap-2 px-7 py-3 rounded-full font-mono text-sm font-bold uppercase tracking-widest transition-all duration-300 hover:scale-105"
+              style={{
+                background: "linear-gradient(135deg, rgba(0,229,255,0.15), rgba(0,229,255,0.06))",
+                border: "1px solid rgba(0,229,255,0.4)",
+                color: "#00E5FF",
+                boxShadow: "0 0 20px rgba(0,229,255,0.1)",
+              }}
+            >
+              ابدأ مشروعك الآن
+              <ArrowRight size={14} />
+            </a>
+          </div>
+        </motion.div>
 
-        .marquee-row:hover .marquee-content {
-          animation-play-state: paused;
-        }
-
-        @keyframes scrollLeft {
-          from {
-            transform: translateX(0);
-          }
-          to {
-            transform: translateX(-50%);
-          }
-        }
-
-        @keyframes scrollRight {
-          from {
-            transform: translateX(-50%);
-          }
-          to {
-            transform: translateX(0);
-          }
-        }
-      `}</style>
-        </section>
-    );
-};
-
-export default TestimonialsSection;
+      </div>
+    </section>
+  );
+}
