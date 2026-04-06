@@ -96,6 +96,13 @@ export default function RootLayout({
     <html lang="ar" dir="rtl" className="dark">
       <head>
         <link rel="canonical" href={BASE_URL} />
+        {/* Google Analytics */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-RC9V04GDGV" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RC9V04GDGV');`,
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
