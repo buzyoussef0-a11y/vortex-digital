@@ -12,5 +12,14 @@ export const metadata: Metadata = {
     description:
       "أخبرنا عن مشروعك في 3 خطوات ونجاوبك في أقل من 24 ساعة — مجاني وبلا التزام.",
     url: "https://vortex-digital-phi.vercel.app/start-project",
+    images: ["https://vortex-digital-phi.vercel.app/vortex.jpeg"],
   },
 };
+
+export default function StartProjectLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <>{children}</>;
+}

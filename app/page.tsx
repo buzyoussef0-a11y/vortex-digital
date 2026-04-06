@@ -72,10 +72,10 @@ export default function Home() {
 
         <footer className="py-10 px-6 md:px-20 border-t border-white/5 flex flex-col md:flex-row justify-between items-center text-[10px] uppercase tracking-widest text-zinc-600 gap-6 bg-[#00050A]">
           <div>© 2026 Vortex Digital. All rights reserved.</div>
-          <div className="flex gap-10">
-            <a href="#" className="hover:text-white transition-colors">Privacy</a>
-            <a href="#" className="hover:text-white transition-colors">Terms</a>
-            <a href="#" className="hover:text-white transition-colors">Security</a>
+          <div className="flex items-center gap-8">
+            <a href="mailto:vortexagence.digital@gmail.com" className="hover:text-white transition-colors">Email</a>
+            <a href="https://wa.me/212705960845" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">WhatsApp</a>
+            <a href="/start-project" className="hover:text-[#00E5FF] text-[#00E5FF]/60 transition-colors">Start Project →</a>
           </div>
         </footer>
       </div>

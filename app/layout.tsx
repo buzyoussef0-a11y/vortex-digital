@@ -215,7 +215,7 @@ export default function RootLayout({
       </head>
       <body
         className={`${outfit.variable} ${spaceGrotesk.variable} antialiased bg-[#00050A] text-white`}
-        dir="ltr"
+        dir="ltr" suppressHydrationWarning
       >
         <LenisProvider>{children}</LenisProvider>
       </body>
