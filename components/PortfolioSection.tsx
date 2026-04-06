@@ -347,63 +347,125 @@ const DotIndicator = ({ total, active }: { total: number; active: number }) => (
 
 const SLIDE_DURATION = 5500; // ms per auto-advance
 
-/* ─── Mobile Card ────────────────────────────────────────── */
+/* ─── Mobile Swipe Carousel ──────────────────────────────── */
 
-const MobileProjectCard = ({ project, index }: { project: CaseStudy; index: number }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 40 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: "-40px" }}
-    transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: index * 0.07 }}
-    className="rounded-2xl overflow-hidden border border-white/[0.07] bg-[#010912]"
-  >
-    {/* Image */}
-    <div className="relative h-44 overflow-hidden">
-      {project.imagePath ? (
-        <img src={project.imagePath} alt={project.tagline} className="w-full h-full object-cover object-center" />
-      ) : (
-        <div className="w-full h-full bg-gradient-to-br from-[#00111A] to-[#010912] flex items-center justify-center">
-          <project.icon className="w-12 h-12 text-cyan-400/20" strokeWidth={0.75} />
-        </div>
-      )}
-      <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom,transparent 40%,rgba(1,9,18,0.9) 100%)" }} />
-      <div className="absolute top-3 left-3">
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-md border border-[#00E5FF]/25 bg-[#010912]/70">
-          <div className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
-          <span className="text-[8px] font-mono uppercase tracking-[0.15em] text-cyan-300/90">{project.category}</span>
-        </div>
-      </div>
-    </div>
+const slideVariants = {
+  enter: (dir: number) => ({ x: dir > 0 ? "100%" : "-100%", opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit:  (dir: number) => ({ x: dir > 0 ? "-100%" : "100%", opacity: 0 }),
+};
 
-    {/* Content */}
-    <div className="px-5 pt-4 pb-5 flex flex-col gap-3">
-      <h3 className="text-lg font-black text-white leading-snug" dir="rtl">{project.tagline}</h3>
-      <p className="text-white/45 text-xs leading-relaxed">{project.description}</p>
+const MobileSwipeCarousel = () => {
+  const [idx, setIdx]       = useState(0);
+  const [dir, setDir]       = useState(1);
+  const touchStartX         = useRef(0);
+  const project             = projects[idx];
 
-      <div className="flex flex-wrap gap-1.5">
-        {project.tags.map(tag => (
-          <span key={tag} className="text-[8px] font-mono px-2.5 py-1 rounded-full border border-[#00E5FF]/20 text-[#00E5FF]/60 uppercase tracking-wider">
-            {tag}
-          </span>
-        ))}
-      </div>
+  const goNext = () => { setDir(1);  setIdx(i => (i + 1) % TOTAL); };
+  const goPrev = () => { setDir(-1); setIdx(i => (i - 1 + TOTAL) % TOTAL); };
 
-      <div className="flex items-center gap-5 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-        {project.stats.map((stat, i) => (
-          <React.Fragment key={stat.label}>
-            <div className="flex flex-col">
-              <span className="text-lg font-bold text-[#00E5FF] font-mono">{stat.value}</span>
-              <span className="text-[9px] text-white/35 uppercase tracking-widest font-mono">{stat.label}</span>
+  const onTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
+  const onTouchEnd   = (e: React.TouchEvent) => {
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (diff > 45)       goNext();
+    else if (diff < -45) goPrev();
+  };
+
+  return (
+    <div className="flex flex-col gap-5">
+      {/* Sliding card area */}
+      <div
+        className="relative overflow-hidden rounded-2xl"
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
+        <AnimatePresence custom={dir} mode="wait" initial={false}>
+          <motion.div
+            key={idx}
+            custom={dir}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+            className="rounded-2xl overflow-hidden border border-white/[0.07] bg-[#010912]"
+          >
+            {/* Image */}
+            <div className="relative h-52 overflow-hidden">
+              {project.imagePath ? (
+                <img
+                  src={project.imagePath}
+                  alt={project.tagline}
+                  className="w-full h-full object-cover object-center"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-[#00111A] to-[#010912] flex items-center justify-center">
+                  <project.icon className="w-14 h-14 text-cyan-400/20" strokeWidth={0.75} />
+                </div>
+              )}
+              <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, transparent 40%, rgba(1,9,18,0.92) 100%)" }} />
+
+              {/* Category badge */}
+              <div className="absolute top-3 left-3">
+                <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full backdrop-blur-md border border-[#00E5FF]/25 bg-[#010912]/70">
+                  <motion.div className="w-1.5 h-1.5 rounded-full bg-cyan-400" animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 2, repeat: Infinity }} />
+                  <span className="text-[8px] font-mono uppercase tracking-[0.15em] text-cyan-300/90">{project.category}</span>
+                </div>
+              </div>
+
+              {/* Location badge */}
+              <div className="absolute top-3 right-3">
+                <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-full backdrop-blur-md bg-black/40 border border-white/[0.07]">
+                  <Globe className="w-2.5 h-2.5 text-white/30" />
+                  <span className="text-[8px] font-mono text-white/35 uppercase tracking-tighter">{project.location}</span>
+                </div>
+              </div>
+
+              {/* Counter badge */}
+              <div className="absolute bottom-3 right-3">
+                <span className="text-[10px] font-mono text-white/25">{String(idx + 1).padStart(2,"0")} / {String(TOTAL).padStart(2,"0")}</span>
+              </div>
             </div>
-            {i < project.stats.length - 1 && (
-              <div className="h-7 w-px bg-[#00E5FF]/15" />
-            )}
-          </React.Fragment>
-        ))}
+
+            {/* Content */}
+            <div className="px-5 pt-5 pb-6 flex flex-col gap-3">
+              <h3 className="text-xl font-black text-white leading-snug" dir="rtl">{project.tagline}</h3>
+              <p className="text-white/45 text-[13px] leading-relaxed">{project.description}</p>
+
+              <div className="flex flex-wrap gap-1.5">
+                {project.tags.map(tag => (
+                  <span key={tag} className="text-[8px] font-mono px-2.5 py-1 rounded-full border border-[#00E5FF]/20 text-[#00E5FF]/60 uppercase tracking-wider">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-5 pt-4" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                {project.stats.map((stat, i) => (
+                  <React.Fragment key={stat.label}>
+                    <div className="flex flex-col">
+                      <span className="text-xl font-bold text-[#00E5FF] font-mono">{stat.value}</span>
+                      <span className="text-[9px] text-white/35 uppercase tracking-widest font-mono">{stat.label}</span>
+                    </div>
+                    {i < project.stats.length - 1 && (
+                      <div className="h-8 w-px bg-[#00E5FF]/15" />
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Dot indicators + swipe hint */}
+      <div className="flex flex-col items-center gap-2">
+        <DotIndicator total={TOTAL} active={idx} />
+        <p className="text-white/20 text-[9px] font-mono tracking-widest uppercase">← اسحب للتنقل →</p>
       </div>
     </div>
-  </motion.div>
-);
+  );
+};
 
 /* ─── Main Section ───────────────────────────────────────── */
 
@@ -503,12 +565,8 @@ export default function PortfolioSection() {
           </p>
         </div>
 
-        {/* Cards */}
-        <div className="flex flex-col gap-4">
-          {projects.map((project, i) => (
-            <MobileProjectCard key={project.id} project={project} index={i} />
-          ))}
-        </div>
+        {/* Swipe Carousel */}
+        <MobileSwipeCarousel />
 
         {/* CTA */}
         <motion.div
