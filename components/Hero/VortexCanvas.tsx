@@ -1,44 +1,61 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useMotionValue, useSpring, MotionValue, useTransform } from "framer-motion";
+import { useSpring, MotionValue, useTransform } from "framer-motion";
 
-const BASE_URL = '/images/ezgif-33b3c9ca929bfbc9-jpg/ezgif-7d8c322d6bd76eef-jpg/';
+// Desktop sequence
+const DESKTOP_BASE  = '/images/ezgif-33b3c9ca929bfbc9-jpg/ezgif-7d8c322d6bd76eef-jpg/';
+const DESKTOP_TOTAL = 162;
+
+// Mobile sequence
+const MOBILE_BASE   = '/images/ezgif-33b3c9ca929bfbc9-jpg/image scrool animation for phone/';
+const MOBILE_TOTAL  = 154;
+
 const FRAME_PREFIX = 'ezgif-frame-';
-const TOTAL_FRAMES = 162;
 
 export default function VortexCanvas({ scrollYProgress }: { scrollYProgress: MotionValue<number> }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [images, setImages] = useState<HTMLImageElement[]>([]);
     const [firstFrameLoaded, setFirstFrameLoaded] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
 
-    // Smooth scroll position for frame transition - now maps 0-1 range
-    const frameIndex = useTransform(scrollYProgress, [0, 1], [1, TOTAL_FRAMES]);
+    // Detect mobile once on mount
+    useEffect(() => {
+        const check = () => setIsMobile(window.innerWidth < 768);
+        check();
+        window.addEventListener("resize", check);
+        return () => window.removeEventListener("resize", check);
+    }, []);
+
+    const totalFrames = isMobile ? MOBILE_TOTAL : DESKTOP_TOTAL;
+    const baseUrl     = isMobile ? MOBILE_BASE   : DESKTOP_BASE;
+
+    // Smooth scroll → frame index
+    const frameIndex = useTransform(scrollYProgress, [0, 1], [1, totalFrames]);
     const smoothFrameIndex = useSpring(frameIndex, {
         stiffness: 300,
         damping: 30,
-        restDelta: 0.001
+        restDelta: 0.001,
     });
 
-    // Preload images
+    // Preload images whenever the active sequence changes
     useEffect(() => {
         let isMounted = true;
+        setFirstFrameLoaded(false);
         const loadedImages: HTMLImageElement[] = [];
 
-        for (let i = 1; i <= TOTAL_FRAMES; i++) {
+        for (let i = 1; i <= totalFrames; i++) {
             const img = new Image();
-            img.src = `${BASE_URL}${FRAME_PREFIX}${i.toString().padStart(3, '0')}.jpg`;
+            img.src = `${baseUrl}${FRAME_PREFIX}${i.toString().padStart(3, '0')}.jpg`;
             if (i === 1) {
-                img.onload = () => {
-                    if (isMounted) setFirstFrameLoaded(true);
-                };
+                img.onload = () => { if (isMounted) setFirstFrameLoaded(true); };
             }
             loadedImages.push(img);
         }
         setImages(loadedImages);
 
         return () => { isMounted = false; };
-    }, []);
+    }, [baseUrl, totalFrames]);
 
     // Canvas drawing logic
     useEffect(() => {
@@ -50,7 +67,7 @@ export default function VortexCanvas({ scrollYProgress }: { scrollYProgress: Mot
 
         const render = (index: number) => {
             const imgIndex = Math.floor(index) - 1;
-            const img = images[Math.min(Math.max(imgIndex, 0), TOTAL_FRAMES - 1)];
+            const img = images[Math.min(Math.max(imgIndex, 0), images.length - 1)];
 
             if (img && img.complete && img.naturalWidth > 0) {
                 const dpr = window.devicePixelRatio || 1;
