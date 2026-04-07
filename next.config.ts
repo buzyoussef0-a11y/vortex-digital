@@ -38,6 +38,12 @@ const nextConfig: NextConfig = {
           { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
         ],
       },
+      {
+        source: "/video/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
       // Fonts, icons, audio — cache 1 year
       {
         source: "/back-music/:path*",

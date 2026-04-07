@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 
-const Card = ({ title, description, accent, videoSrc, imageSrc, imageGlow }: { title: string; description: string; accent: string; videoSrc: string; imageSrc?: string; imageGlow?: React.ReactNode }) => {
+const Card = ({ title, description, accent, videoSrc }: { title: string; description: string; accent: string; videoSrc: string }) => {
     const x = useMotionValue(0);
     const y = useMotionValue(0);
 
@@ -62,28 +62,13 @@ const Card = ({ title, description, accent, videoSrc, imageSrc, imageGlow }: { t
                 <div className="absolute bottom-0 right-0 w-[2px] h-5 rounded-full" style={{ background: "linear-gradient(to top, #00E5FF, transparent)", boxShadow: "0 0 5px rgba(0,229,255,0.7)" }} />
             </div>
 
-            {/* Rich background image layer */}
-            {imageSrc && (
-                <div className="absolute inset-0 overflow-hidden rounded-xl z-0">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                        src={imageSrc}
-                        alt=""
-                        className="w-full h-full object-cover"
-                        style={{ opacity: 0.18 }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#00050A] via-[#00050A]/65 to-[#00050A]/25" />
-                    {imageGlow}
-                </div>
-            )}
-
             <video
                 src={videoSrc}
                 autoPlay
                 loop
                 muted
                 playsInline
-                preload="none"
+                preload="auto"
                 className="absolute inset-0 w-full h-full object-cover z-0 opacity-50"
             />
 
@@ -134,24 +119,18 @@ export default function Services() {
                 description="Crafting high-end immersive experiences that define luxury in the digital age."
                 accent="#00E5FF"
                 videoSrc="/video/Glass_panels_floating_in_void_bc8ff65000.mp4"
-                imageSrc="https://images.unsplash.com/photo-1629909615184-74f495363b67?w=700&q=80"
-                imageGlow={<div className="absolute -top-10 -right-10 w-40 h-40 bg-[#00E5FF]/10 rounded-full blur-[40px]" />}
             />
             <Card
                 title="AI Automation"
                 description="Intelligent systems designed to handle the heavy lifting while you scale your empire."
                 accent="#FFFFFF"
                 videoSrc="/video/Microchip_core_glowing_data_bursts_c78ba8da6f.mp4"
-                imageSrc="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=700&q=80"
-                imageGlow={<div className="absolute -bottom-10 -left-10 w-48 h-48 bg-[#00E5FF]/8 rounded-full blur-[50px]" />}
             />
             <Card
                 title="Web Experience"
                 description="Premium websites engineered for impact — scroll animations, 3D, and conversion-focused design."
                 accent="#00E5FF"
                 videoSrc="/video/Abstract_emblem_forming_in_space_e001b56b92.mp4"
-                imageSrc="https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=700&q=80"
-                imageGlow={<div className="absolute top-1/2 right-0 w-32 h-32 bg-[#7B61FF]/10 rounded-full blur-[40px]" />}
             />
         </section>
     );
