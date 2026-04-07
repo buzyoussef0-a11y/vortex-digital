@@ -86,6 +86,7 @@ export const metadata: Metadata = {
 };
 
 import LenisProvider from "@/components/LenisProvider";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export default function RootLayout({
   children,
@@ -225,6 +226,7 @@ export default function RootLayout({
         dir="ltr" suppressHydrationWarning
       >
         <LenisProvider>{children}</LenisProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
