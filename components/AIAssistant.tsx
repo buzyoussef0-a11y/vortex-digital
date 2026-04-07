@@ -386,26 +386,6 @@ export default function AIAssistant() {
 
           {/* ── Toggle button ── */}
           <div className="relative">
-            {/* Tooltip */}
-            <AnimatePresence>
-              {!open && (
-                <motion.div
-                  initial={{ opacity: 0, x: 10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 10 }}
-                  transition={{ duration: 0.2 }}
-                  className="absolute right-16 top-1/2 -translate-y-1/2 whitespace-nowrap px-4 py-2 rounded-xl text-xs font-mono pointer-events-none"
-                  style={{
-                    background: "rgba(0,8,18,0.95)",
-                    border: "1px solid rgba(0,229,255,0.2)",
-                    color: "rgba(255,255,255,0.85)",
-                  }}
-                  dir="rtl"
-                >
-                  المساعد الذكي 🤖
-                </motion.div>
-              )}
-            </AnimatePresence>
 
             {/* Pulsing ring */}
             {!open && (
