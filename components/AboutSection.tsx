@@ -78,9 +78,18 @@ const AboutSection = () => {
                         className="relative"
                     >
                         <div className="aspect-square rounded-3xl border border-[#00E5FF]/30 bg-white/[0.02] backdrop-blur-3xl flex items-center justify-center relative overflow-hidden group">
-                            {/* Removed Doctor Image */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-[#00E5FF]/10 to-transparent" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#00050A]/90 to-transparent" />
+                            {/* Background Video */}
+                            <video
+                                src="/video/Digital_vortex_swirling_202604081455.mp4"
+                                autoPlay
+                                loop
+                                muted
+                                playsInline
+                                preload="auto"
+                                className="absolute inset-0 w-full h-full object-cover z-0 opacity-40"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-br from-[#00E5FF]/10 to-transparent z-[1]" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#00050A]/90 to-transparent z-[1]" />
                             
                             {/* Radial Glow behind V */}
                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
