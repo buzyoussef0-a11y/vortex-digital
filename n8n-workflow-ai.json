@@ -1,0 +1,133 @@
+{
+  "name": "Vortex Digital — Form Leads + AI",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "vortex-lead",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "node-webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 300],
+      "webhookId": "vortex-lead"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "Bearer YOUR_OPENROUTER_API_KEY" },
+            { "name": "HTTP-Referer", "value": "https://vortexagence.com" },
+            { "name": "X-Title", "value": "Vortex Digital" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  model: 'google/gemini-2.0-flash-exp:free',\n  response_format: { type: 'json_object' },\n  messages: [\n    {\n      role: 'system',\n      content: `أنت محلل أعمال خبير ومساعد ذكي لوكالة Vortex Digital الرقمية المتخصصة في تصميم المواقع الاحترافية وأتمتة الأعمال بالذكاء الاصطناعي في المغرب.\n\nمهمتك عند وصول عميل جديد:\n\n═══════════════════════════════\n📊 الجزء الأول — تقرير التحليل (لصاحب الوكالة عبر Telegram)\n═══════════════════════════════\nاكتب تقريراً احترافياً شاملاً يتضمن:\n\n1. 🧠 تحليل ملف العميل:\n   - من هو هذا العميل؟ ما هي طبيعة عمله بناءً على مهنته؟\n   - ما هي احتياجاته الحقيقية وراء الخدمة المطلوبة؟\n   - ما هي نقاط الألم المحتملة لديه؟\n\n2. 💰 تقييم الفرصة التجارية:\n   - ما مدى جدية هذا العميل؟ (مرتفع/متوسط/منخفض)\n   - ما هي الخدمات الإضافية التي يمكن اقتراحها عليه؟\n   - ما هو النهج المثالي للتواصل معه؟\n\n3. 🎯 توصيات فورية:\n   - ما الذي يجب قوله له في أول اتصال؟\n   - ما هي الأسئلة المهمة التي يجب طرحها عليه؟\n   - ما هو الوقت المثالي للتواصل معه؟\n\n4. ⚡ درجة الأولوية: [عاجل جداً / عاجل / عادي]\n\n═══════════════════════════════\n📧 الجزء الثاني — رسالة ترحيب للعميل (عبر Gmail)\n═══════════════════════════════\nاكتب رسالة HTML احترافية وشخصية للعميل تتضمن:\n- ترحيب حار وشخصي باسمه\n- إظهار أنك فهمت بالضبط ما يحتاجه بناءً على مهنته وخدمته المطلوبة\n- شرح موجز لكيف ستساعده Vortex Digital تحديداً في حالته\n- تحديد موعد التواصل (خلال 24 ساعة)\n- call-to-action واضح (الرد على الإيميل أو التواصل عبر WhatsApp)\n- التوقيع باسم فريق Vortex Digital\n\nالأسلوب: احترافي، دافئ، شخصي — ليس قالباً جاهداً بل رسالة حقيقية مكتوبة خصيصاً له.\nاللغة: العربية الدارجة المغربية الراقية مع مصطلحات تقنية بالإنجليزية.\n\nأجب بـ JSON فقط بهذا الشكل:\n{\n  \"telegram\": \"نص رسالة Telegram الكاملة مع الإيموجي والتقرير\",\n  \"email_subject\": \"عنوان الإيميل المخصص للعميل\",\n  \"email_html\": \"كود HTML كامل للإيميل\"\n}`\n    },\n    {\n      role: 'user',\n      content: `بيانات العميل الجديد:\n━━━━━━━━━━━━━━━━━━\n👤 الاسم: ` + $json.body.name + `\n📧 الإيميل: ` + $json.body.email + `\n📱 الهاتف: ` + $json.body.phone + `\n💼 المهنة/الدور: ` + $json.body.role + `\n🚀 الخدمة المطلوبة: ` + $json.body.service + `\n━━━━━━━━━━━━━━━━━━\n\nقم بتحليل هذا العميل وإنشاء التقرير والرسالة وفق التعليمات أعلاه.`\n    }\n  ]\n}) }}",
+        "options": {}
+      },
+      "id": "node-openrouter",
+      "name": "OpenRouter AI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.choices[0].message.content;\nlet ai;\ntry {\n  ai = JSON.parse(raw);\n} catch(e) {\n  const match = raw.match(/\\{[\\s\\S]*\\}/);\n  ai = match ? JSON.parse(match[0]) : { telegram: raw, email_subject: 'تم استلام طلبك', email_html: raw };\n}\nconst body = $('Webhook').first().json.body;\nreturn [{ json: {\n  telegram_msg: ai.telegram || '',\n  email_subject: ai.email_subject || 'تم استلام طلبك — Vortex Digital',\n  email_html: ai.email_html || '',\n  name: body.name, email: body.email,\n  phone: body.phone, role: body.role, service: body.service\n}}];"
+      },
+      "id": "node-parse",
+      "name": "Parse AI Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [520, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_CHAT_ID",
+        "text": "={{ $json.telegram_msg }}",
+        "additionalFields": { "parse_mode": "Markdown" }
+      },
+      "id": "node-telegram",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [780, 120]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "={{ $json.email_subject }}",
+        "emailType": "html",
+        "message": "={{ $json.email_html }}",
+        "options": {}
+      },
+      "id": "node-gmail",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [780, 480]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": { "__rl": true, "mode": "id", "value": "YOUR_SHEET_ID" },
+        "sheetName": { "__rl": true, "mode": "name", "value": "Leads" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date":    "={{ $now.format('dd/MM/yyyy HH:mm') }}",
+            "Name":    "={{ $json.name }}",
+            "Email":   "={{ $json.email }}",
+            "Phone":   "={{ $json.phone }}",
+            "Role":    "={{ $json.role }}",
+            "Service": "={{ $json.service }}",
+            "Status":  "جديد"
+          }
+        },
+        "options": {}
+      },
+      "id": "node-sheets",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [780, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"success\": true }"
+      },
+      "id": "node-respond",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1060, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "OpenRouter AI", "type": "main", "index": 0 }]]
+    },
+    "OpenRouter AI": {
+      "main": [[{ "node": "Parse AI Response", "type": "main", "index": 0 }]]
+    },
+    "Parse AI Response": {
+      "main": [[
+        { "node": "Telegram", "type": "main", "index": 0 },
+        { "node": "Gmail", "type": "main", "index": 0 },
+        { "node": "Google Sheets", "type": "main", "index": 0 }
+      ]]
+    },
+    "Google Sheets": {
+      "main": [[{ "node": "Respond to Webhook", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" }
+}
