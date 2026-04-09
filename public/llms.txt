@@ -1,0 +1,42 @@
+# Vortex Digital
+
+> Vortex Digital is a Moroccan digital agency specializing in premium website design and AI automation systems. We build production-grade websites using Next.js and React, and deploy AI automation workflows using n8n, OpenAI, and Claude — helping Moroccan businesses run 24/7 without manual intervention.
+
+## About
+
+- [Homepage](https://vortexagence.com): Full agency overview — services, portfolio, process, testimonials, and contact
+- [Start a Project](https://vortexagence.com/start-project): 3-step project intake wizard for new client onboarding
+
+## Services
+
+Vortex Digital offers three core services to businesses in Morocco and the Arab world:
+
+1. **Premium Website Design** — Custom websites built with Next.js, React, TypeScript, and Tailwind CSS. Delivered in 7–21 days with full animations and mobile-first design.
+2. **AI Automation Systems** — WhatsApp chatbots, lead qualification agents, appointment booking, and multi-step n8n workflows powered by OpenAI and Claude models.
+3. **Brand Identity** — Logo design, visual identity, and digital brand systems aligned with business goals.
+
+## Key Facts
+
+- Location: Morocco (serving Arabic, French, and English-speaking markets)
+- Languages: Arabic (Darija), French, English
+- Turnaround: 7–10 days for landing pages, 3–6 weeks for full systems
+- Support: 30 days free post-launch support included with every project
+- Contact: vortexagence.digital@gmail.com | WhatsApp: +212705960845
+- Working hours: Monday–Saturday, 09:00–22:00
+
+## Frequently Asked Questions
+
+**How long does a project take?**
+Most projects are delivered in 3–5 weeks. Landing pages ship in 7–10 days. Full AI automation systems take 3–6 weeks with daily progress updates.
+
+**What technologies does Vortex Digital use?**
+Frontend: Next.js, React, TypeScript, Tailwind CSS. AI layer: OpenAI GPT-4, Anthropic Claude, custom prompt engineering. Automation: n8n and Make for multi-step workflows.
+
+**How does AI automation work for a business?**
+The AI handles customer inquiries 24/7 in Arabic, French, or English — qualifying leads, booking appointments, sending follow-ups, and generating personalized responses automatically.
+
+**Is there a guarantee?**
+Yes. If any deliverable does not match the agreed specifications, Vortex Digital revises it at no additional cost.
+
+**How to get started?**
+Visit https://vortexagence.com/start-project or send a WhatsApp message to +212705960845. A free 30-minute discovery call is offered to all new clients.

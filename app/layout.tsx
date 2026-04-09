@@ -231,6 +231,76 @@ export default function RootLayout({
             }),
           }}
         />
+        {/* FAQ Schema — boosts AI Overviews & featured snippets */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: [
+                {
+                  "@type": "Question",
+                  name: "How long does a website project take with Vortex Digital?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Most projects are delivered in 3–5 weeks. Landing pages ship in 7–10 days. Full systems with AI automation take 3–6 weeks. You receive daily progress updates throughout.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "What technologies does Vortex Digital use?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Frontend: Next.js, React, TypeScript, Tailwind CSS. AI layer: OpenAI GPT-4, Anthropic Claude, custom prompt engineering. Automation: n8n and Make for multi-step workflows. Everything is production-grade and fully documented.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "How does AI automation work inside a website?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "The AI handles customer inquiries 24/7 in Arabic, French, or English — qualifying leads, booking appointments, sending follow-ups, and generating personalized responses automatically without manual intervention.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Does Vortex Digital offer support after project delivery?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Every project includes 30 days of free post-launch support. After that, monthly maintenance plans are available to keep your system fast, updated, and protected.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Does Vortex Digital offer a guarantee?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Yes. If any deliverable does not match the agreed specifications, Vortex Digital revises it at no additional cost. No excuses, no extra invoices.",
+                  },
+                },
+              ],
+            }),
+          }}
+        />
+        {/* Person Schema — founder entity for AI brand recognition */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Person",
+              "@id": `${BASE_URL}/#founder`,
+              name: "Vortex Digital Founder",
+              jobTitle: "Founder & CEO",
+              worksFor: { "@id": `${BASE_URL}/#organization` },
+              url: BASE_URL,
+              email: "vortexagence.digital@gmail.com",
+              knowsAbout: ["Web Design", "AI Automation", "Next.js", "n8n", "Digital Marketing"],
+              knowsLanguage: ["Arabic", "French", "English"],
+            }),
+          }}
+        />
       </head>
       <body
         className={`${outfit.variable} ${spaceGrotesk.variable} antialiased bg-[#00050A] text-white`}
