@@ -21,6 +21,14 @@ export const metadata: Metadata = {
     default: "Vortex Digital | وكالة مواقع وأتمتة ذكاء اصطناعي — المغرب",
     template: "%s | Vortex Digital",
   },
+  icons: {
+    icon: [
+      { url: "/icon.png", type: "image/png", sizes: "any" },
+      { url: "/favicon.ico", sizes: "48x48" },
+    ],
+    apple: [{ url: "/icon.png", sizes: "180x180", type: "image/png" }],
+    shortcut: "/icon.png",
+  },
   description:
     "Vortex Digital — وكالة رقمية متخصصة في تصميم مواقع احترافية وأتمتة الأعمال بالذكاء الاصطناعي في المغرب. نبني مواقع premium وأنظمة AI تشتغل 24/7 لتوفير وقتك وزيادة مبيعاتك.",
   keywords: [
@@ -83,6 +91,7 @@ export const metadata: Metadata = {
     // google: "your-google-verification-code", // أضف بعد تسجيل Google Search Console
   },
   category: "technology",
+  manifest: "/manifest.webmanifest",
 };
 
 import LenisProvider from "@/components/LenisProvider";
@@ -117,7 +126,9 @@ export default function RootLayout({
                   url: BASE_URL,
                   logo: {
                     "@type": "ImageObject",
-                    url: `${BASE_URL}/vortex.jpeg`,
+                    url: `${BASE_URL}/icon.png`,
+                    width: 512,
+                    height: 512,
                   },
                   contactPoint: {
                     "@type": "ContactPoint",

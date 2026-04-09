@@ -1,0 +1,22 @@
+{
+  "name": "Vortex Digital",
+  "short_name": "Vortex",
+  "description": "وكالة مواقع وأتمتة ذكاء اصطناعي — المغرب",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#00050A",
+  "theme_color": "#00E5FF",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ]
+}
