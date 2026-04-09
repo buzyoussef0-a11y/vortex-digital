@@ -44,9 +44,9 @@ interface Blob {
 const CYAN   = { r: 0,   g: 229, b: 255 };
 const PURPLE = { r: 123, g: 97,  b: 255 };
 const ICE    = { r: 100, g: 210, b: 255 };
-const NODE_COUNT  = 44;
-const COMET_COUNT = 10;
-const MAX_LINK    = 155;   // px — max distance for connections
+const NODE_COUNT  = 28;
+const COMET_COUNT = 6;
+const MAX_LINK    = 140;   // px — max distance for connections
 
 /* ─── Helpers ────────────────────────────────────────────── */
 
@@ -86,7 +86,7 @@ export default function MeteorBackground() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const dpr = Math.min(window.devicePixelRatio ?? 1, 2);
+    const dpr = Math.min(window.devicePixelRatio ?? 1, 1.5);
     let W = 0, H = 0;
 
     const resize = () => {
@@ -131,9 +131,13 @@ export default function MeteorBackground() {
 
     let t = 0;
     let rafId: number;
+    let frameSkip = 0;
 
     /* ════════════════ MAIN DRAW ════════════════ */
     const draw = () => {
+      rafId = requestAnimationFrame(draw);
+      frameSkip++;
+      if (frameSkip % 2 !== 0) return; // throttle to ~30fps
       t++;
       ctx.clearRect(0, 0, W, H);
 
@@ -315,7 +319,6 @@ export default function MeteorBackground() {
       }
 
       ctx.globalCompositeOperation = "source-over";
-      rafId = requestAnimationFrame(draw);
     };
 
     rafId = requestAnimationFrame(draw);

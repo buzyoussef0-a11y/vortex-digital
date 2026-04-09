@@ -85,7 +85,7 @@ const AboutSection = () => {
                                 loop
                                 muted
                                 playsInline
-                                preload="auto"
+                                preload="metadata"
                                 className="absolute inset-0 w-full h-full object-cover z-0 opacity-40"
                             />
                             <div className="absolute inset-0 bg-gradient-to-br from-[#00E5FF]/10 to-transparent z-[1]" />

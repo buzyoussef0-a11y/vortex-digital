@@ -1,11 +1,29 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 
 const Card = ({ title, description, accent, videoSrc }: { title: string; description: string; accent: string; videoSrc: string }) => {
     const x = useMotionValue(0);
     const y = useMotionValue(0);
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const cardRef = useRef<HTMLDivElement | null>(null);
+
+    // Load & play video only when card enters viewport
+    useEffect(() => {
+        const card = cardRef.current;
+        const video = videoRef.current;
+        if (!card || !video) return;
+        const obs = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting) {
+                video.load();
+                video.play().catch(() => {});
+                obs.disconnect();
+            }
+        }, { threshold: 0.2 });
+        obs.observe(card);
+        return () => obs.disconnect();
+    }, []);
 
     const mouseXSpring = useSpring(x);
     const mouseYSpring = useSpring(y);
@@ -40,6 +58,7 @@ const Card = ({ title, description, accent, videoSrc }: { title: string; descrip
 
     return (
         <motion.div
+            ref={(el) => { cardRef.current = el as HTMLDivElement | null; }}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
             style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
@@ -63,12 +82,12 @@ const Card = ({ title, description, accent, videoSrc }: { title: string; descrip
             </div>
 
             <video
+                ref={videoRef}
                 src={videoSrc}
-                autoPlay
                 loop
                 muted
                 playsInline
-                preload="auto"
+                preload="none"
                 className="absolute inset-0 w-full h-full object-cover z-0 opacity-50"
             />
 
