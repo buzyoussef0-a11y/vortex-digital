@@ -105,6 +105,39 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" className="dark">
       <head>
+        {/* Loading screen — inline CSS guarantees it fires before any external file loads */}
+        <style dangerouslySetInnerHTML={{ __html: `
+          #vx-loader {
+            position: fixed !important;
+            inset: 0 !important;
+            z-index: 999999 !important;
+            background: #00050A !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            pointer-events: all !important;
+            opacity: 1 !important;
+            animation: vxHide 0.7s ease 2.2s forwards !important;
+          }
+          #vx-bar {
+            height: 1px;
+            width: 0%;
+            border-radius: 99px;
+            background: #00E5FF;
+            box-shadow: 0 0 10px rgba(0,229,255,0.8);
+            animation: vxFill 2s ease-out forwards;
+          }
+          @keyframes vxHide {
+            to { opacity: 0; pointer-events: none; visibility: hidden; }
+          }
+          @keyframes vxFill {
+            0%  { width: 0%; }
+            70% { width: 80%; }
+            90% { width: 95%; }
+            100%{ width: 100%; }
+          }
+        ` }} />
         <link rel="canonical" href={BASE_URL} />
         {/* Google Analytics */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-RC9V04GDGV" />
