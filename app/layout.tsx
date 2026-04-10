@@ -95,6 +95,7 @@ export const metadata: Metadata = {
 };
 
 import LenisProvider from "@/components/LenisProvider";
+import Script from "next/script";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export default function RootLayout({
@@ -105,39 +106,6 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" className="dark">
       <head>
-        {/* Loading screen — inline CSS guarantees it fires before any external file loads */}
-        <style dangerouslySetInnerHTML={{ __html: `
-          #vx-loader {
-            position: fixed !important;
-            inset: 0 !important;
-            z-index: 999999 !important;
-            background: #00050A !important;
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            justify-content: center !important;
-            pointer-events: all !important;
-            opacity: 1 !important;
-            animation: vxHide 0.7s ease 2.2s forwards !important;
-          }
-          #vx-bar {
-            height: 1px;
-            width: 0%;
-            border-radius: 99px;
-            background: #00E5FF;
-            box-shadow: 0 0 10px rgba(0,229,255,0.8);
-            animation: vxFill 2s ease-out forwards;
-          }
-          @keyframes vxHide {
-            to { opacity: 0; pointer-events: none; visibility: hidden; }
-          }
-          @keyframes vxFill {
-            0%  { width: 0%; }
-            70% { width: 80%; }
-            90% { width: 95%; }
-            100%{ width: 100%; }
-          }
-        ` }} />
         <link rel="canonical" href={BASE_URL} />
         {/* Google Analytics */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-RC9V04GDGV" />
@@ -339,28 +307,37 @@ export default function RootLayout({
         className={`${outfit.variable} ${spaceGrotesk.variable} antialiased bg-[#00050A] text-white`}
         dir="ltr" suppressHydrationWarning
       >
-        {/* Loading screen — CSS animation, shows instantly before React hydrates */}
-        <div id="vx-loader">
-          <div style={{
-            position: "absolute", inset: 0, pointerEvents: "none",
-            background: "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(0,229,255,0.08) 0%, transparent 70%)",
-          }} />
-          <div style={{
-            fontSize: 72, fontWeight: 900,
-            background: "linear-gradient(135deg, #ffffff, #00E5FF)",
-            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-            filter: "drop-shadow(0 0 30px rgba(0,229,255,0.5))",
-            marginBottom: 12,
-          }}>V</div>
-          <p style={{
-            color: "#00E5FF", fontFamily: "monospace",
-            fontSize: 11, letterSpacing: "0.45em",
-            textTransform: "uppercase", marginBottom: 36,
-          }}>Vortex Digital</p>
-          <div style={{ width: 160, height: 1, background: "rgba(255,255,255,0.08)", borderRadius: 99, overflow: "hidden" }}>
-            <div id="vx-bar" />
-          </div>
-        </div>
+        {/* Loading screen — created by script BEFORE React hydration, invisible to React */}
+        <Script id="vx-loader" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: `
+          (function(){
+            var s=document.createElement('style');
+            s.textContent='@keyframes vxFill{from{width:0%}to{width:100%}}';
+            document.head.appendChild(s);
+            var d=document.createElement('div');
+            d.style.cssText='position:fixed;inset:0;z-index:999999;background:#00050A;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:all;';
+            var glow=document.createElement('div');
+            glow.style.cssText='position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(0,229,255,0.08) 0%,transparent 70%);';
+            var v=document.createElement('div');
+            v.style.cssText='font-size:72px;font-weight:900;background:linear-gradient(135deg,#fff,#00E5FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 30px rgba(0,229,255,0.5));margin-bottom:12px;font-family:sans-serif;line-height:1;';
+            v.textContent='V';
+            var name=document.createElement('p');
+            name.style.cssText='color:#00E5FF;font-family:monospace;font-size:11px;letter-spacing:0.45em;text-transform:uppercase;margin:0 0 36px;';
+            name.textContent='Vortex Digital';
+            var track=document.createElement('div');
+            track.style.cssText='width:160px;height:1px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;';
+            var bar=document.createElement('div');
+            bar.style.cssText='height:100%;width:0%;border-radius:99px;background:#00E5FF;box-shadow:0 0 10px rgba(0,229,255,0.8);animation:vxFill 2s ease-out forwards;';
+            track.appendChild(bar);
+            d.appendChild(glow);d.appendChild(v);d.appendChild(name);d.appendChild(track);
+            document.body.insertBefore(d,document.body.firstChild);
+            setTimeout(function(){
+              d.style.transition='opacity 0.7s ease';
+              d.style.opacity='0';
+              d.style.pointerEvents='none';
+              setTimeout(function(){if(d.parentNode)d.parentNode.removeChild(d);},700);
+            },2200);
+          })();
+        ` }} />
 
         <LenisProvider>{children}</LenisProvider>
         <SpeedInsights />
