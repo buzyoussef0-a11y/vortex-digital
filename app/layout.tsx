@@ -95,6 +95,7 @@ export const metadata: Metadata = {
 };
 
 import LenisProvider from "@/components/LenisProvider";
+import LoadingScreen from "@/components/LoadingScreen";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export default function RootLayout({
@@ -306,6 +307,7 @@ export default function RootLayout({
         className={`${outfit.variable} ${spaceGrotesk.variable} antialiased bg-[#00050A] text-white`}
         dir="ltr" suppressHydrationWarning
       >
+        <LoadingScreen />
         <LenisProvider>{children}</LenisProvider>
         <SpeedInsights />
       </body>
