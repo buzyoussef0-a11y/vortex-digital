@@ -95,7 +95,6 @@ export const metadata: Metadata = {
 };
 
 import LenisProvider from "@/components/LenisProvider";
-import LoadingScreen from "@/components/LoadingScreen";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export default function RootLayout({
@@ -307,7 +306,74 @@ export default function RootLayout({
         className={`${outfit.variable} ${spaceGrotesk.variable} antialiased bg-[#00050A] text-white`}
         dir="ltr" suppressHydrationWarning
       >
-        <LoadingScreen />
+        {/* Loading screen — pure HTML/CSS, shows before React hydrates */}
+        <div id="vx-loader" style={{
+          position: "fixed", inset: 0, zIndex: 99999,
+          background: "#00050A",
+          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+          transition: "opacity 0.7s ease",
+        }}>
+          {/* Glow */}
+          <div style={{
+            position: "absolute", inset: 0, pointerEvents: "none",
+            background: "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(0,229,255,0.08) 0%, transparent 70%)",
+          }} />
+          {/* V */}
+          <div style={{
+            fontSize: 72, fontWeight: 900, fontFamily: "sans-serif",
+            background: "linear-gradient(135deg, #ffffff, #00E5FF)",
+            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+            filter: "drop-shadow(0 0 30px rgba(0,229,255,0.5))",
+            marginBottom: 12,
+          }}>V</div>
+          {/* Name */}
+          <p style={{
+            color: "#00E5FF", fontFamily: "monospace",
+            fontSize: 11, letterSpacing: "0.45em",
+            textTransform: "uppercase", marginBottom: 36,
+          }}>Vortex Digital</p>
+          {/* Progress track */}
+          <div style={{ width: 160, height: 1, background: "rgba(255,255,255,0.08)", borderRadius: 99, overflow: "hidden" }}>
+            <div id="vx-bar" style={{
+              height: "100%", width: "0%", borderRadius: 99,
+              background: "#00E5FF",
+              boxShadow: "0 0 10px rgba(0,229,255,0.8)",
+              transition: "width 0.08s linear",
+            }} />
+          </div>
+          {/* Percent */}
+          <p id="vx-pct" style={{
+            marginTop: 10, fontFamily: "monospace",
+            fontSize: 9, color: "rgba(255,255,255,0.2)",
+            letterSpacing: "0.3em",
+          }}>0%</p>
+        </div>
+
+        {/* Loader script — runs immediately, no React needed */}
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function(){
+            var bar = document.getElementById('vx-bar');
+            var pct = document.getElementById('vx-pct');
+            var loader = document.getElementById('vx-loader');
+            var current = 0;
+            var interval = setInterval(function(){
+              var remaining = 100 - current;
+              current = Math.min(current + Math.random() * 8 + (remaining > 30 ? 5 : 2), 98);
+              if(bar) bar.style.width = current + '%';
+              if(pct) pct.textContent = Math.round(current) + '%';
+            }, 80);
+            setTimeout(function(){
+              clearInterval(interval);
+              if(bar) bar.style.width = '100%';
+              if(pct) pct.textContent = '100%';
+              setTimeout(function(){
+                if(loader){ loader.style.opacity = '0'; loader.style.pointerEvents = 'none'; }
+                setTimeout(function(){ if(loader) loader.remove(); }, 700);
+              }, 300);
+            }, 2200);
+          })();
+        ` }} />
+
         <LenisProvider>{children}</LenisProvider>
         <SpeedInsights />
       </body>
