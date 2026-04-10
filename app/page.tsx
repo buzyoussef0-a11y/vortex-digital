@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
+import LoadingScreen from "@/components/LoadingScreen";
 import Services from "@/components/Services/TiltCards";
 import PortfolioSection from "@/components/PortfolioSection";
 import ProcessSection from "@/components/ProcessSection";
@@ -16,6 +17,7 @@ import AIAssistant from "@/components/AIAssistant";
 export default function Home() {
   return (
     <main className="relative bg-[#00050A]">
+      <LoadingScreen />
       {/* Optimized Background Atmosphere */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: -1 }}>
         {/* Large Cyan Orb — Top Left */}

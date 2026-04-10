@@ -4,14 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import { useSpring, MotionValue, useTransform } from "framer-motion";
 
 // Desktop sequence
-const DESKTOP_BASE  = '/images/ezgif-33b3c9ca929bfbc9-jpg/ezgif-7d8c322d6bd76eef-jpg/';
-const DESKTOP_TOTAL = 162;
+const DESKTOP_BASE  = '/images/vortex/';
+const DESKTOP_TOTAL = 146;
+const DESKTOP_PREFIX = 'frame_';
 
 // Mobile sequence (< 768px)
 const MOBILE_BASE   = '/images/mobile/';
 const MOBILE_TOTAL  = 154;
-
-const FRAME_PREFIX = 'ezgif-frame-';
+const MOBILE_PREFIX = 'ezgif-frame-';
 
 function getIsMobile() {
     if (typeof window === 'undefined') return false;
@@ -26,6 +26,7 @@ export default function VortexCanvas({ scrollYProgress }: { scrollYProgress: Mot
 
     const totalFrames = isMobile ? MOBILE_TOTAL : DESKTOP_TOTAL;
     const baseUrl     = isMobile ? MOBILE_BASE   : DESKTOP_BASE;
+    const framePrefix = isMobile ? MOBILE_PREFIX : DESKTOP_PREFIX;
 
     // Smooth scroll → frame index
     const frameIndex      = useTransform(scrollYProgress, [0, 1], [1, totalFrames]);
@@ -48,7 +49,7 @@ export default function VortexCanvas({ scrollYProgress }: { scrollYProgress: Mot
 
         for (let i = 1; i <= totalFrames; i++) {
             const img = new Image();
-            img.src = `${baseUrl}${FRAME_PREFIX}${i.toString().padStart(3, '0')}.jpg`;
+            img.src = `${baseUrl}${framePrefix}${i.toString().padStart(3, '0')}.jpg`;
             if (i === 1) {
                 img.onload = () => {
                     if (!firstLoaded) {
@@ -63,7 +64,7 @@ export default function VortexCanvas({ scrollYProgress }: { scrollYProgress: Mot
             }
             loadedImages.push(img);
         }
-    }, [baseUrl, totalFrames]);
+    }, [baseUrl, totalFrames, framePrefix]);
 
     // Canvas drawing
     useEffect(() => {
