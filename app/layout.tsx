@@ -22,12 +22,9 @@ export const metadata: Metadata = {
     template: "%s | Vortex Digital",
   },
   icons: {
-    icon: [
-      { url: "/icon.png", type: "image/png", sizes: "any" },
-      { url: "/favicon.ico", sizes: "48x48" },
-    ],
-    apple: [{ url: "/icon.png", sizes: "180x180", type: "image/png" }],
-    shortcut: "/icon.png",
+    icon: [{ url: "/favicon.ico", sizes: "48x48" }],
+    apple: [{ url: "/favicon.ico" }],
+    shortcut: "/favicon.ico",
   },
   description:
     "Vortex Digital — وكالة رقمية متخصصة في تصميم مواقع احترافية وأتمتة الأعمال بالذكاء الاصطناعي في المغرب. نبني مواقع premium وأنظمة AI تشتغل 24/7 لتوفير وقتك وزيادة مبيعاتك.",
