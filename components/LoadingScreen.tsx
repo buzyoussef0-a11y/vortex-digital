@@ -3,34 +3,37 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+const MIN_DISPLAY_MS = 2200; // guaranteed minimum visibility time
+
 export default function LoadingScreen() {
     const [progress, setProgress] = useState(0);
     const [visible, setVisible] = useState(true);
 
     useEffect(() => {
-        // Simulate progressive loading tied to actual page readiness
+        const start = Date.now();
         let current = 0;
-        const interval = setInterval(() => {
-            current += Math.random() * 18 + 6;
-            if (current >= 100) {
-                current = 100;
-                clearInterval(interval);
-                // Wait for DOM to be interactive then hide
-                setTimeout(() => setVisible(false), 400);
-            }
-            setProgress(Math.min(current, 100));
-        }, 120);
+        let done = false;
 
-        // Also hide when window fully loads
-        const onLoad = () => {
+        // Fill progress bar over ~2s
+        const interval = setInterval(() => {
+            // Slow at start, fast in middle, slow near end
+            const remaining = 100 - current;
+            const increment = Math.random() * 8 + (remaining > 30 ? 6 : 2);
+            current = Math.min(current + increment, 98); // never auto-complete to 100
+            setProgress(current);
+        }, 80);
+
+        // After minimum time, jump to 100 and hide
+        const timer = setTimeout(() => {
+            clearInterval(interval);
             setProgress(100);
-            setTimeout(() => setVisible(false), 400);
-        };
-        window.addEventListener("load", onLoad);
+            done = true;
+            setTimeout(() => setVisible(false), 500);
+        }, MIN_DISPLAY_MS);
 
         return () => {
             clearInterval(interval);
-            window.removeEventListener("load", onLoad);
+            clearTimeout(timer);
         };
     }, []);
 
@@ -40,53 +43,50 @@ export default function LoadingScreen() {
                 <motion.div
                     key="loader"
                     initial={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.6, ease: "easeInOut" }}
+                    exit={{ opacity: 0, transition: { duration: 0.7, ease: "easeInOut" } }}
                     className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#00050A]"
+                    style={{ pointerEvents: "all" }}
                 >
-                    {/* Background glow */}
+                    {/* Ambient glow */}
                     <div
                         className="absolute inset-0 pointer-events-none"
                         style={{
-                            background: "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(0,229,255,0.07) 0%, transparent 70%)",
+                            background: "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(0,229,255,0.08) 0%, transparent 70%)",
                         }}
                     />
 
-                    {/* Logo + name */}
+                    {/* Logo */}
                     <motion.div
-                        initial={{ opacity: 0, y: 10 }}
+                        initial={{ opacity: 0, y: 16 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5 }}
-                        className="flex flex-col items-center gap-4 mb-12"
+                        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                        className="flex flex-col items-center gap-4 mb-10"
                     >
-                        {/* V letter */}
-                        <div className="text-6xl font-bold bg-gradient-to-br from-white to-[#00E5FF] bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(0,229,255,0.5)]">
+                        <div
+                            className="text-7xl font-bold bg-gradient-to-br from-white to-[#00E5FF] bg-clip-text text-transparent"
+                            style={{ filter: "drop-shadow(0 0 30px rgba(0,229,255,0.5))" }}
+                        >
                             V
                         </div>
-                        <p className="text-[#00E5FF] font-mono text-xs tracking-[0.4em] uppercase">
+                        <p className="text-[#00E5FF] font-mono text-[11px] tracking-[0.45em] uppercase">
                             Vortex Digital
                         </p>
                     </motion.div>
 
-                    {/* Progress bar */}
-                    <div className="w-48 h-[1px] bg-white/10 rounded-full overflow-hidden">
+                    {/* Progress bar track */}
+                    <div className="w-40 h-[1px] bg-white/[0.08] rounded-full overflow-hidden">
                         <motion.div
-                            className="h-full bg-[#00E5FF] rounded-full"
-                            style={{ boxShadow: "0 0 8px rgba(0,229,255,0.7)" }}
-                            initial={{ width: "0%" }}
+                            className="h-full bg-[#00E5FF] rounded-full origin-left"
+                            style={{ boxShadow: "0 0 10px rgba(0,229,255,0.8)" }}
                             animate={{ width: `${progress}%` }}
-                            transition={{ ease: "linear", duration: 0.1 }}
+                            transition={{ ease: "linear", duration: 0.08 }}
                         />
                     </div>
 
-                    {/* Percentage */}
-                    <motion.p
-                        className="mt-3 text-[10px] font-mono text-white/30 tracking-widest"
-                        animate={{ opacity: [0.4, 0.8, 0.4] }}
-                        transition={{ duration: 1.5, repeat: Infinity }}
-                    >
+                    {/* Percentage label */}
+                    <p className="mt-3 text-[9px] font-mono text-white/20 tracking-[0.3em]">
                         {Math.round(progress)}%
-                    </motion.p>
+                    </p>
                 </motion.div>
             )}
         </AnimatePresence>
