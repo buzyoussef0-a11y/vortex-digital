@@ -5,8 +5,8 @@ import { useSpring, MotionValue, useTransform } from "framer-motion";
 
 // Desktop sequence
 const DESKTOP_BASE  = '/images/vortex/';
-const DESKTOP_TOTAL = 146;
-const DESKTOP_PREFIX = 'frame_';
+const DESKTOP_TOTAL = 162;
+const DESKTOP_PREFIX = 'ezgif-frame-';
 
 // Mobile sequence (< 768px)
 const MOBILE_BASE   = '/images/mobile/';
