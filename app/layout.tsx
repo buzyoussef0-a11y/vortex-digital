@@ -304,13 +304,16 @@ export default function RootLayout({
         className={`${outfit.variable} ${spaceGrotesk.variable} antialiased bg-[#00050A] text-white`}
         dir="ltr" suppressHydrationWarning
       >
-        {/* Loading screen — created by script BEFORE React hydration, invisible to React */}
+        {/* Loading screen mount — React knows this div exists (server-rendered), suppressHydrationWarning lets the script populate it freely */}
+        <div id="vx-loading-root" suppressHydrationWarning />
+
         <Script id="vx-loader" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: `
           (function(){
+            var d=document.getElementById('vx-loading-root');
+            if(!d)return;
             var s=document.createElement('style');
             s.textContent='@keyframes vxFill{from{width:0%}to{width:100%}}';
             document.head.appendChild(s);
-            var d=document.createElement('div');
             d.style.cssText='position:fixed;inset:0;z-index:999999;background:#00050A;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:all;';
             var glow=document.createElement('div');
             glow.style.cssText='position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(0,229,255,0.08) 0%,transparent 70%);';
@@ -323,16 +326,20 @@ export default function RootLayout({
             var track=document.createElement('div');
             track.style.cssText='width:160px;height:1px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;';
             var bar=document.createElement('div');
-            bar.style.cssText='height:100%;width:0%;border-radius:99px;background:#00E5FF;box-shadow:0 0 10px rgba(0,229,255,0.8);animation:vxFill 2s ease-out forwards;';
+            bar.style.cssText='height:100%;width:0%;border-radius:99px;background:#00E5FF;box-shadow:0 0 10px rgba(0,229,255,0.8);animation:vxFill 3s ease-out forwards;';
             track.appendChild(bar);
             d.appendChild(glow);d.appendChild(v);d.appendChild(name);d.appendChild(track);
-            document.body.insertBefore(d,document.body.firstChild);
-            setTimeout(function(){
+            function hide(){
               d.style.transition='opacity 0.7s ease';
               d.style.opacity='0';
               d.style.pointerEvents='none';
-              setTimeout(function(){if(d.parentNode)d.parentNode.removeChild(d);},700);
-            },2200);
+              setTimeout(function(){d.style.cssText='display:none;';},700);
+            }
+            var minTimer=setTimeout(hide,3200);
+            window.addEventListener('load',function(){
+              clearTimeout(minTimer);
+              setTimeout(hide,500);
+            });
           })();
         ` }} />
 
