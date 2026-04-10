@@ -9,20 +9,34 @@ const Card = ({ title, description, accent, videoSrc }: { title: string; descrip
     const videoRef = useRef<HTMLVideoElement>(null);
     const cardRef = useRef<HTMLDivElement | null>(null);
 
-    // Load & play video only when card enters viewport
+    // Preload video 400px before card enters viewport, play when visible
     useEffect(() => {
         const card = cardRef.current;
         const video = videoRef.current;
         if (!card || !video) return;
-        const obs = new IntersectionObserver(([entry]) => {
+
+        let playing = false;
+
+        // First observer: start loading early (400px before viewport)
+        const preloadObs = new IntersectionObserver(([entry]) => {
             if (entry.isIntersecting) {
                 video.load();
-                video.play().catch(() => {});
-                obs.disconnect();
+                preloadObs.disconnect();
             }
-        }, { threshold: 0.2 });
-        obs.observe(card);
-        return () => obs.disconnect();
+        }, { rootMargin: "400px 0px", threshold: 0 });
+
+        // Second observer: play when card actually visible
+        const playObs = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting && !playing) {
+                playing = true;
+                video.play().catch(() => {});
+                playObs.disconnect();
+            }
+        }, { threshold: 0.1 });
+
+        preloadObs.observe(card);
+        playObs.observe(card);
+        return () => { preloadObs.disconnect(); playObs.disconnect(); };
     }, []);
 
     const mouseXSpring = useSpring(x);
@@ -87,7 +101,7 @@ const Card = ({ title, description, accent, videoSrc }: { title: string; descrip
                 loop
                 muted
                 playsInline
-                preload="none"
+                preload="metadata"
                 className="absolute inset-0 w-full h-full object-cover z-0 opacity-50"
             />
 
