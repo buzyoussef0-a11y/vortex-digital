@@ -304,42 +304,58 @@ export default function RootLayout({
         className={`${outfit.variable} ${spaceGrotesk.variable} antialiased bg-[#00050A] text-white`}
         dir="ltr" suppressHydrationWarning
       >
-        {/* Loading screen mount — React knows this div exists (server-rendered), suppressHydrationWarning lets the script populate it freely */}
-        <div id="vx-loading-root" suppressHydrationWarning />
+        {/* Loading screen — fully server-rendered JSX, no hydration mismatch */}
+        <div
+          id="vx-loading-root"
+          style={{
+            position: 'fixed', inset: 0, zIndex: 999999,
+            background: '#00050A', display: 'flex',
+            flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            pointerEvents: 'all', transition: 'opacity 0.7s ease',
+          }}
+        >
+          {/* Glow */}
+          <div style={{
+            position: 'absolute', inset: 0, pointerEvents: 'none',
+            background: 'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(0,229,255,0.08) 0%, transparent 70%)',
+          }} />
+          {/* V */}
+          <div style={{
+            fontSize: 72, fontWeight: 900, lineHeight: 1, marginBottom: 12,
+            background: 'linear-gradient(135deg,#fff,#00E5FF)',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+            filter: 'drop-shadow(0 0 30px rgba(0,229,255,0.5))', fontFamily: 'sans-serif',
+          }}>V</div>
+          {/* Label */}
+          <p style={{
+            color: '#00E5FF', fontFamily: 'monospace', fontSize: 11,
+            letterSpacing: '0.45em', textTransform: 'uppercase', margin: '0 0 36px',
+          }}>Vortex Digital</p>
+          {/* Progress bar */}
+          <div style={{
+            width: 160, height: 1, background: 'rgba(255,255,255,0.08)',
+            borderRadius: 99, overflow: 'hidden',
+          }}>
+            <div style={{
+              height: '100%', width: 0, borderRadius: 99,
+              background: '#00E5FF', boxShadow: '0 0 10px rgba(0,229,255,0.8)',
+              animation: 'vxFill 3s ease-out forwards',
+            }} />
+          </div>
+        </div>
 
-        <Script id="vx-loader" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: `
+        {/* Hider script — runs after React hydrates, waits for window.load */}
+        <Script id="vx-hider" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: `
           (function(){
-            var d=document.getElementById('vx-loading-root');
-            if(!d)return;
-            var s=document.createElement('style');
-            s.textContent='@keyframes vxFill{from{width:0%}to{width:100%}}';
-            document.head.appendChild(s);
-            d.style.cssText='position:fixed;inset:0;z-index:999999;background:#00050A;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:all;';
-            var glow=document.createElement('div');
-            glow.style.cssText='position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(0,229,255,0.08) 0%,transparent 70%);';
-            var v=document.createElement('div');
-            v.style.cssText='font-size:72px;font-weight:900;background:linear-gradient(135deg,#fff,#00E5FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 30px rgba(0,229,255,0.5));margin-bottom:12px;font-family:sans-serif;line-height:1;';
-            v.textContent='V';
-            var name=document.createElement('p');
-            name.style.cssText='color:#00E5FF;font-family:monospace;font-size:11px;letter-spacing:0.45em;text-transform:uppercase;margin:0 0 36px;';
-            name.textContent='Vortex Digital';
-            var track=document.createElement('div');
-            track.style.cssText='width:160px;height:1px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;';
-            var bar=document.createElement('div');
-            bar.style.cssText='height:100%;width:0%;border-radius:99px;background:#00E5FF;box-shadow:0 0 10px rgba(0,229,255,0.8);animation:vxFill 3s ease-out forwards;';
-            track.appendChild(bar);
-            d.appendChild(glow);d.appendChild(v);d.appendChild(name);d.appendChild(track);
             function hide(){
-              d.style.transition='opacity 0.7s ease';
+              var d=document.getElementById('vx-loading-root');
+              if(!d)return;
               d.style.opacity='0';
               d.style.pointerEvents='none';
-              setTimeout(function(){d.style.cssText='display:none;';},700);
+              setTimeout(function(){d.style.display='none';},700);
             }
-            var minTimer=setTimeout(hide,3200);
-            window.addEventListener('load',function(){
-              clearTimeout(minTimer);
-              setTimeout(hide,500);
-            });
+            var min=setTimeout(hide,3200);
+            window.addEventListener('load',function(){clearTimeout(min);setTimeout(hide,500);});
           })();
         ` }} />
 
