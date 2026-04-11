@@ -1,78 +1,68 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useSpring, MotionValue } from "framer-motion";
+import { MotionValue } from "framer-motion";
 
 export default function VortexCanvas({ scrollYProgress }: { scrollYProgress: MotionValue<number> }) {
-    const canvasRef  = useRef<HTMLCanvasElement>(null);
-    const videoRef   = useRef<HTMLVideoElement>(null);
-    const rafRef     = useRef<number>(0);
-
-    const smoothScroll = useSpring(scrollYProgress, { stiffness: 300, damping: 30, restDelta: 0.001 });
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const videoRef  = useRef<HTMLVideoElement>(null);
+    const rafRef    = useRef<number>(0);
 
     useEffect(() => {
         const canvas = canvasRef.current;
         const video  = videoRef.current;
         if (!canvas || !video) return;
-
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
-        const drawFrame = () => {
+        const resize = () => {
+            const dpr  = Math.min(window.devicePixelRatio || 1, 2);
+            const rect = canvas.getBoundingClientRect();
+            const w    = Math.floor(rect.width  * dpr);
+            const h    = Math.floor(rect.height * dpr);
+            if (w > 0 && h > 0 && (canvas.width !== w || canvas.height !== h)) {
+                canvas.width  = w;
+                canvas.height = h;
+            }
+        };
+
+        const draw = () => {
             if (video.readyState < 2) return;
+            resize();
+            const cW = canvas.width, cH = canvas.height;
+            if (!cW || !cH) return;
+            const vW = video.videoWidth, vH = video.videoHeight;
+            if (!vW || !vH) return;
 
-            const dpr     = Math.min(window.devicePixelRatio || 1, 2);
-            const rect    = canvas.getBoundingClientRect();
-            const targetW = Math.floor(rect.width  * dpr);
-            const targetH = Math.floor(rect.height * dpr);
-
-            if (targetW === 0 || targetH === 0) return;
-
-            if (canvas.width !== targetW || canvas.height !== targetH) {
-                canvas.width  = targetW;
-                canvas.height = targetH;
-            }
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            const cW = canvas.width,  cH = canvas.height;
-            const iW = video.videoWidth, iH = video.videoHeight;
-            if (!iW || !iH) return;
-
-            const cR = cW / cH, iR = iW / iH;
+            // object-cover
+            const cr = cW / cH, ir = vW / vH;
             let dW: number, dH: number, oX: number, oY: number;
-            if (iR > cR) {
-                dH = cH; dW = cH * iR; oX = (cW - dW) / 2; oY = 0;
-            } else {
-                dW = cW; dH = cW / iR; oX = 0; oY = (cH - dH) / 2;
-            }
+            if (ir > cr) { dH = cH; dW = cH * ir; oX = (cW - dW) / 2; oY = 0; }
+            else         { dW = cW; dH = cW / ir; oX = 0; oY = (cH - dH) / 2; }
 
+            ctx.clearRect(0, 0, cW, cH);
             ctx.drawImage(video, oX, oY, dW, dH);
         };
 
-        // RAF loop — always draw current video frame
-        const loop = () => {
-            drawFrame();
-            rafRef.current = requestAnimationFrame(loop);
-        };
+        // RAF loop — draws every frame
+        const loop = () => { draw(); rafRef.current = requestAnimationFrame(loop); };
         rafRef.current = requestAnimationFrame(loop);
 
-        // Update video time on scroll
-        const unsub = smoothScroll.on("change", (val) => {
-            if (video.duration) {
+        // Direct scroll → video time (no spring, instant response)
+        const unsub = scrollYProgress.on("change", (val) => {
+            if (video.duration && video.readyState >= 2) {
                 video.currentTime = Math.min(Math.max(val, 0), 0.9999) * video.duration;
             }
         });
 
-        const onResize = () => drawFrame();
-        window.addEventListener("resize", onResize);
+        window.addEventListener("resize", resize);
 
         return () => {
             cancelAnimationFrame(rafRef.current);
             unsub();
-            window.removeEventListener("resize", onResize);
+            window.removeEventListener("resize", resize);
         };
-    }, [smoothScroll]);
+    }, [scrollYProgress]);
 
     return (
         <div className="absolute inset-0 z-0">
