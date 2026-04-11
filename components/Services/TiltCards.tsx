@@ -97,13 +97,15 @@ const Card = ({ title, description, accent, videoSrc }: { title: string; descrip
 
             <video
                 ref={videoRef}
-                src={videoSrc}
                 loop
                 muted
                 playsInline
                 preload="metadata"
                 className="absolute inset-0 w-full h-full object-cover z-0 opacity-50"
-            />
+            >
+                <source src={videoSrc.replace('.mp4', '.webm')} type="video/webm" />
+                <source src={videoSrc} type="video/mp4" />
+            </video>
 
             <div className="absolute inset-0 bg-gradient-to-t from-[#00050A] via-[#00050A]/80 to-transparent z-0" />
 
