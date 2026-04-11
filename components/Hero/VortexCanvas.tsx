@@ -1,89 +1,27 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useSpring, MotionValue, useTransform } from "framer-motion";
-
-// Desktop sequence
-const DESKTOP_BASE  = '/images/vortex/';
-const DESKTOP_TOTAL = 162;
-const DESKTOP_PREFIX = 'ezgif-frame-';
-
-// Mobile sequence (< 768px)
-const MOBILE_BASE   = '/images/mobile/';
-const MOBILE_TOTAL  = 154;
-const MOBILE_PREFIX = 'ezgif-frame-';
-
-function getIsMobile() {
-    if (typeof window === 'undefined') return false;
-    return window.innerWidth < 768;
-}
+import { useEffect, useRef } from "react";
+import { useSpring, MotionValue } from "framer-motion";
 
 export default function VortexCanvas({ scrollYProgress }: { scrollYProgress: MotionValue<number> }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const imagesRef = useRef<HTMLImageElement[]>([]);
-    const [ready, setReady] = useState(false);
-    const [isMobile, setIsMobile] = useState(getIsMobile);
+    const videoRef  = useRef<HTMLVideoElement>(null);
 
-    const totalFrames = isMobile ? MOBILE_TOTAL : DESKTOP_TOTAL;
-    const baseUrl     = isMobile ? MOBILE_BASE   : DESKTOP_BASE;
-    const framePrefix = isMobile ? MOBILE_PREFIX : DESKTOP_PREFIX;
+    const smoothScroll = useSpring(scrollYProgress, { stiffness: 300, damping: 30, restDelta: 0.001 });
 
-    // Smooth scroll → frame index
-    const frameIndex      = useTransform(scrollYProgress, [0, 1], [1, totalFrames]);
-    const smoothFrameIndex = useSpring(frameIndex, { stiffness: 300, damping: 30, restDelta: 0.001 });
-
-    // Handle resize
     useEffect(() => {
-        const check = () => setIsMobile(window.innerWidth < 768);
-        window.addEventListener("resize", check);
-        return () => window.removeEventListener("resize", check);
-    }, []);
-
-    // Preload images when sequence changes
-    useEffect(() => {
-        setReady(false);
-        imagesRef.current = [];
-
-        const loadedImages: HTMLImageElement[] = [];
-        let firstLoaded = false;
-
-        for (let i = 1; i <= totalFrames; i++) {
-            const img = new Image();
-            img.src = `${baseUrl}${framePrefix}${i.toString().padStart(3, '0')}.jpg`;
-            if (i === 1) {
-                img.onload = () => {
-                    if (!firstLoaded) {
-                        firstLoaded = true;
-                        imagesRef.current = loadedImages;
-                        setReady(true);
-                    }
-                };
-                img.onerror = () => {
-                    console.error('Failed to load frame 1 from:', img.src);
-                };
-            }
-            loadedImages.push(img);
-        }
-    }, [baseUrl, totalFrames, framePrefix]);
-
-    // Canvas drawing
-    useEffect(() => {
-        if (!ready || !canvasRef.current) return;
-
         const canvas = canvasRef.current;
+        const video  = videoRef.current;
+        if (!canvas || !video) return;
+
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
-        const render = (index: number) => {
-            const imgs = imagesRef.current;
-            if (!imgs.length) return;
+        const drawFrame = () => {
+            if (video.readyState < 2) return;
 
-            const imgIndex = Math.min(Math.max(Math.floor(index) - 1, 0), imgs.length - 1);
-            const img = imgs[imgIndex];
-            if (!img || !img.complete || !img.naturalWidth) return;
-
-            const dpr = window.devicePixelRatio || 1;
-            const rect = canvas.getBoundingClientRect();
+            const dpr   = Math.min(window.devicePixelRatio || 1, 2);
+            const rect  = canvas.getBoundingClientRect();
             const targetW = Math.floor(rect.width  * dpr);
             const targetH = Math.floor(rect.height * dpr);
 
@@ -94,39 +32,55 @@ export default function VortexCanvas({ scrollYProgress }: { scrollYProgress: Mot
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // object-cover
+            // object-cover scaling
             const cW = canvas.width, cH = canvas.height;
-            const iW = img.naturalWidth, iH = img.naturalHeight;
+            const iW = video.videoWidth, iH = video.videoHeight;
+            if (!iW || !iH) return;
+
             const cR = cW / cH, iR = iW / iH;
             let dW: number, dH: number, oX: number, oY: number;
-
             if (iR > cR) {
-                dH = cH; dW = cH * iR;
-                oX = (cW - dW) / 2; oY = 0;
+                dH = cH; dW = cH * iR; oX = (cW - dW) / 2; oY = 0;
             } else {
-                dW = cW; dH = cW / iR;
-                oX = 0; oY = (cH - dH) / 2;
+                dW = cW; dH = cW / iR; oX = 0; oY = (cH - dH) / 2;
             }
 
-            ctx.drawImage(img, oX, oY, dW, dH);
+            ctx.drawImage(video, oX, oY, dW, dH);
         };
 
-        // Initial render
-        requestAnimationFrame(() => render(smoothFrameIndex.get()));
+        // Draw whenever video seeks to new frame
+        video.addEventListener("seeked",      drawFrame);
+        video.addEventListener("loadeddata",  drawFrame);
 
-        const unsub = smoothFrameIndex.on("change", render);
+        // Map scroll → video time
+        const unsub = smoothScroll.on("change", (val) => {
+            if (video.duration) {
+                video.currentTime = Math.min(val, 0.9999) * video.duration;
+            }
+        });
 
-        const onResize = () => requestAnimationFrame(() => render(smoothFrameIndex.get()));
+        const onResize = () => drawFrame();
         window.addEventListener("resize", onResize);
 
         return () => {
             unsub();
-            window.removeEventListener("resize", onResize);
+            video.removeEventListener("seeked",     drawFrame);
+            video.removeEventListener("loadeddata", drawFrame);
+            window.removeEventListener("resize",    onResize);
         };
-    }, [ready, smoothFrameIndex]);
+    }, [smoothScroll]);
 
     return (
         <div className="absolute inset-0 z-0">
+            {/* Hidden video — only used as pixel source for canvas */}
+            <video
+                ref={videoRef}
+                src="/video/Web_panel_ai_chip_vortex_delpmaspu_.mp4"
+                preload="auto"
+                muted
+                playsInline
+                style={{ display: "none" }}
+            />
             <canvas ref={canvasRef} className="w-full h-full" />
             <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#00050A] to-transparent pointer-events-none" />
             <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-[#00050A] to-transparent pointer-events-none" />
